@@ -1,0 +1,5 @@
+package conversation
+
+func ValidateStep() {
+
+}
