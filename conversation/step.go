@@ -8,4 +8,4 @@ type Step struct {
 
 // Getters
 func (step *Step) Name() string { return step.name }
-func (step *Step) Next() string { return step.next }
+func (step *Step) Next() []*Step { return step.next }

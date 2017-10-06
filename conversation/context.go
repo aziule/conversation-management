@@ -4,8 +4,8 @@ type Context struct {
 	currentStep *Step
 }
 
-func GetContext(user *User) (*Context, error) {
-
+func getContext(user User) (*Context, error) {
+	return nil, nil
 }
 
 // Getters

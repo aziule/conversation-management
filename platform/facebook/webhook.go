@@ -5,6 +5,7 @@ import (
 	"time"
 	"fmt"
 	"github.com/aziule/conversation-management/nlu"
+	"github.com/aziule/conversation-management/conversation"
 )
 
 // When a new message is received from the user
@@ -20,11 +21,18 @@ func MessageReceived(w http.ResponseWriter, r *http.Request) {
 	}
 
 	parser := &nlu.Parser{}
+	parsed, _ := parser.ParseText(m.Text)
 
-	p, _ := parser.ParseText(m.Text)
+	user := &FacebookUser{
+		uuid: "uuid",
+		fbid: "fbid",
+		name: "Raoul",
+	}
+
+	conversation.Progress(user, parsed)
 
 	fmt.Println(m)
-	fmt.Println(p)
-	fmt.Println(p.Intent())
-	fmt.Println(p.Entity())
+	fmt.Println(parsed)
+	fmt.Println(parsed.Intent())
+	fmt.Println(parsed.Entity())
 }
