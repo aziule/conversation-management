@@ -4,17 +4,20 @@ import (
 	"net/http"
 	"time"
 	"fmt"
-	"github.com/aziule/conversation-management/nlu"
-	"github.com/aziule/conversation-management/conversation"
-	"github.com/aziule/conversation-management/test/data"
 	"net/url"
 	"errors"
 	"io/ioutil"
+
+	"github.com/aziule/conversation-management/nlu"
+	"github.com/aziule/conversation-management/conversation"
+	"github.com/aziule/conversation-management/test/data"
 	"github.com/antonholmquist/jason"
+	"github.com/aziule/conversation-management/bot"
 )
 
 // When a new message is received from the user
 func MessageReceived(w http.ResponseWriter, r *http.Request) {
+	bot := bot.NewFacebookBot()
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 
