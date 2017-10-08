@@ -6,15 +6,13 @@ import (
 )
 
 // The main Bot structure
-type bot struct {
+type Bot struct {
 	uuid string
-	platform platform.Platform
 	entrypoint *conversation.Entrypoint
 	webhooks []*Webhook
 }
 
 // Getters
-func (bot *bot) Uuid() string { return bot.uuid }
-func (bot *bot) Platform() platform.Platform { return bot.platform }
-func (bot *bot) Entrypoint() *conversation.Entrypoint { return bot.entrypoint }
-func (bot *bot) Webhooks() []*Webhook { return bot.webhooks }
+func (bot *Bot) Uuid() string { return bot.uuid }
+func (bot *Bot) Entrypoint() *conversation.Entrypoint { return bot.entrypoint }
+func (bot *Bot) Webhooks() []*Webhook { return bot.webhooks }

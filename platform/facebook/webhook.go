@@ -8,16 +8,13 @@ import (
 	"errors"
 	"io/ioutil"
 
-	"github.com/aziule/conversation-management/nlu"
-	"github.com/aziule/conversation-management/conversation"
 	"github.com/aziule/conversation-management/test/data"
 	"github.com/antonholmquist/jason"
-	"github.com/aziule/conversation-management/bot"
 )
 
 // When a new message is received from the user
 func MessageReceived(w http.ResponseWriter, r *http.Request) {
-	bot := bot.NewFacebookBot()
+	//bot := bot.NewFacebookBot()
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 
@@ -40,14 +37,16 @@ func MessageReceived(w http.ResponseWriter, r *http.Request) {
 		"This is the text",
 	}
 
-	parser := &nlu.Parser{}
-	parsed, _ := parser.ParseText(m.Text)
+	fmt.Println(m)
 
-	user := &FacebookUser{
-		uuid: "uuid",
-		fbid: "fbid",
-		name: "Raoul",
-	}
+	//parser := &nlu.Parser{}
+	//parsed, _ := parser.ParseText(m.Text)
+	//
+	//user := &FacebookUser{
+	//	uuid: "uuid",
+	//	fbid: "fbid",
+	//	name: "Raoul",
+	//}
 
 	entrypoint := data.GetDummyEntrypoint()
 
@@ -55,7 +54,7 @@ func MessageReceived(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(startingStep.Name())
 	}
 
-	conversation.Progress(user, parsed)
+	//conversation.Progress(user, parsed)
 }
 
 // Try to validate the Facebook webhook

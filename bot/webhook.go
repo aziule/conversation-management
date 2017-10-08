@@ -8,5 +8,5 @@ type Webhook struct {
 }
 
 // Getters
-func (webhook *Webhook) Method() { return webhook.method }
-func (webhook *Webhook) Handler() { return webhook.handler }
+func (webhook *Webhook) Method() string { return webhook.method }
+func (webhook *Webhook) Handler() func(http.ResponseWriter, *http.Request) { return webhook.handler }
