@@ -10,7 +10,8 @@ import (
 func main() {
 	r := chi.NewRouter()
 
-	r.Get("/", facebook.MessageReceived)
+	r.Get("/", facebook.ValidateWebhook)
+	r.Post("/", facebook.MessageReceived)
 
 	http.ListenAndServe(":3000", r)
 }
