@@ -1,7 +1,7 @@
 package main
 
 type Config struct {
-	BotUuid string
+	BotVersion float32
 	Port int
 	FbVerifyToken string
 }

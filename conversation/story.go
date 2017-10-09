@@ -1,12 +1,12 @@
 package conversation
 
-// Story are the entry points to a given task
+// Story is the entry point to a given task
 type Story struct {
 	name string
 	startingSteps []*Step
 }
 
-// Constructor method
+// NewStory is the constructor method
 func NewStory(name string, startingSteps []*Step) *Story {
 	return &Story{
 		name: name,
