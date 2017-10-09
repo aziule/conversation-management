@@ -7,7 +7,7 @@ import (
 	"github.com/aziule/conversation-management/conversation/message"
 )
 
-// When a new message is received from the user
+// ReceiveMessage is called when a new message is sent by the user to the page
 func ReceiveMessage(w http.ResponseWriter, r *http.Request) {
 	//bot := bot.NewFacebookBot()
 	body, err := ioutil.ReadAll(r.Body)

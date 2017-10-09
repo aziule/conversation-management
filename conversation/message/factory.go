@@ -20,7 +20,6 @@ func NewMessageFromJson(bytes []byte) (*Message, error) {
 	entries, err := json.GetObjectArray("entry")
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, errors.New("Missing entry key")
 	}
 
@@ -33,7 +32,6 @@ func NewMessageFromJson(bytes []byte) (*Message, error) {
 	messaging, err := entry.GetObjectArray("messaging")
 
 	if err != nil {
-		fmt.Println(err)
 		return nil, errors.New("Missing messaging key")
 	}
 
