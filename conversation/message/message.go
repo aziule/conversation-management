@@ -1,30 +1,21 @@
-package conversation
+package message
 
 import "time"
 
-type message struct {
+// Message is the base struct for messages
+type Message struct {
+	mid string
 	senderId string
 	recipientId string
 	sentAt time.Time
-	mid string
-}
-
-type textMessage struct {
-	message
 	text string
-}
-
-type quickReplyMessage struct {
-	textMessage
-	payload string
+	quickReplyPayload string
 }
 
 // Getters
-func (m *message) SenderId() string { return m.senderId }
-func (m *message) RecipientId() string { return m.recipientId }
-func (m *message) SentAt() time.Time { return m.sentAt }
-func (m *message) Mid() string { return m.mid }
-
-func (m *textMessage) Text() string { return m.text }
-
-func (m *quickReplyMessage) Payload() string { return m.payload }
+func (m *Message) SenderId() string { return m.senderId }
+func (m *Message) RecipientId() string { return m.recipientId }
+func (m *Message) SentAt() time.Time { return m.sentAt }
+func (m *Message) Mid() string { return m.mid }
+func (m *Message) Text() string { return m.text }
+func (m *Message) QuickReplyPayload() string { return m.quickReplyPayload }
