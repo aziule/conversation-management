@@ -13,7 +13,6 @@ type facebookBot struct {
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
 func NewFacebookBot(config *core.Config) core.Bot {
-
 	return &facebookBot{
 		pageAccessToken: config.FbPageAccessToken,
 		fbApi: NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),

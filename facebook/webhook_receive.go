@@ -17,6 +17,9 @@ func HandleMessageReceived(w http.ResponseWriter, r *http.Request) {
 	}
 
 	message, err := NewMessageFromJson(body)
+
+	// @todo: handle error here
+
 	fmt.Println(message)
 	fmt.Println(message.SenderId())
 	fmt.Println(message.RecipientId())

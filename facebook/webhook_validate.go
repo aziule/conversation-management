@@ -1,12 +1,13 @@
 package facebook
 
 import (
+	"errors"
 	"net/url"
 	"net/http"
-	"errors"
 )
 
-// Validate tries to validate the Facebook webhook
+// @todo: use a custom handler that passes the bot as well
+// HandleValidateWebhook tries to validate the Facebook webhook
 // More information here: https://developers.facebook.com/docs/messenger-platform/getting-started/quick-start
 func HandleValidateWebhook(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()

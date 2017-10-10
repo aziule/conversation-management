@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -26,6 +27,7 @@ func main() {
 	r := chi.NewRouter()
 
 	for _, webhook := range bot.Webhooks() {
+		fmt.Println(webhook.Method(), webhook.Path())
 		switch webhook.Method() {
 		case core.HTTP_METHOD_GET:
 			r.Get(webhook.Path(), webhook.Handler())
@@ -34,5 +36,6 @@ func main() {
 		}
 	}
 
+	fmt.Println("Listening on port", config.ListeningPort)
 	http.ListenAndServe(":" + strconv.Itoa(config.ListeningPort), r)
 }
