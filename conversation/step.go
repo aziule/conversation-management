@@ -22,7 +22,7 @@ func NewStep(name string, next []*Step) *Step {
 func (step *Step) Name() string { return step.name }
 func (step *Step) Next() []*Step { return step.next }
 func (step *Step) ExpectedIntent() *nlu.Intent { return step.expectedIntent }
-func (step *Step) ExpectedEntities() *nlu.Entity { return step.expectedEntities }
+func (step *Step) ExpectedEntities() []*nlu.Entity { return step.expectedEntities }
 
 // IsExpectingIntent will tell us if the step is expecting an intent in order to be valid
 func (step *Step) IsExpectingIntent() bool {

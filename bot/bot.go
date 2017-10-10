@@ -1,18 +1,29 @@
 package bot
 
-import "github.com/aziule/conversation-management/conversation"
+import (
+	"github.com/aziule/conversation-management/conversation"
+	"github.com/aziule/conversation-management/facebook"
+)
 
 // Bot is the main structure
 type Bot struct {
-	version float32
+	pageAccessToken string
+	fbApi *facebook.FacebookApi
+}
+
+// NewBot is the constructor method
+func NewBot() *Bot {
+	return &Bot{
+		pageAccessToken: "EAALQ00uMgf8BAHnz4y711RUBOQyiQrUpy4ZAIXeXvL4L0mIZAZCq6WXKZBnwwhT8Xfw2So5DZABaRSfxjuO97mdQklTxZCdZATKFH7xvJ5VEwqsCyQRTXh9yTq9ZBSGATaSZCSsS7xhv3TeHvFyx5s0xcQ88BxiZBqmv8zPFRcTX9iJAZDZD",
+	}
 }
 
 // Getters
-func (bot *Bot) Version() int { return bot.version }
+func (bot *Bot) PageAccessToken() string { return bot.pageAccessToken }
 
-// GetBot returns the current bot
-func GetBot() (*Bot, error) {
-	return nil, nil
+// SentText sends text to a given user
+func (bot *Bot) sendText(text string, user *conversation.User) error {
+	return nil
 }
 
 // LoadStories loads the base stories of the bot

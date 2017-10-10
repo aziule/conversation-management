@@ -9,10 +9,10 @@ func (parser *Parser) ParseText(text string) (*ParsedText, error) {
 	return &ParsedText{
 		originalText: text,
 		intent: &Intent{
-			uuid: "intent_name",
+			name: "intent_name",
 		},
 		entity: &Entity{
-			uuid: "entity_name",
+			name: "entity_name",
 			value: "entity_value",
 		},
 	}, nil
