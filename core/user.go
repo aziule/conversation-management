@@ -1,4 +1,4 @@
-package conversation
+package core
 
 // Our main User struct
 type User struct {

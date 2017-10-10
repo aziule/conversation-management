@@ -1,4 +1,4 @@
-package conversation
+package core
 
 import "github.com/aziule/conversation-management/nlu"
 

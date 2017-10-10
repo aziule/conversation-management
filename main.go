@@ -1,30 +1,38 @@
 package main
 
 import (
+	"flag"
 	"net/http"
+	"strconv"
 
-	"github.com/go-chi/chi"
-	"github.com/aziule/conversation-management/bot"
-	//"github.com/aziule/conversation-management/facebook"
+	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/facebook"
+	"github.com/go-chi/chi"
 )
+
+var configFlagPath = flag.String("config", "config.json", "Config file path")
 
 func main() {
-	r := chi.NewRouter()
+	flag.Parse()
 
-	b := bot.NewBot()
-
-	r.Get("/", b.HandleValidateWebhook)
-	r.Post("/", b.HandleMessageReceived)
-api := facebook.NewFacebookApi(
-	"2.6",
-	"EAALQ00uMgf8BACxsTu75poGIqpkEtepvAZAZCzbuZC8TfQDv6wbZAFjWAjhaV0XwS7lNFcyZC8OrOe1AQrGeAFiCCIU683DekRRmDEy3B6EFsRshNsx8tP9SPusNcJ0Cty3Qt2HedwCUihFShFPbHXP5qZAuZBXCPAorZCNLGR8tAgZDZD",
-	http.DefaultClient,
-)
-	err := api.SendTextToUser("1429733950458154", "HEY")
+	config, err := core.LoadConfig(*configFlagPath)
 
 	if err != nil {
 		panic(err)
 	}
-	http.ListenAndServe(":3000", r)
+
+	bot := facebook.NewFacebookBot(config)
+
+	r := chi.NewRouter()
+
+	for _, webhook := range bot.Webhooks() {
+		switch webhook.Method() {
+		case core.HTTP_METHOD_GET:
+			r.Get(webhook.Path(), webhook.Handler())
+		case core.HTTP_METHOD_POST:
+			r.Get(webhook.Path(), webhook.Handler())
+		}
+	}
+
+	http.ListenAndServe(":" + strconv.Itoa(config.ListeningPort), r)
 }
