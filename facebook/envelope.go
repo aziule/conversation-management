@@ -1,38 +1,44 @@
 package facebook
 
+// recipientEnvelope is the envelope for a recipient
 type recipientEnvelope struct {
-	id string
+	Id string `json:"id"`
 }
 
-func newRecipientEnvelope(recipientId string) *recipientEnvelope {
-	return &recipientEnvelope{
-		id: recipientId,
-	}
-}
-
+// messageEnvelope represents the envelope for a message with text
 type messageEnvelope struct {
-	text string
-}
-
-func newMessageEnvelope(text string) *messageEnvelope {
-	return &messageEnvelope{
-		text: text,
-	}
+	Text string `json:"text"`
 }
 
 // textToUserEnvelope is the JSON envelope that needs to be sent
 type textToUserEnvelope struct {
-	recipient *recipientEnvelope `json:"recipient"`
-	message *messageEnvelope
+	Recipient *recipientEnvelope `json:"recipient"`
+	Message *messageEnvelope `json:"message"`
 }
 
+// newRecipientEnvelope is the constructor for a recipientEnvelope
+func newRecipientEnvelope(recipientId string) *recipientEnvelope {
+	return &recipientEnvelope{
+		Id: recipientId,
+	}
+}
+
+// newMessageEnvelope is the constructor for a messageEnvelope
+func newMessageEnvelope(text string) *messageEnvelope {
+	return &messageEnvelope{
+		Text: text,
+	}
+}
+
+
+// newTextToUserEnvelope is the constructor for a textToUserEnvelope
 func newTextToUserEnvelope(recipientId, text string) *textToUserEnvelope {
 	return &textToUserEnvelope{
-		recipient: &recipientEnvelope{
-			id: recipientId,
+		Recipient: &recipientEnvelope{
+			Id: recipientId,
 		},
-		message: &messageEnvelope{
-			text: text,
+		Message: &messageEnvelope{
+			Text: text,
 		},
 	}
 }
