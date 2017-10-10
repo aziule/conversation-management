@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
+	"net/url"
 )
 
 // FacebookApi is the interface that we will use for any API call needed to do on Facebook
@@ -17,6 +18,16 @@ type FacebookApi interface {
 type facebookApi struct {
 	version string
 	pageAccessToken string
+	client *http.Client
+}
+
+// NewFacebookApi is the factory method to create a new facebook api implementation
+func NewFacebookApi(version, pageAccessToken string, client *http.Client) FacebookApi {
+	return &facebookApi{
+		version: version,
+		pageAccessToken: pageAccessToken,
+		client: client,
+	}
 }
 
 // Getters
@@ -24,16 +35,16 @@ func (api *facebookApi) Version() string { return api.version }
 func (api *facebookApi) PageAccessToken() string { return api.pageAccessToken }
 
 // getBaseUrl returns the base url for a Facebook graph API call
-func (api *facebookApi) getBaseUrl() string {
-	return fmt.Sprintf("https://graph.facebook.com/v%s", api.Version())
-}
+func (api *facebookApi) getBaseUrl() *url.URL {
+	rawUrl := "https://graph.facebook.com/v" + api.Version()
+	u, err := url.Parse(rawUrl)
 
-// NewFacebookApi is the factory method to create a new facebook api implementation
-func NewFacebookApi(version, pageAccessToken string) FacebookApi {
-	return &facebookApi{
-		version: version,
-		pageAccessToken: pageAccessToken,
+	if err != nil {
+		// @todo improve
+		panic(err)
 	}
+
+	return u
 }
 
 // SendTextToUser is the FacebookApi's interface method responsible for sending a 1-to-1 message to a user
@@ -48,7 +59,7 @@ func (api *facebookApi) SendTextToUser(recipientId, text string) error {
 		return err
 	}
 
-	request, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonObject))
+	request, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonObject))
 	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
@@ -74,12 +85,15 @@ func (api *facebookApi) SendTextToUser(recipientId, text string) error {
 }
 
 // getSendTextUrl returns the url to ping to send text messages to a user
-func (api *facebookApi) getSendTextUrl() string {
-	var buffer bytes.Buffer
+func (api *facebookApi) getSendTextUrl() *url.URL {
+	baseUrl := api.getBaseUrl()
 
-	buffer.WriteString(api.getBaseUrl())
-	buffer.WriteString("/me/messages?access_token=")
-	buffer.WriteString(api.pageAccessToken)
+	u, _ := url.Parse(baseUrl.String() + "/me/messages")
 
-	return buffer.String()
+	q := u.Query()
+	q.Set("access_token", api.pageAccessToken)
+
+	u.RawQuery = q.Encode()
+
+	return u
 }

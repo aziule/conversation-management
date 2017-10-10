@@ -16,7 +16,11 @@ func main() {
 
 	r.Get("/", b.HandleValidateWebhook)
 	r.Post("/", b.HandleMessageReceived)
-api := facebook.NewFacebookApi("2.6", "EAALQ00uMgf8BAHnz4y711RUBOQyiQrUpy4ZAIXeXvL4L0mIZAZCq6WXKZBnwwhT8Xfw2So5DZABaRSfxjuO97mdQklTxZCdZATKFH7xvJ5VEwqsCyQRTXh9yTq9ZBSGATaSZCSsS7xhv3TeHvFyx5s0xcQ88BxiZBqmv8zPFRcTX9iJAZDZD")
+api := facebook.NewFacebookApi(
+	"2.6",
+	"EAALQ00uMgf8BACxsTu75poGIqpkEtepvAZAZCzbuZC8TfQDv6wbZAFjWAjhaV0XwS7lNFcyZC8OrOe1AQrGeAFiCCIU683DekRRmDEy3B6EFsRshNsx8tP9SPusNcJ0Cty3Qt2HedwCUihFShFPbHXP5qZAuZBXCPAorZCNLGR8tAgZDZD",
+	http.DefaultClient,
+)
 	err := api.SendTextToUser("1429733950458154", "HEY")
 
 	if err != nil {
