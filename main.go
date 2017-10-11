@@ -32,7 +32,7 @@ func main() {
 		case core.HTTP_METHOD_GET:
 			r.Get(webhook.Path(), webhook.Handler())
 		case core.HTTP_METHOD_POST:
-			r.Get(webhook.Path(), webhook.Handler())
+			r.Post(webhook.Path(), webhook.Handler())
 		}
 	}
 
