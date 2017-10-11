@@ -7,7 +7,9 @@ import (
 	"strconv"
 
 	"github.com/aziule/conversation-management/core"
+	"github.com/aziule/conversation-management/core/nlu"
 	"github.com/aziule/conversation-management/facebook"
+	rasa_nlu "github.com/aziule/conversation-management/nlu"
 	"github.com/go-chi/chi"
 )
 
@@ -24,10 +26,14 @@ func main() {
 
 	bot := facebook.NewFacebookBot(config)
 
+	nlu.RegisterFactory("rasa", rasa_nlu.NewRasaNluParser)
+
 	r := chi.NewRouter()
 
+	// Automatically set the bot's webhooks routes
 	for _, webhook := range bot.Webhooks() {
 		fmt.Println(webhook.Method(), webhook.Path())
+
 		switch webhook.Method() {
 		case core.HTTP_METHOD_GET:
 			r.Get(webhook.Path(), webhook.Handler())
