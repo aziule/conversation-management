@@ -1,21 +1,21 @@
 package facebook
 
 import (
-	"net/http"
 	"github.com/aziule/conversation-management/core"
+	"net/http"
 )
 
 // Bot is the main structure
 type facebookBot struct {
 	pageAccessToken string
-	fbApi *FacebookApi
+	fbApi           *FacebookApi
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
 func NewFacebookBot(config *core.Config) core.Bot {
 	return &facebookBot{
 		pageAccessToken: config.FbPageAccessToken,
-		fbApi: NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
+		fbApi:           NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 	}
 }
 

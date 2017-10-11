@@ -37,5 +37,5 @@ func main() {
 	}
 
 	fmt.Println("Listening on port", config.ListeningPort)
-	http.ListenAndServe(":" + strconv.Itoa(config.ListeningPort), r)
+	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), r)
 }

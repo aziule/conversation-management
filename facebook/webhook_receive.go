@@ -1,8 +1,8 @@
 package facebook
 
 import (
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 

@@ -1,15 +1,15 @@
 package core
 
 import (
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
 )
 
 // Config is the struct that will hold the runtime configuration
 type Config struct {
-	ListeningPort int `json:"listening_port"`
-	FbVerifyToken string `json:"fb_verify_token"`
-	FbApiVersion string `json:"fb_api_version"`
+	ListeningPort     int    `json:"listening_port"`
+	FbVerifyToken     string `json:"fb_verify_token"`
+	FbApiVersion      string `json:"fb_api_version"`
 	FbPageAccessToken string `json:"fb_page_access_token"`
 }
 

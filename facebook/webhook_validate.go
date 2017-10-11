@@ -2,8 +2,8 @@ package facebook
 
 import (
 	"errors"
-	"net/url"
 	"net/http"
+	"net/url"
 )
 
 // @todo: use a custom handler that passes the bot as well
@@ -12,20 +12,20 @@ import (
 func HandleValidateWebhook(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 
-	hubMode, err := getSingleQueryParam(queryParams, "hub.mode");
+	hubMode, err := getSingleQueryParam(queryParams, "hub.mode")
 
 	if err != nil || hubMode != "subscribe" {
 		return
 	}
 
-	verifyToken, err := getSingleQueryParam(queryParams, "hub.verify_token");
+	verifyToken, err := getSingleQueryParam(queryParams, "hub.verify_token")
 
 	// @todo: use config here
 	if err != nil || verifyToken != "app_verify_token" {
 		return
 	}
 
-	challenge, err := getSingleQueryParam(queryParams, "hub.challenge");
+	challenge, err := getSingleQueryParam(queryParams, "hub.challenge")
 
 	if err != nil {
 		return
@@ -39,7 +39,7 @@ func HandleValidateWebhook(w http.ResponseWriter, r *http.Request) {
 func getSingleQueryParam(values url.Values, key string) (string, error) {
 	params, ok := values[key]
 
-	if (!ok || len(params) != 1) {
+	if !ok || len(params) != 1 {
 		return "", errors.New("Could not fetch param")
 	}
 

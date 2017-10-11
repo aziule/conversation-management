@@ -13,7 +13,7 @@ type messageEnvelope struct {
 // textToUserEnvelope is the JSON envelope that needs to be sent
 type textToUserEnvelope struct {
 	Recipient *recipientEnvelope `json:"recipient"`
-	Message *messageEnvelope `json:"message"`
+	Message   *messageEnvelope   `json:"message"`
 }
 
 // newRecipientEnvelope is the constructor for a recipientEnvelope
@@ -29,7 +29,6 @@ func newMessageEnvelope(text string) *messageEnvelope {
 		Text: text,
 	}
 }
-
 
 // newTextToUserEnvelope is the constructor for a textToUserEnvelope
 func newTextToUserEnvelope(recipientId, text string) *textToUserEnvelope {

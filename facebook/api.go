@@ -1,34 +1,34 @@
 package facebook
 
 import (
-	"fmt"
 	"bytes"
-	"net/http"
-	"io/ioutil"
 	"encoding/json"
-	"net/url"
+	"fmt"
 	"github.com/aziule/conversation-management/core"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 )
 
 // facebookApi is the real-world implementation of the API
 type FacebookApi struct {
-	version string
+	version         string
 	pageAccessToken string
-	client *http.Client
-	webhooks []*core.Webhook
+	client          *http.Client
+	webhooks        []*core.Webhook
 }
 
 // NewFacebookApi is the factory method to create a new facebook api implementation
 func NewFacebookApi(version, pageAccessToken string, client *http.Client) *FacebookApi {
 	return &FacebookApi{
-		version: version,
+		version:         version,
 		pageAccessToken: pageAccessToken,
-		client: client,
+		client:          client,
 	}
 }
 
 // Getters
-func (api *FacebookApi) Version() string { return api.version }
+func (api *FacebookApi) Version() string         { return api.version }
 func (api *FacebookApi) PageAccessToken() string { return api.pageAccessToken }
 
 // getBaseUrl returns the base url for a Facebook graph API call
