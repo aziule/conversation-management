@@ -1,6 +1,8 @@
 package core
 
-import "github.com/aziule/conversation-management/nlu"
+import (
+	"github.com/aziule/conversation-management/core/nlu"
+)
 
 // Step is a structure acting as a link between other steps in a given Story
 type Step struct {

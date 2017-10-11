@@ -1,6 +1,6 @@
 package core
 
-import "github.com/aziule/conversation-management/nlu"
+import "github.com/aziule/conversation-management/core/nlu"
 
 //type expectation interface {
 //	IsMet() bool
