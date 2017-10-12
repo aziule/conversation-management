@@ -7,10 +7,6 @@ import (
 	"net/http"
 )
 
-const (
-	BOT_PLATFORM bot.Platform = "facebook"
-)
-
 // Bot is the main structure
 type facebookBot struct {
 	pageAccessToken string
