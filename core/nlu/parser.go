@@ -34,7 +34,7 @@ func (parsedText *ParsedText) OriginalText() string { return parsedText.original
 func (parsedText *ParsedText) Intent() *Intent      { return parsedText.intent }
 func (parsedText *ParsedText) Entities() []*Entity  { return parsedText.entities }
 
-// ParserFactory is the main factory interface used to instantiate new Parser implementations
+// ParserFactory is the main factory func used to instantiate new Parser implementations
 type ParserFactory func(*core.Config) Parser
 
 // RegisterFactory allows us to register factory methods for creating new parsers

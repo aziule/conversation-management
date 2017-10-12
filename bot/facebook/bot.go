@@ -15,11 +15,11 @@ type facebookBot struct {
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
-func NewFacebookBot(config *core.Config, nluParser nlu.Parser) bot.Bot {
+func NewFacebookBot(config *core.Config) bot.Bot {
 	return &facebookBot{
 		pageAccessToken: config.FbPageAccessToken,
 		fbApi:           NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
-		nluParser:       nluParser,
+		nluParser:       nlu.NewParserFromConfig(config),
 	}
 }
 

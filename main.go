@@ -25,9 +25,10 @@ func main() {
 		panic(err)
 	}
 
+	bot.RegisterFactory(bot.PLATFORM_FACEBOOK, facebook.NewFacebookBot)
 	nlu.RegisterFactory("rasa_nlu", rasa.NewRasaNluParser)
-	nluParser := nlu.NewParserFromConfig(config)
-	b := facebook.NewFacebookBot(config, nluParser) // @todo: use a BotFactory
+
+	b := bot.NewBotFromConfig(bot.PLATFORM_FACEBOOK, config)
 
 	r := chi.NewRouter()
 
