@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"github.com/aziule/conversation-management/bot/facebook/step"
 )
 
 // HandleMessageReceived is called when a new message is sent by the user to the page
@@ -18,6 +19,7 @@ func HandleMessageReceived(w http.ResponseWriter, r *http.Request) {
 
 	message, err := NewMessageFromJson(body)
 	// @todo: handle error here
+	step.HandleStep("step1")
 
 	fmt.Println(message)
 	fmt.Println(message.SenderId())
