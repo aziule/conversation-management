@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/aziule/conversation-management/core"
+	"github.com/aziule/conversation-management/core/bot"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -15,7 +15,7 @@ type FacebookApi struct {
 	version         string
 	pageAccessToken string
 	client          *http.Client
-	webhooks        []*core.Webhook
+	webhooks        []*bot.Webhook
 }
 
 // NewFacebookApi is the factory method to create a new facebook api implementation

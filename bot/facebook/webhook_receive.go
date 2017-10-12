@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// ReceiveMessage is called when a new message is sent by the user to the page
+// HandleMessageReceived is called when a new message is sent by the user to the page
 func HandleMessageReceived(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -17,7 +17,6 @@ func HandleMessageReceived(w http.ResponseWriter, r *http.Request) {
 	}
 
 	message, err := NewMessageFromJson(body)
-
 	// @todo: handle error here
 
 	fmt.Println(message)

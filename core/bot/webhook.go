@@ -1,6 +1,8 @@
-package core
+package bot
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type HttpMethod string
 
