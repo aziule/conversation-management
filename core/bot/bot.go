@@ -5,12 +5,8 @@ import (
 	"github.com/aziule/conversation-management/core"
 )
 
-// Platform represents the available platforms for a given Bot
+// Platform represents a platform where a Bot will be deployed
 type Platform string
-
-const (
-	PLATFORM_FACEBOOK Platform = "facebook" // Is a bot on Facebook
-)
 
 var (
 	botFactories = make(map[Platform]BotFactory) // The list of available factories

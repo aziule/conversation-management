@@ -25,10 +25,10 @@ func main() {
 		panic(err)
 	}
 
-	bot.RegisterFactory(bot.PLATFORM_FACEBOOK, facebook.NewFacebookBot)
+	bot.RegisterFactory(facebook.BOT_PLATFORM, facebook.NewFacebookBot)
 	nlu.RegisterFactory("rasa_nlu", rasa.NewRasaNluParser)
 
-	b := bot.NewBotFromConfig(bot.PLATFORM_FACEBOOK, config)
+	b := bot.NewBotFromConfig(facebook.BOT_PLATFORM, config)
 
 	r := chi.NewRouter()
 
