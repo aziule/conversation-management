@@ -1,10 +1,10 @@
-package nlu
+package rasa
 
 import (
 	"net/http"
 
 	"github.com/aziule/conversation-management/core/nlu"
-	"github.com/aziule/dev-board/config"
+	"github.com/aziule/conversation-management/core"
 )
 
 // RasaNluParser is the Rasa NLU implementation of the core/nlu/Parser
@@ -13,7 +13,7 @@ type RasaNluParser struct {
 }
 
 // NewRasaNluParser is the constructor method for RasaNluParser
-func NewRasaNluParser(config *config.Config) nlu.Parser {
+func NewRasaNluParser(config *core.Config) nlu.Parser {
 	return &RasaNluParser{
 		client: http.DefaultClient,
 	}

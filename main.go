@@ -8,8 +8,8 @@ import (
 
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/nlu"
-	"github.com/aziule/conversation-management/facebook"
-	rasa_nlu "github.com/aziule/conversation-management/nlu"
+	"github.com/aziule/conversation-management/bot/facebook"
+	"github.com/aziule/conversation-management/nlu/rasa"
 	"github.com/go-chi/chi"
 )
 
@@ -26,7 +26,7 @@ func main() {
 
 	bot := facebook.NewFacebookBot(config)
 
-	nlu.RegisterFactory("rasa", rasa_nlu.NewRasaNluParser)
+	nlu.RegisterFactory("rasa_nlu", rasa.NewRasaNluParser)
 
 	r := chi.NewRouter()
 

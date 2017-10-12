@@ -1,4 +1,4 @@
-package core
+package conversation
 
 // Story is the entry point to a given task
 type Story struct {

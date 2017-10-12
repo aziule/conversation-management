@@ -1,6 +1,8 @@
 package nlu
 
-import "github.com/aziule/dev-board/config"
+import (
+	"github.com/aziule/conversation-management/core"
+)
 
 var (
 	parserFactories = make(map[string]ParserFactory) // The list of available factories
@@ -32,8 +34,8 @@ func (parsedText *ParsedText) OriginalText() string { return parsedText.original
 func (parsedText *ParsedText) Intent() *Intent      { return parsedText.intent }
 func (parsedText *ParsedText) Entities() []*Entity  { return parsedText.entities }
 
-// ParserFactory is the main factory interface used to instanciate new Parser implementations
-type ParserFactory func(*config.Config) Parser
+// ParserFactory is the main factory interface used to instantiate new Parser implementations
+type ParserFactory func(*core.Config) Parser
 
 // RegisterFactory allows us to register factory methods for creating new parsers
 func RegisterFactory(name string, factory ParserFactory) {
@@ -48,4 +50,9 @@ func RegisterFactory(name string, factory ParserFactory) {
 	}
 
 	parserFactories[name] = factory
+}
+
+// NewParserFromConfig instantiates the correct Parser service given the configuration
+func NewParserFromConfig(config *core.Config) Parser {
+	return parserFactories[config.NluService](config)
 }
