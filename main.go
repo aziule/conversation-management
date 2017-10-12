@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/aziule/conversation-management/bot/facebook"
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/nlu"
-	"github.com/aziule/conversation-management/bot/facebook"
 	"github.com/aziule/conversation-management/nlu/rasa"
 	"github.com/go-chi/chi"
 )

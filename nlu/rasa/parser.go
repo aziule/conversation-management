@@ -3,8 +3,8 @@ package rasa
 import (
 	"net/http"
 
-	"github.com/aziule/conversation-management/core/nlu"
 	"github.com/aziule/conversation-management/core"
+	"github.com/aziule/conversation-management/core/nlu"
 )
 
 // RasaNluParser is the Rasa NLU implementation of the core/nlu/Parser
