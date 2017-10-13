@@ -2,9 +2,9 @@ package facebook
 
 import (
 	"fmt"
+	"github.com/aziule/conversation-management/bot/facebook/step"
 	"io/ioutil"
 	"net/http"
-	"github.com/aziule/conversation-management/bot/facebook/step"
 )
 
 // HandleMessageReceived is called when a new message is sent by the user to the page

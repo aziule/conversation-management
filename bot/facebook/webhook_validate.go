@@ -19,8 +19,7 @@ func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Req
 
 	verifyToken, err := getSingleQueryParam(queryParams, "hub.verify_token")
 
-	// @todo: use config here
-	if err != nil || verifyToken != "app_verify_token" {
+	if err != nil || verifyToken != bot.VerifyToken() {
 		return
 	}
 

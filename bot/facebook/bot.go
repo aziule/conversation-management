@@ -10,6 +10,7 @@ import (
 // Bot is the main structure
 type facebookBot struct {
 	pageAccessToken string
+	verifyToken     string
 	fbApi           *FacebookApi
 	nluParser       nlu.Parser
 }
@@ -18,6 +19,7 @@ type facebookBot struct {
 func NewFacebookBot(config *core.Config) bot.Bot {
 	return &facebookBot{
 		pageAccessToken: config.FbPageAccessToken,
+		verifyToken:     config.FbVerifyToken,
 		fbApi:           NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 		nluParser:       nlu.NewParserFromConfig(config),
 	}
@@ -43,4 +45,6 @@ func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
 }
 
 // Getters
-func (facebookBot *facebookBot) NluParser() nlu.Parser { return facebookBot.nluParser }
+func (facebookBot *facebookBot) NluParser() nlu.Parser   { return facebookBot.nluParser }
+func (facebookBot *facebookBot) PageAccessToken() string { return facebookBot.pageAccessToken }
+func (facebookBot *facebookBot) VerifyToken() string     { return facebookBot.verifyToken }

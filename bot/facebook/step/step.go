@@ -8,7 +8,7 @@ type StepHandlerFunc func()
 var stepHandlers = map[string]StepHandlerFunc{}
 
 // StepHandler represents an interface that will be used to handle a specific step
-type StepHandler struct {}
+type StepHandler struct{}
 
 // is where we register our static Facebook step handlers for now
 func init() {
@@ -20,7 +20,7 @@ func init() {
 func HandleStep(name string) error {
 	stepHandlerFunc, available := stepHandlers[name]
 
-	if ! available {
+	if !available {
 		// @todo: better handling of errors
 		return errors.New("The step could not be handled")
 	}
