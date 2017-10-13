@@ -6,10 +6,9 @@ import (
 	"net/url"
 )
 
-// @todo: use a custom handler that passes the bot as well
 // HandleValidateWebhook tries to validate the Facebook webhook
 // More information here: https://developers.facebook.com/docs/messenger-platform/getting-started/quick-start
-func HandleValidateWebhook(w http.ResponseWriter, r *http.Request) {
+func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 
 	hubMode, err := getSingleQueryParam(queryParams, "hub.mode")

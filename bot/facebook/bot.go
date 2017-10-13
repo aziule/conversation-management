@@ -30,13 +30,13 @@ func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
 	webhooks = append(webhooks, bot.NewWebHook(
 		bot.HTTP_METHOD_GET,
 		"/",
-		HandleValidateWebhook,
+		facebookBot.HandleMessageReceived,
 	))
 
 	webhooks = append(webhooks, bot.NewWebHook(
 		bot.HTTP_METHOD_POST,
 		"/",
-		HandleMessageReceived,
+		facebookBot.HandleMessageReceived,
 	))
 
 	return webhooks
