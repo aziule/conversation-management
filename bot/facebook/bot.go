@@ -17,12 +17,15 @@ type facebookBot struct {
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
+// By default, no webhook is attached to the bot. It must be added manually
+// using either the BindWebhooks or BindDefaultWebhooks method
 func NewFacebookBot(config *core.Config) *facebookBot {
 	return &facebookBot{
 		pageAccessToken: config.FbPageAccessToken,
 		verifyToken:     config.FbVerifyToken,
 		fbApi:           NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 		nluParser:       nlu.NewParserFromConfig(config),
+		webhooks:        nil,
 	}
 }
 
@@ -38,7 +41,8 @@ func (facebookBot *facebookBot) BindWebhooks(webhooks []*bot.Webhook) {
 	}
 }
 
-// InitWebhooks initialises the default facebook-related webhooks
+// InitWebhooks initialises the default Facebook-related webhooks
+// Use this method to create and bind the default Facebook webhooks to the bot
 func (facebookBot *facebookBot) BindDefaultWebhooks() {
 	webhooks := []*bot.Webhook{}
 
