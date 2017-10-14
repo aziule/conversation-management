@@ -26,8 +26,8 @@ func (m *Message) Mid() string               { return m.mid }
 func (m *Message) Text() string              { return m.text }
 func (m *Message) QuickReplyPayload() string { return m.quickReplyPayload }
 
-// NewMessageFromJson creates a Message from json bytes and returns an error if a parsing issue occurred
-func NewMessageFromJson(bytes []byte) (*Message, error) {
+// ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
+func ParseJsonBody(bytes []byte) (*Message, error) {
 	json, err := jason.NewObjectFromBytes(bytes)
 
 	if err != nil {

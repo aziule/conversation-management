@@ -3,7 +3,6 @@ package facebook
 import (
 	"errors"
 	"fmt"
-	"github.com/aziule/conversation-management/bot/facebook/step"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -19,13 +18,22 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	message, err := NewMessageFromJson(body)
-	// @todo: handle error here
-	step.HandleStep("step1")
+	message, err := ParseJsonBody(body)
+	bot.fbApi.SendTextToUser(message.SenderId(), message.Text())
+	//parsedText, err := bot.nluParser.ParseText(message.Text())
+
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	fmt.Println(message)
-	fmt.Println(message.SenderId())
-	fmt.Println(message.RecipientId())
+	//fmt.Println(parsedText)
+
+	//// @todo: handle error here
+	//step.HandleStep("step1")
+	//
+	//fmt.Println(message.SenderId())
+	//fmt.Println(message.RecipientId())
 }
 
 // HandleValidateWebhook tries to validate the Facebook webhook

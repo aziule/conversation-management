@@ -1,4 +1,4 @@
-package facebook
+package api
 
 import (
 	"bytes"
@@ -26,10 +26,6 @@ func NewFacebookApi(version, pageAccessToken string, client *http.Client) *Faceb
 		client:          client,
 	}
 }
-
-// Getters
-func (api *FacebookApi) Version() string         { return api.version }
-func (api *FacebookApi) PageAccessToken() string { return api.pageAccessToken }
 
 // getBaseUrl returns the base url for a Facebook graph API call
 func (api *FacebookApi) getBaseUrl() *url.URL {
@@ -76,11 +72,13 @@ func (api *FacebookApi) SendTextToUser(recipientId, text string) error {
 
 	body, _ := ioutil.ReadAll(response.Body)
 
+	// @todo: handle errors
 	fmt.Println(string(body))
 
 	return nil
 }
 
+// @todo: store it and avoid recreating it every time
 // getSendTextUrl returns the url to ping to send text messages to a user
 func (api *FacebookApi) getSendTextUrl() *url.URL {
 	baseUrl := api.getBaseUrl()
@@ -94,3 +92,7 @@ func (api *FacebookApi) getSendTextUrl() *url.URL {
 
 	return u
 }
+
+// Getters
+func (api *FacebookApi) Version() string         { return api.version }
+func (api *FacebookApi) PageAccessToken() string { return api.pageAccessToken }

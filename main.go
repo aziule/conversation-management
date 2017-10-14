@@ -26,7 +26,9 @@ func main() {
 	}
 
 	nlu.RegisterFactory("rasa_nlu", rasa.NewRasaNluParser)
-	b := facebook.NewFacebookBot(config)
+
+	nluParser := nlu.NewParserFromConfig(config)
+	b := facebook.NewFacebookBot(config, nluParser)
 	b.BindDefaultWebhooks()
 
 	r := chi.NewRouter()

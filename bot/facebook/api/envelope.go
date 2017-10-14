@@ -1,4 +1,4 @@
-package facebook
+package api
 
 // recipientEnvelope is the envelope for a recipient
 type recipientEnvelope struct {
