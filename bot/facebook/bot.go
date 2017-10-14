@@ -13,10 +13,11 @@ type facebookBot struct {
 	verifyToken     string
 	fbApi           *FacebookApi
 	nluParser       nlu.Parser
+	webhooks        []*bot.Webhook
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
-func NewFacebookBot(config *core.Config) bot.Bot {
+func NewFacebookBot(config *core.Config) *facebookBot {
 	return &facebookBot{
 		pageAccessToken: config.FbPageAccessToken,
 		verifyToken:     config.FbVerifyToken,
@@ -27,6 +28,18 @@ func NewFacebookBot(config *core.Config) bot.Bot {
 
 // Webhooks returns the available webhooks for the bot
 func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
+	return facebookBot.webhooks
+}
+
+// BindWebhooks binds the given webhooks to the bot
+func (facebookBot *facebookBot) BindWebhooks(webhooks []*bot.Webhook) {
+	for _, webhook := range webhooks {
+		facebookBot.webhooks = append(facebookBot.webhooks, webhook)
+	}
+}
+
+// InitWebhooks initialises the default facebook-related webhooks
+func (facebookBot *facebookBot) BindDefaultWebhooks() {
 	webhooks := []*bot.Webhook{}
 
 	webhooks = append(webhooks, bot.NewWebHook(
@@ -41,10 +54,9 @@ func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
 		facebookBot.HandleMessageReceived,
 	))
 
-	return webhooks
+	facebookBot.BindWebhooks(webhooks)
 }
 
 // Getters
-func (facebookBot *facebookBot) NluParser() nlu.Parser   { return facebookBot.nluParser }
 func (facebookBot *facebookBot) PageAccessToken() string { return facebookBot.pageAccessToken }
 func (facebookBot *facebookBot) VerifyToken() string     { return facebookBot.verifyToken }
