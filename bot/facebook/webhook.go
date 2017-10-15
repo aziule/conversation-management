@@ -20,13 +20,17 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 
 	message, err := ParseJsonBody(body)
 	bot.fbApi.SendTextToUser(message.SenderId(), message.Text())
-	//parsedText, err := bot.nluParser.ParseText(message.Text())
+	parsedData, err := bot.nluParser.ParseData(message.Text())
 
 	//if err != nil {
 	//	panic(err)
 	//}
 
 	fmt.Println(message)
+	fmt.Println(parsedData)
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Println(string(body))
 	//fmt.Println(parsedText)
 
 	//// @todo: handle error here

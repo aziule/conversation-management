@@ -48,13 +48,13 @@ func (facebookBot *facebookBot) BindDefaultWebhooks() {
 	webhooks := []*bot.Webhook{}
 
 	webhooks = append(webhooks, bot.NewWebHook(
-		bot.HTTP_METHOD_GET,
+		bot.HttpMethodGet,
 		"/",
 		facebookBot.HandleMessageReceived,
 	))
 
 	webhooks = append(webhooks, bot.NewWebHook(
-		bot.HTTP_METHOD_POST,
+		bot.HttpMethodPost,
 		"/",
 		facebookBot.HandleMessageReceived,
 	))

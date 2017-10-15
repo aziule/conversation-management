@@ -11,6 +11,8 @@ import (
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/core/nlu"
 	"github.com/aziule/conversation-management/nlu/rasa"
+	nlu_service "github.com/aziule/conversation-management/nlu"
+	facebook_nlp "github.com/aziule/conversation-management/nlu/facebook"
 	"github.com/go-chi/chi"
 )
 
@@ -25,7 +27,8 @@ func main() {
 		panic(err)
 	}
 
-	nlu.RegisterFactory("rasa_nlu", rasa.NewRasaNluParser)
+	nlu.RegisterFactory(nlu_service.RasaNlu, rasa.NewRasaNluParser)
+	nlu.RegisterFactory(nlu_service.Facebook, facebook_nlp.NewFacebookParser)
 
 	nluParser := nlu.NewParserFromConfig(config)
 	b := facebook.NewFacebookBot(config, nluParser)
@@ -38,9 +41,9 @@ func main() {
 		fmt.Println(webhook.Method(), webhook.Path())
 
 		switch webhook.Method() {
-		case bot.HTTP_METHOD_GET:
+		case bot.HttpMethodGet:
 			r.Get(webhook.Path(), webhook.Handler())
-		case bot.HTTP_METHOD_POST:
+		case bot.HttpMethodPost:
 			r.Post(webhook.Path(), webhook.Handler())
 		}
 	}

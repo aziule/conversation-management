@@ -1,28 +1,27 @@
-package rasa
+package facebook
 
 import (
-	"net/http"
-
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/nlu"
 	"fmt"
 )
 
-// RasaNluParser is the Rasa NLU implementation of the core/nlu/Parser
-type RasaNluParser struct {
-	client *http.Client
+// FacebookNlp is the structure returned by Facebook that contains NLP information
+type FacebookNlp struct {
+
 }
 
-// NewRasaNluParser is the constructor method for RasaNluParser
-func NewRasaNluParser(config *core.Config) nlu.Parser {
-	return &RasaNluParser{
-		client: http.DefaultClient,
+// FacebookParser is the Facebook's built-in NLP implementation of the core/nlu/Parser
+type FacebookParser struct {}
+
+// NewFacebookParser is the constructor method for FacebookParser
+func NewFacebookParser(config *core.Config) nlu.Parser {
+	return &FacebookParser{
 	}
 }
 
-// ParseText is using the Rasa NLU service to try to understand some text
-// and extract some relevant data
-func (parser *RasaNluParser) ParseData(data interface{}) (*nlu.ParsedData, error) {
+// ParseText is using what Facebook's built-in NLP service returned
+func (parser *FacebookParser) ParseData(data interface{}) (*nlu.ParsedData, error) {
 	text, ok := data.(string)
 
 	if !ok {

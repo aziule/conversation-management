@@ -7,8 +7,8 @@ import (
 type HttpMethod string
 
 const (
-	HTTP_METHOD_GET  HttpMethod = "GET"
-	HTTP_METHOD_POST HttpMethod = "POST"
+	HttpMethodGet  HttpMethod = "GET"
+	HttpMethodPost HttpMethod = "POST"
 )
 
 // Webhook is the struct that is reponsible for for making the link between a bot and its platform
