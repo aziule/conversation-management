@@ -1,10 +1,10 @@
 package facebook
 
 import (
+	"github.com/aziule/conversation-management/bot/facebook/api"
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/bot"
 	"net/http"
-	"github.com/aziule/conversation-management/bot/facebook/api"
 )
 
 // Bot is the main structure

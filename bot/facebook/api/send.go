@@ -1,11 +1,11 @@
 package api
 
 import (
-	"encoding/json"
-	"io/ioutil"
-	"fmt"
-	"net/http"
 	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
 )
 
 // SendTextToUser is the FacebookApi's interface method responsible for sending a 1-to-1 message to a user

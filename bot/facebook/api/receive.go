@@ -6,12 +6,7 @@ import (
 	"time"
 
 	"github.com/antonholmquist/jason"
-)
-
-const (
-	NlpDataTypeNumber = "number"
-	NlpDataTypeDateTime = "datetime"
-	NlpDataTypeDateIntent = "intent"
+	"github.com/aziule/conversation-management/core/nlu"
 )
 
 // Message is the base struct for messages
@@ -22,25 +17,7 @@ type Message struct {
 	sentAt            time.Time
 	text              string
 	quickReplyPayload string
-	nlpData           map[string]*interface{}
-}
-
-type NlpDataNumber struct {
-	confidence float32
-	label string
-	value int
-}
-
-type NlpDataDateTime struct {
-	confidence float32
-	label string
-	value string
-	grain string
-}
-
-type NlpDataIntent struct {
-	confidence float32
-	value string
+	parsedData        *nlu.ParsedData
 }
 
 // @todo: try to move it to the api
@@ -105,22 +82,22 @@ func ParseJsonBody(bytes []byte) (*Message, error) {
 	text, _ := messageData.GetString("message", "text")
 	quickReplyPayload, _ := messageData.GetString("quick_reply", "payload")
 
-	nlp, err := messageData.GetObject("message", "nlp", "entities")
-	nlpData := make(map[string]interface{})
-
-	if err == nil {
-		for key, data := range nlp.Map() {
-			nlpDataStruct, err := makeNlpData(key, data)
-
-			if err != nil {
-				// @todo: log
-				fmt.Println("Error", err)
-				continue
-			}
-
-			nlpData[key] = nlpDataStruct
-		}
-	}
+	//nlp, err := messageData.GetObject("message", "nlp", "entities")
+	//nlpData := make(map[string]interface{})
+	//
+	//if err == nil {
+	//	for key, data := range nlp.Map() {
+	//		nlpDataStruct, err := makeNlpData(key, data)
+	//
+	//		if err != nil {
+	//			// @todo: log
+	//			fmt.Println("Error", err)
+	//			continue
+	//		}
+	//
+	//		nlpData[key] = nlpDataStruct
+	//	}
+	//}
 
 	return &Message{
 		mid:               mid,
@@ -133,14 +110,11 @@ func ParseJsonBody(bytes []byte) (*Message, error) {
 	}, nil
 }
 
-func makeNlpData(key string, data interface{}) (interface{}, error) {
-	return nil, errors.New("nope")
-}
-
 // Getters
-func (m *Message) SenderId() string          { return m.senderId }
-func (m *Message) RecipientId() string       { return m.recipientId }
-func (m *Message) SentAt() time.Time         { return m.sentAt }
-func (m *Message) Mid() string               { return m.mid }
-func (m *Message) Text() string              { return m.text }
-func (m *Message) QuickReplyPayload() string { return m.quickReplyPayload }
+func (m *Message) SenderId() string            { return m.senderId }
+func (m *Message) RecipientId() string         { return m.recipientId }
+func (m *Message) SentAt() time.Time           { return m.sentAt }
+func (m *Message) Mid() string                 { return m.mid }
+func (m *Message) Text() string                { return m.text }
+func (m *Message) QuickReplyPayload() string   { return m.quickReplyPayload }
+func (m *Message) ParsedData() *nlu.ParsedData { return m.parsedData }

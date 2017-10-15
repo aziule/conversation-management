@@ -7,11 +7,11 @@ type DateTimeGranularity string
 // The available data types
 const (
 	GranularityHour DateTimeGranularity = "hour"
-	GranularityDay DateTimeGranularity = "day"
+	GranularityDay  DateTimeGranularity = "day"
 )
 
 type Entity struct {
-	name string
+	name       string
 	confidence float32
 }
 
@@ -27,21 +27,21 @@ type NumberEntity struct {
 
 type SingleDateTimeEntity struct {
 	*Entity
-	Value time.Time
+	Value       time.Time
 	Granularity DateTimeGranularity
 }
 
 type IntervalDateTimeEntity struct {
 	*Entity
-	FromValue time.Time
+	FromValue       time.Time
 	FromGranularity DateTimeGranularity
-	ToValue time.Time
-	ToGranularity DateTimeGranularity
+	ToValue         time.Time
+	ToGranularity   DateTimeGranularity
 }
 
 func newEntity(name string, confidence float32) *Entity {
 	return &Entity{
-		name: name,
+		name:       name,
 		confidence: confidence,
 	}
 }
@@ -67,5 +67,5 @@ func NewIntervalDateTimeEntity(name string, confidence float32, fromValue, toVal
 }
 
 // Getters
-func (entity *Entity) Name() string  { return entity.name }
+func (entity *Entity) Name() string        { return entity.name }
 func (entity *Entity) Confidence() float32 { return entity.confidence }
