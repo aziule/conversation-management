@@ -2,80 +2,70 @@ package nlu
 
 import "time"
 
-type EntityDataType string
+type DateTimeGranularity string
 
 // The available data types
 const (
-	DataTypeString EntityDataType = "string"
-	DataTypeNumber EntityDataType = "number"
-	DataTypeDateTime EntityDataType = "datetime"
+	GranularityHour DateTimeGranularity = "hour"
+	GranularityDay DateTimeGranularity = "day"
 )
 
-// Intent represents the data of a text, as understood by the NLU service
 type Entity struct {
-	name  string
-	value interface{}
-	dataType EntityDataType
+	name string
+	confidence float32
 }
 
-// NewEntity is the factory method for Entity
-// It tries to create a new Entity based on the expected data type, by converting
-// the value to the required type
-func NewEntity(name string, value interface{}, dataType EntityDataType) (*Entity, error) {
-	convertedValue, err := convertValue(value, dataType)
+type StringEntity struct {
+	*Entity
+	Value string
+}
 
-	if err != nil {
-		// @todo: Log the error
-		return nil, err
-	}
+type NumberEntity struct {
+	*Entity
+	Value int
+}
 
+type SingleDateTimeEntity struct {
+	*Entity
+	Value time.Time
+	Granularity DateTimeGranularity
+}
+
+type IntervalDateTimeEntity struct {
+	*Entity
+	FromValue time.Time
+	FromGranularity DateTimeGranularity
+	ToValue time.Time
+	ToGranularity DateTimeGranularity
+}
+
+func newEntity(name string, confidence float32) *Entity {
 	return &Entity{
-		name:  name,
-		value: convertedValue,
-		dataType: dataType,
-	}, nil
+		name: name,
+		confidence: confidence,
+	}
 }
 
-// convertValue takes a value and a data type and tries to convert the given value
-// to the correct type, given the data type.
-// Returns an error if the data type is not supported or the value is malformed.
-func convertValue(value interface{}, dataType EntityDataType) (interface{}, error) {
-	var convertedValue interface{}
-	var ok bool = false
+// NewStringEntity is the factory method for StringEntity
+func NewStringEntity(name string, confidence float32, value string) *StringEntity {
+	return &StringEntity{newEntity(name, confidence), value}
+}
 
-	switch dataType {
-	case DataTypeString:
-		convertedValue, ok = value.(string)
-		break
-	case DataTypeNumber:
-		convertedValue, ok = value.(int)
-		break
-	case DataTypeDateTime:
-		timeAsString, canConvert := value.(string)
+// NewStringEntity is the factory method for StringEntity
+func NewNumberEntity(name string, confidence float32, value int) *NumberEntity {
+	return &NumberEntity{newEntity(name, confidence), value}
+}
 
-		if !canConvert {
-			return nil, ErrInvalidEntityDataType
-		}
+// NewSingleDateTimeEntity is the factory method for SingleDateTimeEntity
+func NewSingleDateTimeEntity(name string, confidence float32, value time.Time, granularity DateTimeGranularity) *SingleDateTimeEntity {
+	return &SingleDateTimeEntity{newEntity(name, confidence), value, granularity}
+}
 
-		convertedTime, err := time.Parse(time.RFC3339, timeAsString)
-
-		if err != nil {
-			ok = true
-		}
-
-		convertedValue = convertedTime
-
-		break
-	}
-
-	if ! ok {
-		return nil, ErrInvalidEntityDataType
-	}
-
-	return convertedValue, nil
+// NewIntervalDateTimeEntity is the factory method for IntervalDateTimeEntity
+func NewIntervalDateTimeEntity(name string, confidence float32, fromValue, toValue time.Time, fromGranularity, toGranularity DateTimeGranularity) *IntervalDateTimeEntity {
+	return &IntervalDateTimeEntity{newEntity(name, confidence), fromValue, fromGranularity, toValue, toGranularity}
 }
 
 // Getters
 func (entity *Entity) Name() string  { return entity.name }
-func (entity *Entity) Value() interface{} { return entity.value }
-func (entity *Entity) DataType() EntityDataType { return entity.dataType }
+func (entity *Entity) Confidence() float32 { return entity.confidence }

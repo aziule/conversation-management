@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"github.com/aziule/conversation-management/bot/facebook/api"
 )
 
 // HandleMessageReceived is called when a new message is sent by the user to the page
@@ -18,16 +19,16 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	message, err := ParseJsonBody(body)
+	message, err := api.ParseJsonBody(body)
 	bot.fbApi.SendTextToUser(message.SenderId(), message.Text())
-	parsedData, err := bot.nluParser.ParseData(message.Text())
+	//parsedData, err := bot.nluParser.ParseData(body)
 
 	//if err != nil {
 	//	panic(err)
 	//}
 
 	fmt.Println(message)
-	fmt.Println(parsedData)
+	//fmt.Println(parsedData)
 	fmt.Println("")
 	fmt.Println("")
 	fmt.Println(string(body))

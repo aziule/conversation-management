@@ -9,10 +9,6 @@ import (
 	"github.com/aziule/conversation-management/bot/facebook"
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/bot"
-	"github.com/aziule/conversation-management/core/nlu"
-	"github.com/aziule/conversation-management/nlu/rasa"
-	nlu_service "github.com/aziule/conversation-management/nlu"
-	facebook_nlp "github.com/aziule/conversation-management/nlu/facebook"
 	"github.com/go-chi/chi"
 )
 
@@ -27,11 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	nlu.RegisterFactory(nlu_service.RasaNlu, rasa.NewRasaNluParser)
-	nlu.RegisterFactory(nlu_service.Facebook, facebook_nlp.NewFacebookParser)
-
-	nluParser := nlu.NewParserFromConfig(config)
-	b := facebook.NewFacebookBot(config, nluParser)
+	b := facebook.NewFacebookBot(config)
 	b.BindDefaultWebhooks()
 
 	r := chi.NewRouter()

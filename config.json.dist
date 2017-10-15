@@ -2,6 +2,5 @@
     "listening_port": 3000,
     "fb_verify_token": "app_verify_token",
     "fb_api_version": "2.6",
-    "fb_page_access_token": "",
-    "nlu_service": "rasa_nlu"
+    "fb_page_access_token": ""
 }

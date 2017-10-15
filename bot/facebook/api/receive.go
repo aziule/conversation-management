@@ -1,4 +1,4 @@
-package facebook
+package api
 
 import (
 	"errors"
@@ -6,6 +6,12 @@ import (
 	"time"
 
 	"github.com/antonholmquist/jason"
+)
+
+const (
+	NlpDataTypeNumber = "number"
+	NlpDataTypeDateTime = "datetime"
+	NlpDataTypeDateIntent = "intent"
 )
 
 // Message is the base struct for messages
@@ -16,16 +22,28 @@ type Message struct {
 	sentAt            time.Time
 	text              string
 	quickReplyPayload string
+	nlpData           map[string]*interface{}
 }
 
-// Getters
-func (m *Message) SenderId() string          { return m.senderId }
-func (m *Message) RecipientId() string       { return m.recipientId }
-func (m *Message) SentAt() time.Time         { return m.sentAt }
-func (m *Message) Mid() string               { return m.mid }
-func (m *Message) Text() string              { return m.text }
-func (m *Message) QuickReplyPayload() string { return m.quickReplyPayload }
+type NlpDataNumber struct {
+	confidence float32
+	label string
+	value int
+}
 
+type NlpDataDateTime struct {
+	confidence float32
+	label string
+	value string
+	grain string
+}
+
+type NlpDataIntent struct {
+	confidence float32
+	value string
+}
+
+// @todo: try to move it to the api
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
 func ParseJsonBody(bytes []byte) (*Message, error) {
 	json, err := jason.NewObjectFromBytes(bytes)
@@ -87,6 +105,23 @@ func ParseJsonBody(bytes []byte) (*Message, error) {
 	text, _ := messageData.GetString("message", "text")
 	quickReplyPayload, _ := messageData.GetString("quick_reply", "payload")
 
+	nlp, err := messageData.GetObject("message", "nlp", "entities")
+	nlpData := make(map[string]interface{})
+
+	if err == nil {
+		for key, data := range nlp.Map() {
+			nlpDataStruct, err := makeNlpData(key, data)
+
+			if err != nil {
+				// @todo: log
+				fmt.Println("Error", err)
+				continue
+			}
+
+			nlpData[key] = nlpDataStruct
+		}
+	}
+
 	return &Message{
 		mid:               mid,
 		senderId:          senderId,
@@ -94,5 +129,18 @@ func ParseJsonBody(bytes []byte) (*Message, error) {
 		sentAt:            time.Unix(sentAt, 0),
 		text:              text,
 		quickReplyPayload: quickReplyPayload,
+		//nlpData: nlpData,
 	}, nil
 }
+
+func makeNlpData(key string, data interface{}) (interface{}, error) {
+	return nil, errors.New("nope")
+}
+
+// Getters
+func (m *Message) SenderId() string          { return m.senderId }
+func (m *Message) RecipientId() string       { return m.recipientId }
+func (m *Message) SentAt() time.Time         { return m.sentAt }
+func (m *Message) Mid() string               { return m.mid }
+func (m *Message) Text() string              { return m.text }
+func (m *Message) QuickReplyPayload() string { return m.quickReplyPayload }

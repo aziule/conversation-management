@@ -1,11 +1,7 @@
 package api
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"github.com/aziule/conversation-management/core/bot"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
@@ -27,57 +23,6 @@ func NewFacebookApi(version, pageAccessToken string, client *http.Client) *Faceb
 	}
 }
 
-// getBaseUrl returns the base url for a Facebook graph API call
-func (api *FacebookApi) getBaseUrl() *url.URL {
-	rawUrl := "https://graph.facebook.com/v" + api.Version()
-	u, err := url.Parse(rawUrl)
-
-	if err != nil {
-		// @todo improve
-		panic(err)
-	}
-
-	return u
-}
-
-// SendTextToUser is the FacebookApi's interface method responsible for sending a 1-to-1 message to a user
-func (api *FacebookApi) SendTextToUser(recipientId, text string) error {
-	url := api.getSendTextUrl()
-
-	object := newTextToUserEnvelope(recipientId, text)
-	jsonObject, err := json.Marshal(object)
-
-	if err != nil {
-		// @todo: fix
-		return err
-	}
-
-	request, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonObject))
-	request.Header.Set("Content-Type", "application/json")
-
-	if err != nil {
-		// @todo: fix
-		return err
-	}
-
-	client := http.DefaultClient
-	response, err := client.Do(request)
-
-	if err != nil {
-		// @todo: fix
-		return err
-	}
-
-	defer response.Body.Close()
-
-	body, _ := ioutil.ReadAll(response.Body)
-
-	// @todo: handle errors
-	fmt.Println(string(body))
-
-	return nil
-}
-
 // @todo: store it and avoid recreating it every time
 // getSendTextUrl returns the url to ping to send text messages to a user
 func (api *FacebookApi) getSendTextUrl() *url.URL {
@@ -89,6 +34,19 @@ func (api *FacebookApi) getSendTextUrl() *url.URL {
 	q.Set("access_token", api.pageAccessToken)
 
 	u.RawQuery = q.Encode()
+
+	return u
+}
+
+// getBaseUrl returns the base url for a Facebook graph API call
+func (api *FacebookApi) getBaseUrl() *url.URL {
+	rawUrl := "https://graph.facebook.com/v" + api.Version()
+	u, err := url.Parse(rawUrl)
+
+	if err != nil {
+		// @todo improve
+		panic(err)
+	}
 
 	return u
 }

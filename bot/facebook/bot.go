@@ -3,7 +3,6 @@ package facebook
 import (
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/bot"
-	"github.com/aziule/conversation-management/core/nlu"
 	"net/http"
 	"github.com/aziule/conversation-management/bot/facebook/api"
 )
@@ -13,19 +12,17 @@ type facebookBot struct {
 	pageAccessToken string
 	verifyToken     string
 	fbApi           *api.FacebookApi
-	nluParser       nlu.Parser
 	webhooks        []*bot.Webhook
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
 // By default, no webhook is attached to the bot. It must be added manually
 // using either the BindWebhooks or BindDefaultWebhooks method
-func NewFacebookBot(config *core.Config, nluParser nlu.Parser) *facebookBot {
+func NewFacebookBot(config *core.Config) *facebookBot {
 	return &facebookBot{
 		pageAccessToken: config.FbPageAccessToken,
 		verifyToken:     config.FbVerifyToken,
 		fbApi:           api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
-		nluParser:       nluParser,
 		webhooks:        nil,
 	}
 }
