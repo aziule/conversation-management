@@ -3,23 +3,18 @@ package facebook
 import (
 	"errors"
 	"fmt"
-	"github.com/aziule/conversation-management/bot/facebook/api"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 )
 
 // HandleMessageReceived is called when a new message is sent by the user to the page
 func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
+	message, err := bot.fbApi.ParseRequestMessageReceived(r)
 
 	if err != nil {
-		http.Error(w, "Could not parse the request body", 500)
-		return
+		panic(err)
 	}
 
-	message, err := api.ParseJsonBody(body)
 	bot.fbApi.SendTextToUser(message.SenderId(), message.Text())
 	//parsedData, err := bot.nluParser.ParseData(body)
 
@@ -31,7 +26,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	//fmt.Println(parsedData)
 	fmt.Println("")
 	fmt.Println("")
-	fmt.Println(string(body))
+	//fmt.Println(string(body))
 	//fmt.Println(parsedText)
 
 	//// @todo: handle error here

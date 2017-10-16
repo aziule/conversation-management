@@ -14,7 +14,8 @@ type FacebookApi struct {
 	webhooks        []*bot.Webhook
 }
 
-// NewFacebookApi is the factory method to create a new facebook api implementation
+// NewFacebookApi is the factory method to create a new facebook api implementation, using
+// user-defined variables, such as the FB API version or the pageAccessToken.
 func NewFacebookApi(version, pageAccessToken string, client *http.Client) *FacebookApi {
 	return &FacebookApi{
 		version:         version,

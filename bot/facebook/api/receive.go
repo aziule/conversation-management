@@ -7,6 +7,8 @@ import (
 
 	"github.com/antonholmquist/jason"
 	"github.com/aziule/conversation-management/core/nlu"
+	"io/ioutil"
+	"net/http"
 )
 
 // Message is the base struct for messages
@@ -20,14 +22,21 @@ type Message struct {
 	parsedData        *nlu.ParsedData
 }
 
-// @todo: try to move it to the api
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
-func ParseJsonBody(bytes []byte) (*Message, error) {
-	json, err := jason.NewObjectFromBytes(bytes)
+func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*Message, error) {
+	body, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+
+	if err != nil {
+		// @todo: log and handle error types
+		return nil, err
+	}
+
+	json, err := jason.NewObjectFromBytes(body)
 
 	if err != nil {
 		fmt.Println(err)
-		return nil, errors.New("Could not parse JSON")
+		return nil, errors.New("Could not parse JSON") // @todo: error types
 	}
 
 	// The message content itself is embedded inside the "entry" array
