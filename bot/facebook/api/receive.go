@@ -6,24 +6,23 @@ import (
 	"time"
 
 	"github.com/antonholmquist/jason"
-	"github.com/aziule/conversation-management/core/nlu"
 	"io/ioutil"
 	"net/http"
 )
 
-// Message is the base struct for messages
-type Message struct {
+// ReceivedMessage is the base struct for received messages
+type ReceivedMessage struct {
 	mid               string
 	senderId          string
 	recipientId       string
 	sentAt            time.Time
 	text              string
 	quickReplyPayload string
-	parsedData        *nlu.ParsedData
+	nlp               *jason.Object
 }
 
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
-func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*Message, error) {
+func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedMessage, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 
@@ -91,39 +90,28 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*Message, 
 	text, _ := messageData.GetString("message", "text")
 	quickReplyPayload, _ := messageData.GetString("quick_reply", "payload")
 
-	//nlp, err := messageData.GetObject("message", "nlp", "entities")
-	//nlpData := make(map[string]interface{})
-	//
-	//if err == nil {
-	//	for key, data := range nlp.Map() {
-	//		nlpDataStruct, err := makeNlpData(key, data)
-	//
-	//		if err != nil {
-	//			// @todo: log
-	//			fmt.Println("Error", err)
-	//			continue
-	//		}
-	//
-	//		nlpData[key] = nlpDataStruct
-	//	}
-	//}
+	nlp, err := messageData.GetObject("message", "nlp", "entities")
 
-	return &Message{
+	if err != nil {
+		// @todo: log that no NLP was received
+	}
+
+	return &ReceivedMessage{
 		mid:               mid,
 		senderId:          senderId,
 		recipientId:       recipientId,
 		sentAt:            time.Unix(sentAt, 0),
 		text:              text,
 		quickReplyPayload: quickReplyPayload,
-		//nlpData: nlpData,
+		nlp:               nlp,
 	}, nil
 }
 
 // Getters
-func (m *Message) SenderId() string            { return m.senderId }
-func (m *Message) RecipientId() string         { return m.recipientId }
-func (m *Message) SentAt() time.Time           { return m.sentAt }
-func (m *Message) Mid() string                 { return m.mid }
-func (m *Message) Text() string                { return m.text }
-func (m *Message) QuickReplyPayload() string   { return m.quickReplyPayload }
-func (m *Message) ParsedData() *nlu.ParsedData { return m.parsedData }
+func (m *ReceivedMessage) SenderId() string          { return m.senderId }
+func (m *ReceivedMessage) RecipientId() string       { return m.recipientId }
+func (m *ReceivedMessage) SentAt() time.Time         { return m.sentAt }
+func (m *ReceivedMessage) Mid() string               { return m.mid }
+func (m *ReceivedMessage) Text() string              { return m.text }
+func (m *ReceivedMessage) QuickReplyPayload() string { return m.quickReplyPayload }
+func (m *ReceivedMessage) Nlp() *jason.Object        { return m.nlp }
