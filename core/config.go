@@ -11,7 +11,7 @@ type Config struct {
 	FbVerifyToken     string `json:"fb_verify_token"`
 	FbApiVersion      string `json:"fb_api_version"`
 	FbPageAccessToken string `json:"fb_page_access_token"`
-	NluService        string `json:"nlu_service"`
+	NlpService        string `json:"nlp_service"`
 }
 
 // LoadConfig loads the configuration located at the given path

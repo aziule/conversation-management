@@ -1,6 +1,6 @@
-package nlu
+package nlp
 
-// Intent represents the underlying action of some text, as understood by the NLU service
+// Intent represents the underlying action of some text, as understood by the NLP service
 type Intent struct {
 	name string
 }

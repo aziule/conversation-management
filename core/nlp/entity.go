@@ -1,4 +1,4 @@
-package nlu
+package nlp
 
 import "time"
 

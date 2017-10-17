@@ -3,23 +3,23 @@ package facebook
 import (
 	"fmt"
 	"github.com/antonholmquist/jason"
-	"github.com/aziule/conversation-management/core/nlu"
+	"github.com/aziule/conversation-management/core/nlp"
 )
 
-type NluEntry string
-type NluDataType string
+type NlpEntry string
+type NlpDataType string
 
 const (
-	NluDataTypeNumber     NluDataType = "number"
-	NluDataTypeDateTime   NluDataType = "datetime"
-	NluDataTypeDateIntent NluDataType = "intent"
+	NlpDataTypeNumber     NlpDataType = "number"
+	NlpDataTypeDateTime   NlpDataType = "datetime"
+	NlpDataTypeDateIntent NlpDataType = "intent"
 )
 
-type NluEntryDataTypeMap map[NluEntry]NluDataType
+type NlpEntryDataTypeMap map[NlpEntry]NlpDataType
 
 // @todo: use an interface on top of that rather than a jason Object
 // ParseNlpData returns an object of type ParsedData after parsing a jason object
-func ParseNlpData(data *jason.Object) (*nlu.ParsedData, error) {
+func ParseNlpData(data *jason.Object) (*nlp.ParsedData, error) {
 	for key, value := range data.Map() {
 		v, _ := value.MarshalJSON()
 		fmt.Println(key, string(v))

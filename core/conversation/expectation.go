@@ -1,6 +1,6 @@
 package conversation
 
-import "github.com/aziule/conversation-management/core/nlu"
+import "github.com/aziule/conversation-management/core/nlp"
 
 //type expectation interface {
 //	IsMet() bool
@@ -8,12 +8,12 @@ import "github.com/aziule/conversation-management/core/nlu"
 
 // IntentExpectation represents an expectation with a single intent
 type IntentExpectation struct {
-	intent *nlu.Intent
+	intent *nlp.Intent
 }
 
 // EntityExpectation represents an expectation where we have a single entity
 type EntityExpectation struct {
-	entity *nlu.Entity
+	entity *nlp.Entity
 }
 
 /*

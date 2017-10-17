@@ -8,7 +8,7 @@ import (
 )
 
 // HandleMessageReceived is called when a new message is sent by the user to the page
-// We parse the message, extract relevant NLU data, check the context, validate
+// We parse the message, extract relevant NLP data, check the context, validate
 // the data, and return a response.
 func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Request) {
 	receivedMessage, err := bot.fbApi.ParseRequestMessageReceived(r)
@@ -17,7 +17,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		panic(err)
 	}
 
-	if receivedMessage.NlpData() != nil {
+	if receivedMessage.Nlp() != nil {
 		parsedData, err := ParseNlpData(receivedMessage.Nlp())
 
 		if err != nil {
@@ -28,7 +28,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 
 	bot.fbApi.SendTextToUser(receivedMessage.SenderId(), receivedMessage.Text())
-	//parsedData, err := bot.nluParser.ParseData(body)
+	//parsedData, err := bot.nlpParser.ParseData(body)
 
 	//if err != nil {
 	//	panic(err)

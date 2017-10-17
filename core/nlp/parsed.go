@@ -1,4 +1,4 @@
-package nlu
+package nlp
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ var (
 	ErrInvalidEntityDataType = errors.New("Invalid entity data type provided")
 )
 
-// ParsedData represents intents and entities as understood after using NLU services
+// ParsedData represents intents and entities as understood after using NLP services
 type ParsedData struct {
 	intent   *Intent
 	entities []*Entity
