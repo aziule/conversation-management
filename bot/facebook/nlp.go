@@ -6,7 +6,6 @@ import (
 	"github.com/aziule/conversation-management/core/nlp"
 )
 
-type NlpEntry string
 type NlpDataType string
 
 const (
@@ -15,7 +14,7 @@ const (
 	NlpDataTypeDateIntent NlpDataType = "intent"
 )
 
-type NlpEntryDataTypeMap map[NlpEntry]NlpDataType
+type NlpEntryDataTypeMap map[string]NlpDataType
 
 // @todo: use an interface on top of that rather than a jason Object
 // ParseNlpData returns an object of type ParsedData after parsing a jason object
@@ -28,6 +27,3 @@ func ParseNlpData(data *jason.Object) (*nlp.ParsedData, error) {
 	return nil, nil
 }
 
-func parseSingleNlpData() {
-
-}
