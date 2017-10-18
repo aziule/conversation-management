@@ -13,6 +13,7 @@ type facebookBot struct {
 	verifyToken     string
 	fbApi           *api.FacebookApi
 	webhooks        []*bot.Webhook
+	nlpDataTypeMap  *NlpDataTypeMap
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
@@ -24,6 +25,7 @@ func NewFacebookBot(config *core.Config) *facebookBot {
 		verifyToken:     config.FbVerifyToken,
 		fbApi:           api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 		webhooks:        nil,
+		nlpDataTypeMap:  getDefaultNlpDataTypeMap(),
 	}
 }
 
@@ -57,6 +59,19 @@ func (facebookBot *facebookBot) BindDefaultWebhooks() {
 	))
 
 	facebookBot.BindWebhooks(webhooks)
+}
+
+// getDefaultNlpDataTypeMap returns the default data type map.
+// For now, this is highly coupled with Wit's data types and should
+// be updated every time a change is made to Wit.
+func getDefaultNlpDataTypeMap() *NlpDataTypeMap {
+	nlpDataTypeMap := make(NlpDataTypeMap)
+
+	nlpDataTypeMap["nb_persons"] = NlpDataTypeInt
+	nlpDataTypeMap["intent"] = NlpDataTypeIntent
+	nlpDataTypeMap["datetime"] = NlpDataTypeDateTime
+
+	return &nlpDataTypeMap
 }
 
 // Getters

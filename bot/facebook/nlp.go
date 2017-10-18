@@ -9,16 +9,16 @@ import (
 type NlpDataType string
 
 const (
-	NlpDataTypeNumber     NlpDataType = "number"
+	NlpDataTypeInt        NlpDataType = "int"
 	NlpDataTypeDateTime   NlpDataType = "datetime"
-	NlpDataTypeDateIntent NlpDataType = "intent"
+	NlpDataTypeIntent     NlpDataType = "intent"
 )
 
-type NlpEntryDataTypeMap map[string]NlpDataType
+type NlpDataTypeMap map[string]NlpDataType
 
 // @todo: use an interface on top of that rather than a jason Object
 // ParseNlpData returns an object of type ParsedData after parsing a jason object
-func ParseNlpData(data *jason.Object) (*nlp.ParsedData, error) {
+func (bot *facebookBot) ParseNlpData(data *jason.Object, dataTypeMap *NlpDataTypeMap) (*nlp.ParsedData, error) {
 	for key, value := range data.Map() {
 		v, _ := value.MarshalJSON()
 		fmt.Println(key, string(v))

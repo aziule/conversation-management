@@ -5,15 +5,15 @@ import (
 	"net/url"
 )
 
-// facebookApi is the real-world implementation of the API
+// FacebookApi is the real-world implementation of the API
 type FacebookApi struct {
 	version         string
 	pageAccessToken string
 	client          *http.Client
 }
 
-// NewFacebookApi is the factory method to create a new facebook api implementation, using
-// user-defined variables, such as the FB API version or the pageAccessToken.
+// NewFacebookApi is the constructor that creates a new Facebook API, using
+// user-defined variables such as the FB API version or the pageAccessToken.
 func NewFacebookApi(version, pageAccessToken string, client *http.Client) *FacebookApi {
 	return &FacebookApi{
 		version:         version,

@@ -18,7 +18,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 
 	if receivedMessage.Nlp() != nil {
-		parsedData, err := ParseNlpData(receivedMessage.Nlp())
+		parsedData, err := bot.ParseNlpData(receivedMessage.Nlp(), nil)
 
 		if err != nil {
 			panic(err)
