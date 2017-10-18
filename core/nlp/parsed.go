@@ -12,11 +12,11 @@ var (
 // ParsedData represents intents and entities as understood after using NLP services
 type ParsedData struct {
 	intent   *Intent
-	entities []*Entity
+	entities []Entity
 }
 
 // NewParsedData is the constructor method for ParsedData
-func NewParsedData(intent *Intent, entities []*Entity) *ParsedData {
+func NewParsedData(intent *Intent, entities []Entity) *ParsedData {
 	return &ParsedData{
 		intent:   intent,
 		entities: entities,
@@ -24,5 +24,5 @@ func NewParsedData(intent *Intent, entities []*Entity) *ParsedData {
 }
 
 // Getters
-func (parsedData *ParsedData) Intent() *Intent     { return parsedData.intent }
-func (parsedData *ParsedData) Entities() []*Entity { return parsedData.entities }
+func (parsedData *ParsedData) Intent() *Intent    { return parsedData.intent }
+func (parsedData *ParsedData) Entities() []Entity { return parsedData.entities }

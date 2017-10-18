@@ -11,3 +11,6 @@ func NewIntent(name string) *Intent {
 		name: name,
 	}
 }
+
+// Getters
+func (intent *Intent) Name() string { return intent.name }

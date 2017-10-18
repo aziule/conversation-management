@@ -5,6 +5,7 @@ import (
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/bot"
 	"net/http"
+	"github.com/aziule/conversation-management/core/nlp"
 )
 
 // Bot is the main structure
@@ -13,7 +14,7 @@ type facebookBot struct {
 	verifyToken     string
 	fbApi           *api.FacebookApi
 	webhooks        []*bot.Webhook
-	nlpDataTypeMap  *NlpDataTypeMap
+	DataTypeMap  DataTypeMap
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
@@ -25,7 +26,7 @@ func NewFacebookBot(config *core.Config) *facebookBot {
 		verifyToken:     config.FbVerifyToken,
 		fbApi:           api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 		webhooks:        nil,
-		nlpDataTypeMap:  getDefaultNlpDataTypeMap(),
+		DataTypeMap:  getDefaultDataTypeMap(),
 	}
 }
 
@@ -61,17 +62,17 @@ func (facebookBot *facebookBot) BindDefaultWebhooks() {
 	facebookBot.BindWebhooks(webhooks)
 }
 
-// getDefaultNlpDataTypeMap returns the default data type map.
+// getDefaultDataTypeMap returns the default data type map.
 // For now, this is highly coupled with Wit's data types and should
 // be updated every time a change is made to Wit.
-func getDefaultNlpDataTypeMap() *NlpDataTypeMap {
-	nlpDataTypeMap := make(NlpDataTypeMap)
+func getDefaultDataTypeMap() DataTypeMap {
+	DataTypeMap := make(DataTypeMap)
 
-	nlpDataTypeMap["nb_persons"] = NlpDataTypeInt
-	nlpDataTypeMap["intent"] = NlpDataTypeIntent
-	nlpDataTypeMap["datetime"] = NlpDataTypeDateTime
+	DataTypeMap["nb_persons"] = nlp.DataTypeInt
+	DataTypeMap["intent"] = nlp.DataTypeIntent
+	DataTypeMap["datetime"] = nlp.DataTypeDateTime
 
-	return &nlpDataTypeMap
+	return DataTypeMap
 }
 
 // Getters

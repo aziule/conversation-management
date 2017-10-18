@@ -4,56 +4,71 @@ import "time"
 
 type DateTimeGranularity string
 
-// The available data types
+type DataType string
+
 const (
+	// Data types that we handle
+	DataTypeInt      DataType = "int"
+	DataTypeDateTime DataType = "datetime"
+	DataTypeIntent   DataType = "intent"
+
 	GranularityHour DateTimeGranularity = "hour"
 	GranularityDay  DateTimeGranularity = "day"
 )
 
-type Entity struct {
+type Entity interface {
+	Name() string
+	Confidence() float32
+	Type() DataType
+}
+
+type entity struct {
 	name       string
 	confidence float32
 }
 
-type StringEntity struct {
-	*Entity
-	Value string
-}
-
-type NumberEntity struct {
-	*Entity
+type IntEntity struct {
+	*entity
 	Value int
 }
 
+func (e *IntEntity) Name() string { return e.name }
+func (e *IntEntity) Confidence() float32 { return e.confidence }
+func (e *IntEntity) Type() DataType { return DataTypeInt }
+
 type SingleDateTimeEntity struct {
-	*Entity
+	*entity
 	Value       time.Time
 	Granularity DateTimeGranularity
 }
 
+func (e *SingleDateTimeEntity) Name() string { return e.name }
+func (e *SingleDateTimeEntity) Confidence() float32 { return e.confidence }
+func (e *SingleDateTimeEntity) Type() DataType { return DataTypeDateTime }
+
 type IntervalDateTimeEntity struct {
-	*Entity
+	*entity
 	FromValue       time.Time
 	FromGranularity DateTimeGranularity
 	ToValue         time.Time
 	ToGranularity   DateTimeGranularity
 }
 
-func newEntity(name string, confidence float32) *Entity {
-	return &Entity{
+func (e *IntervalDateTimeEntity) Name() string { return e.name }
+func (e *IntervalDateTimeEntity) Confidence() float32 { return e.confidence }
+func (e *IntervalDateTimeEntity) Type() DataType { return DataTypeDateTime }
+
+// newEntity creates a new base entity
+func newEntity(name string, confidence float32) *entity {
+	return &entity{
 		name:       name,
 		confidence: confidence,
 	}
 }
 
-// NewStringEntity is the factory method for StringEntity
-func NewStringEntity(name string, confidence float32, value string) *StringEntity {
-	return &StringEntity{newEntity(name, confidence), value}
-}
-
-// NewStringEntity is the factory method for StringEntity
-func NewNumberEntity(name string, confidence float32, value int) *NumberEntity {
-	return &NumberEntity{newEntity(name, confidence), value}
+// NewIntEntity is the factory method for StringEntity
+func NewIntEntity(name string, confidence float32, value int) *IntEntity {
+	return &IntEntity{newEntity(name, confidence), value}
 }
 
 // NewSingleDateTimeEntity is the factory method for SingleDateTimeEntity
@@ -65,7 +80,3 @@ func NewSingleDateTimeEntity(name string, confidence float32, value time.Time, g
 func NewIntervalDateTimeEntity(name string, confidence float32, fromValue, toValue time.Time, fromGranularity, toGranularity DateTimeGranularity) *IntervalDateTimeEntity {
 	return &IntervalDateTimeEntity{newEntity(name, confidence), fromValue, fromGranularity, toValue, toGranularity}
 }
-
-// Getters
-func (entity *Entity) Name() string        { return entity.name }
-func (entity *Entity) Confidence() float32 { return entity.confidence }

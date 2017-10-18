@@ -18,34 +18,22 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 
 	if receivedMessage.Nlp() != nil {
-		parsedData, err := bot.ParseNlpData(receivedMessage.Nlp(), nil)
+		parsedData, err := bot.ParseNlpData(receivedMessage.Nlp())
 
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println(parsedData)
+		for _, e := range parsedData.Entities() {
+			fmt.Println(e.Type(), e.Name(), e.Confidence())
+		}
+
+		if parsedData.Intent() != nil {
+			fmt.Println(parsedData.Intent().Name())
+		}
 	}
 
 	bot.fbApi.SendTextToUser(receivedMessage.SenderId(), receivedMessage.Text())
-	//parsedData, err := bot.nlpParser.ParseData(body)
-
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	fmt.Println(receivedMessage)
-	//fmt.Println(parsedData)
-	fmt.Println("")
-	fmt.Println("")
-	//fmt.Println(string(body))
-	//fmt.Println(parsedText)
-
-	//// @todo: handle error here
-	//step.HandleStep("step1")
-	//
-	//fmt.Println(message.SenderId())
-	//fmt.Println(message.RecipientId())
 }
 
 // HandleValidateWebhook tries to validate the Facebook webhook

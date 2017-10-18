@@ -13,7 +13,7 @@ type IntentExpectation struct {
 
 // EntityExpectation represents an expectation where we have a single entity
 type EntityExpectation struct {
-	entity *nlp.Entity
+	entity nlp.Entity
 }
 
 /*
