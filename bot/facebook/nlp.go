@@ -9,9 +9,9 @@ import (
 type NlpDataType string
 
 const (
-	NlpDataTypeInt        NlpDataType = "int"
-	NlpDataTypeDateTime   NlpDataType = "datetime"
-	NlpDataTypeIntent     NlpDataType = "intent"
+	NlpDataTypeInt      NlpDataType = "int"
+	NlpDataTypeDateTime NlpDataType = "datetime"
+	NlpDataTypeIntent   NlpDataType = "intent"
 )
 
 type NlpDataTypeMap map[string]NlpDataType
@@ -26,4 +26,3 @@ func (bot *facebookBot) ParseNlpData(data *jason.Object, dataTypeMap *NlpDataTyp
 
 	return nil, nil
 }
-
