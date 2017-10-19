@@ -24,7 +24,6 @@ func main() {
 	}
 
 	b := facebook.NewFacebookBot(config)
-	b.BindDefaultWebhooks()
 
 	r := chi.NewRouter()
 
