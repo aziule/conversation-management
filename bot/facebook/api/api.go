@@ -1,10 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"os"
-	"encoding/json"
 )
 
 // FacebookApi is the real-world implementation of the API

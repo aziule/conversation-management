@@ -4,8 +4,8 @@ import (
 	"github.com/aziule/conversation-management/bot/facebook/api"
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/bot"
-	"net/http"
 	"github.com/aziule/conversation-management/core/nlp"
+	"net/http"
 )
 
 // Bot is the main structure
@@ -14,7 +14,7 @@ type facebookBot struct {
 	verifyToken     string
 	fbApi           *api.FacebookApi
 	webhooks        []*bot.Webhook
-	DataTypeMap  DataTypeMap
+	DataTypeMap     DataTypeMap
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
@@ -26,7 +26,7 @@ func NewFacebookBot(config *core.Config) *facebookBot {
 		verifyToken:     config.FbVerifyToken,
 		fbApi:           api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 		webhooks:        nil,
-		DataTypeMap:  getDefaultDataTypeMap(),
+		DataTypeMap:     getDefaultDataTypeMap(),
 	}
 }
 

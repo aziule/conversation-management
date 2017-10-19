@@ -32,9 +32,9 @@ type IntEntity struct {
 	Value int
 }
 
-func (e *IntEntity) Name() string { return e.name }
+func (e *IntEntity) Name() string        { return e.name }
 func (e *IntEntity) Confidence() float32 { return e.confidence }
-func (e *IntEntity) Type() DataType { return DataTypeInt }
+func (e *IntEntity) Type() DataType      { return DataTypeInt }
 
 type SingleDateTimeEntity struct {
 	*entity
@@ -42,9 +42,9 @@ type SingleDateTimeEntity struct {
 	Granularity DateTimeGranularity
 }
 
-func (e *SingleDateTimeEntity) Name() string { return e.name }
+func (e *SingleDateTimeEntity) Name() string        { return e.name }
 func (e *SingleDateTimeEntity) Confidence() float32 { return e.confidence }
-func (e *SingleDateTimeEntity) Type() DataType { return DataTypeDateTime }
+func (e *SingleDateTimeEntity) Type() DataType      { return DataTypeDateTime }
 
 type IntervalDateTimeEntity struct {
 	*entity
@@ -54,9 +54,9 @@ type IntervalDateTimeEntity struct {
 	ToGranularity   DateTimeGranularity
 }
 
-func (e *IntervalDateTimeEntity) Name() string { return e.name }
+func (e *IntervalDateTimeEntity) Name() string        { return e.name }
 func (e *IntervalDateTimeEntity) Confidence() float32 { return e.confidence }
-func (e *IntervalDateTimeEntity) Type() DataType { return DataTypeDateTime }
+func (e *IntervalDateTimeEntity) Type() DataType      { return DataTypeDateTime }
 
 // newEntity creates a new base entity
 func newEntity(name string, confidence float32) *entity {

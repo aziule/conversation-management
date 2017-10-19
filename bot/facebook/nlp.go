@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"github.com/antonholmquist/jason"
 	"github.com/aziule/conversation-management/core/nlp"
-	"time"
 	"github.com/labstack/gommon/log"
+	"time"
 )
 
 type DataTypeMap map[string]nlp.DataType
