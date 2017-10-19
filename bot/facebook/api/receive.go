@@ -33,6 +33,8 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 
 	json, err := jason.NewObjectFromBytes(body)
 
+	prettyPrint(body)
+
 	if err != nil {
 		fmt.Println(err)
 		return nil, errors.New("Could not parse JSON") // @todo: error types

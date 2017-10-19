@@ -6,6 +6,7 @@ import (
 	"github.com/antonholmquist/jason"
 	"github.com/aziule/conversation-management/core/nlp"
 	"time"
+	"github.com/labstack/gommon/log"
 )
 
 type DataTypeMap map[string]nlp.DataType
@@ -84,12 +85,109 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 			return nlp.NewIntEntity(name, float32(confidence), int(value)), nil
 			break
 		case nlp.DataTypeDateTime:
-			return nlp.NewSingleDateTimeEntity(name, float32(confidence), time.Now(), nlp.GranularityDay), nil
-			break
+			_, err := e.GetString("value")
+
+			if err != nil {
+				// If there's an error, then look for interval datetimes, parsed as "from" & "to"
+				from, err := e.GetObject("from")
+
+				if err != nil {
+					log.Info("Unable to find the from value")
+					// @todo: log, handle error better and use a predefined error
+					return nil, err
+				}
+
+				fromTime, fromGranularity, err := extractDateTimeInformation(from)
+
+				if err != nil {
+					log.Info("Unable to parse the from information")
+					// @todo: log, handle error better and use a predefined error
+					return nil, err
+				}
+
+				to, err := e.GetObject("to")
+
+				if err != nil {
+					log.Info("Unable to find the to value")
+					// @todo: log, handle error better and use a predefined error
+					return nil, err
+				}
+
+				toTime, toGranularity, err := extractDateTimeInformation(to)
+
+				if err != nil {
+					log.Info("Unable to parse the to information")
+					// @todo: log, handle error better and use a predefined error
+					return nil, err
+				}
+
+				return nlp.NewIntervalDateTimeEntity(
+					name,
+					float32(confidence),
+					fromTime,
+					toTime,
+					fromGranularity,
+					toGranularity,
+				), nil
+			}
+
+			t, granularity, err := extractDateTimeInformation(e)
+
+			if err != nil {
+				log.Info("Unable to parse the single datetime information")
+				// @todo: log, handle error better and use a predefined error
+				return nil, err
+			}
+
+			return nlp.NewSingleDateTimeEntity(name, float32(confidence), t, granularity), nil
 		}
 	}
 
 	return nil, errors.New("Data type not handled")
+}
+
+// extractDateTimeInformation extracts useful date time information from JSON
+// This is heavily coupled with what Wit returns us
+func extractDateTimeInformation(object *jason.Object) (time.Time, nlp.DateTimeGranularity, error) {
+	value, err := object.GetString("value")
+
+	if err != nil {
+		log.Info("Unable to find from's value")
+		// @todo: log, handle error better and use a predefined error
+		return time.Time{}, "", err
+	}
+
+	t, err := stringToTime(value)
+
+	if err != nil {
+		log.Info("Unable to case the from time to time.Time")
+		// @todo: log, handle error better and use a predefined error
+		return time.Time{}, "", err
+	}
+
+	grain, err := object.GetString("grain")
+
+	if err != nil {
+		log.Info("Unable to find from's grain")
+		// @todo: log, handle error better and use a predefined error
+		return time.Time{}, "", err
+	}
+
+	// @todo: use a converter that will switch between values
+	return t, nlp.DateTimeGranularity(grain), nil
+}
+
+// stringToTime converts a given string to a tine.Time
+// @TODO: move somewhere else
+func stringToTime(value string) (time.Time, error) {
+	t, err := time.Parse(time.RFC3339, value)
+
+	if err != nil {
+		// @todo: use custom error and handle better
+		return time.Time{}, errors.New("Invalid value")
+	}
+
+	return t, nil
 }
 
 // toIntent converts a jason intent to a built-in NLP representation of an intent

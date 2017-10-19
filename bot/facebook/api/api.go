@@ -3,6 +3,8 @@ package api
 import (
 	"net/http"
 	"net/url"
+	"os"
+	"encoding/json"
 )
 
 // FacebookApi is the real-world implementation of the API
@@ -48,6 +50,14 @@ func (api *FacebookApi) getBaseUrl() *url.URL {
 	}
 
 	return u
+}
+
+// prettyPrint prints JSON the pretty way
+func prettyPrint(data []byte) {
+	var v interface{}
+	json.Unmarshal(data, &v)
+	prettyJson, _ := json.MarshalIndent(v, "", "    ")
+	os.Stdout.Write(prettyJson)
 }
 
 // Getters
