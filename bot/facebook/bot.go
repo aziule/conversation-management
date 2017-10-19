@@ -39,31 +39,20 @@ func NewFacebookBot(config *core.Config) *facebookBot {
 	return bot
 }
 
-// BindWebhooks binds the given webhooks to the bot
-func (facebookBot *facebookBot) BindWebhooks(webhooks []*bot.Webhook) {
-	for _, webhook := range webhooks {
-		facebookBot.webhooks = append(facebookBot.webhooks, webhook)
-	}
-}
-
 // InitWebhooks initialises the default Facebook-related webhooks
 // Use this method to create and bind the default Facebook webhooks to the bot
 func (facebookBot *facebookBot) BindDefaultWebhooks() {
-	webhooks := []*bot.Webhook{}
-
-	webhooks = append(webhooks, bot.NewWebHook(
+	facebookBot.webhooks = append(facebookBot.webhooks, bot.NewWebHook(
 		bot.HttpMethodGet,
 		"/",
 		facebookBot.HandleValidateWebhook,
 	))
 
-	webhooks = append(webhooks, bot.NewWebHook(
+	facebookBot.webhooks = append(facebookBot.webhooks, bot.NewWebHook(
 		bot.HttpMethodPost,
 		"/",
 		facebookBot.HandleMessageReceived,
 	))
-
-	facebookBot.BindWebhooks(webhooks)
 }
 
 // getDefaultDataTypeMap returns the default data type map.
