@@ -1,4 +1,4 @@
-package facebook
+package wit
 
 import (
 	"errors"
@@ -9,16 +9,33 @@ import (
 	"time"
 )
 
-type DataTypeMap map[string]nlp.DataType
+// WitParser is the NLP parser for Wit.
+// It implements the nlp.Parser interface
+type WitParser struct {
+	dataTypeMap nlp.DataTypeMap
+}
 
-// @todo: use an interface on top of that rather than a jason Object
-// ParseNlpData returns an object of type ParsedData after parsing a jason object
-func (bot *facebookBot) ParseNlpData(data *jason.Object) (*nlp.ParsedData, error) {
+// NewParser is the constructor method for WitParser
+func NewParser(dataTypeMap nlp.DataTypeMap) nlp.Parser {
+	return &WitParser{
+		dataTypeMap: dataTypeMap,
+	}
+}
+
+// ParseNlpData parses raw data and returns parsed data
+func (parser *WitParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
 	var intent *nlp.Intent
 	var entities []nlp.Entity
 
+	data, err := jason.NewObjectFromBytes(rawData)
+
+	if err != nil {
+		// @todo: better stuff
+		return nil, errors.New("Error when getting json from data")
+	}
+
 	for key, value := range data.Map() {
-		dataType, ok := bot.DataTypeMap[key]
+		dataType, ok := parser.dataTypeMap[key]
 
 		if !ok {
 			// @todo: log

@@ -3,11 +3,11 @@ package api
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"time"
 
 	"github.com/antonholmquist/jason"
-	"io/ioutil"
-	"net/http"
 )
 
 // ReceivedMessage is the base struct for received messages
@@ -18,7 +18,7 @@ type ReceivedMessage struct {
 	sentAt            time.Time
 	text              string
 	quickReplyPayload string
-	nlp               *jason.Object
+	nlp               []byte
 }
 
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
@@ -93,8 +93,15 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 	quickReplyPayload, _ := messageData.GetString("quick_reply", "payload")
 
 	nlp, err := messageData.GetObject("message", "nlp", "entities")
+	var nlpBytes []byte
 
-	if err != nil {
+	if err == nil {
+		nlpBytes, err = nlp.MarshalJSON()
+
+		if err != nil {
+			// @todo: log error
+		}
+	} else {
 		// @todo: log that no NLP was received
 	}
 
@@ -105,7 +112,7 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 		sentAt:            time.Unix(sentAt, 0),
 		text:              text,
 		quickReplyPayload: quickReplyPayload,
-		nlp:               nlp,
+		nlp:               nlpBytes,
 	}, nil
 }
 
@@ -116,4 +123,4 @@ func (m *ReceivedMessage) SentAt() time.Time         { return m.sentAt }
 func (m *ReceivedMessage) Mid() string               { return m.mid }
 func (m *ReceivedMessage) Text() string              { return m.text }
 func (m *ReceivedMessage) QuickReplyPayload() string { return m.quickReplyPayload }
-func (m *ReceivedMessage) Nlp() *jason.Object        { return m.nlp }
+func (m *ReceivedMessage) Nlp() []byte               { return m.nlp }

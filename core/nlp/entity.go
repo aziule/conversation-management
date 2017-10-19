@@ -1,8 +1,12 @@
 package nlp
 
-import "time"
+import (
+	"time"
+)
 
 type DateTimeGranularity string
+
+type DataTypeMap map[string]DataType
 
 type DataType string
 

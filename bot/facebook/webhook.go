@@ -18,7 +18,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 
 	if receivedMessage.Nlp() != nil {
-		parsedData, err := bot.ParseNlpData(receivedMessage.Nlp())
+		parsedData, err := bot.nlpParser.ParseNlpData(receivedMessage.Nlp())
 
 		if err != nil {
 			panic(err)
@@ -49,7 +49,7 @@ func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Req
 
 	verifyToken, err := getSingleQueryParam(queryParams, "hub.verify_token")
 
-	if err != nil || verifyToken != bot.VerifyToken() {
+	if err != nil || verifyToken != bot.verifyToken {
 		return
 	}
 

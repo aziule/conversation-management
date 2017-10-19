@@ -1,11 +1,13 @@
 package facebook
 
 import (
+	"net/http"
+
 	"github.com/aziule/conversation-management/bot/facebook/api"
 	"github.com/aziule/conversation-management/core"
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/core/nlp"
-	"net/http"
+	"github.com/aziule/conversation-management/nlp/wit"
 )
 
 // Bot is the main structure
@@ -14,25 +16,22 @@ type facebookBot struct {
 	verifyToken     string
 	fbApi           *api.FacebookApi
 	webhooks        []*bot.Webhook
-	DataTypeMap     DataTypeMap
+	nlpParser       nlp.Parser
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
 // By default, no webhook is attached to the bot. It must be added manually
 // using either the BindWebhooks or BindDefaultWebhooks method
 func NewFacebookBot(config *core.Config) *facebookBot {
+	dataTypeMap := getDefaultDataTypeMap()
+
 	return &facebookBot{
 		pageAccessToken: config.FbPageAccessToken,
 		verifyToken:     config.FbVerifyToken,
 		fbApi:           api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 		webhooks:        nil,
-		DataTypeMap:     getDefaultDataTypeMap(),
+		nlpParser:       wit.NewParser(dataTypeMap),
 	}
-}
-
-// Webhooks returns the available webhooks for the bot
-func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
-	return facebookBot.webhooks
 }
 
 // BindWebhooks binds the given webhooks to the bot
@@ -65,8 +64,8 @@ func (facebookBot *facebookBot) BindDefaultWebhooks() {
 // getDefaultDataTypeMap returns the default data type map.
 // For now, this is highly coupled with Wit's data types and should
 // be updated every time a change is made to Wit.
-func getDefaultDataTypeMap() DataTypeMap {
-	DataTypeMap := make(DataTypeMap)
+func getDefaultDataTypeMap() nlp.DataTypeMap {
+	DataTypeMap := make(nlp.DataTypeMap)
 
 	DataTypeMap["nb_persons"] = nlp.DataTypeInt
 	DataTypeMap["intent"] = nlp.DataTypeIntent
@@ -76,5 +75,5 @@ func getDefaultDataTypeMap() DataTypeMap {
 }
 
 // Getters
-func (facebookBot *facebookBot) PageAccessToken() string { return facebookBot.pageAccessToken }
-func (facebookBot *facebookBot) VerifyToken() string     { return facebookBot.verifyToken }
+func (facebookBot *facebookBot) Webhooks() []*bot.Webhook { return facebookBot.webhooks }
+func (facebookBot *facebookBot) NlpParser() nlp.Parser    { return facebookBot.nlpParser }
