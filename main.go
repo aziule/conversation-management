@@ -33,13 +33,13 @@ func main() {
 
 	// Automatically set the bot's webhooks routes
 	for _, webhook := range b.Webhooks() {
-		log.Debugf("%s %s", string(webhook.Method()), webhook.Path())
+		log.Debugf("%s %s", string(webhook.Method), webhook.Path)
 
-		switch webhook.Method() {
+		switch webhook.Method {
 		case bot.HttpMethodGet:
-			r.Get(webhook.Path(), webhook.Handler())
+			r.Get(webhook.Path, webhook.Handler)
 		case bot.HttpMethodPost:
-			r.Post(webhook.Path(), webhook.Handler())
+			r.Post(webhook.Path, webhook.Handler)
 		}
 	}
 
