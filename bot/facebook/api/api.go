@@ -9,8 +9,7 @@ import (
 
 // FacebookApi is the real-world implementation of the API
 type FacebookApi struct {
-	Version         string
-	PageAccessToken string
+	pageAccessToken string
 	client          *http.Client
 	baseUrl         *url.URL
 }
@@ -22,8 +21,7 @@ func NewFacebookApi(version, pageAccessToken string, client *http.Client) *Faceb
 	baseUrl, _ := url.Parse(rawBaseUrl)
 
 	return &FacebookApi{
-		Version:         version,
-		PageAccessToken: pageAccessToken,
+		pageAccessToken: pageAccessToken,
 		client:          client,
 		baseUrl:         baseUrl,
 	}
@@ -37,7 +35,7 @@ func (api *FacebookApi) getSendTextUrl() *url.URL {
 	u, _ := url.Parse(baseUrl.String() + "/me/messages")
 
 	q := u.Query()
-	q.Set("access_token", api.PageAccessToken)
+	q.Set("access_token", api.pageAccessToken)
 
 	u.RawQuery = q.Encode()
 
