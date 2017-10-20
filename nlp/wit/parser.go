@@ -5,8 +5,19 @@ import (
 	"fmt"
 	"github.com/antonholmquist/jason"
 	"github.com/aziule/conversation-management/core/nlp"
-	"github.com/labstack/gommon/log"
+	log "github.com/sirupsen/logrus"
 	"time"
+)
+
+var (
+	ErrCouldNotParseJson       = errors.New("Could not parse JSON")
+	ErrMalformedDateTime       = errors.New("Malformed datetime value")
+	ErrCouldNotParseJsonObject = errors.New("Could not parse object from JSON")
+	ErrMissingKey              = func(key string) error { return errors.New(fmt.Sprintf("Missing key: %s", key)) }
+	ErrCouldNotCastValue       = func(key, expectedType string) error {
+		return errors.New(fmt.Sprintf("Could not cast %s to %s", expectedType))
+	}
+	ErrUnhandledDataType = func(dataType string) error { return errors.New(fmt.Sprintf("Unhandled data type %s", dataType)) }
 )
 
 // WitParser is the NLP parser for Wit.
@@ -30,16 +41,15 @@ func (parser *WitParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
 	data, err := jason.NewObjectFromBytes(rawData)
 
 	if err != nil {
-		// @todo: better stuff
-		return nil, errors.New("Error when getting json from data")
+		log.WithField("rawData", string(rawData)).Infof("Could not parse JSON: %s", err)
+		return nil, ErrCouldNotParseJson
 	}
 
 	for key, value := range data.Map() {
 		dataType, ok := parser.dataTypeMap[key]
 
 		if !ok {
-			// @todo: log
-			fmt.Println("NOT HANDLED: ", key)
+			log.WithField("key", key).Warnf("Data type is not handled: %s", key)
 			continue
 		}
 
@@ -48,8 +58,7 @@ func (parser *WitParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
 			i, err := toIntent(value)
 
 			if err != nil {
-				// @todo: handle it better
-				fmt.Println("Error: ", err)
+				log.WithField("dataType", dataType).Warnf("Could not convert value to DataTypeIntent: %s", err)
 				continue
 			}
 
@@ -59,8 +68,10 @@ func (parser *WitParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
 			entity, err := toEntity(value, key, dataType)
 
 			if err != nil {
-				// @todo: handle it better
-				fmt.Println("Error: ", err)
+				log.WithFields(log.Fields{
+					"dataType": dataType,
+					"key":      key,
+				}).Warnf("Could not convert value to entity: %s", err)
 				continue
 			}
 
@@ -78,16 +89,14 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 	object, err := value.ObjectArray()
 
 	if err != nil {
-		// @todo: log, handle error better and use a predefined error
-		return nil, errors.New("Could not cast to object")
+		return nil, ErrCouldNotParseJsonObject
 	}
 
 	for _, e := range object {
 		confidence, err := e.GetFloat64("confidence")
 
 		if err != nil {
-			// @todo: log, handle error better and use a predefined error
-			return nil, err
+			return nil, ErrCouldNotCastValue("confidence", "float64")
 		}
 
 		switch dataType {
@@ -95,12 +104,10 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 			value, err := e.GetInt64("value")
 
 			if err != nil {
-				// @todo: log, handle error better and use a predefined error
-				return nil, err
+				return nil, ErrCouldNotCastValue("value", "int64")
 			}
 
 			return nlp.NewIntEntity(name, float32(confidence), int(value)), nil
-			break
 		case nlp.DataTypeDateTime:
 			_, err := e.GetString("value")
 
@@ -109,32 +116,24 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 				from, err := e.GetObject("from")
 
 				if err != nil {
-					log.Info("Unable to find the from value")
-					// @todo: log, handle error better and use a predefined error
-					return nil, err
+					return nil, ErrMissingKey("from")
 				}
 
 				fromTime, fromGranularity, err := extractDateTimeInformation(from)
 
 				if err != nil {
-					log.Info("Unable to parse the from information")
-					// @todo: log, handle error better and use a predefined error
 					return nil, err
 				}
 
 				to, err := e.GetObject("to")
 
 				if err != nil {
-					log.Info("Unable to find the to value")
-					// @todo: log, handle error better and use a predefined error
-					return nil, err
+					return nil, ErrMissingKey("to")
 				}
 
 				toTime, toGranularity, err := extractDateTimeInformation(to)
 
 				if err != nil {
-					log.Info("Unable to parse the to information")
-					// @todo: log, handle error better and use a predefined error
 					return nil, err
 				}
 
@@ -151,7 +150,6 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 			t, granularity, err := extractDateTimeInformation(e)
 
 			if err != nil {
-				log.Info("Unable to parse the single datetime information")
 				// @todo: log, handle error better and use a predefined error
 				return nil, err
 			}
@@ -160,7 +158,7 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 		}
 	}
 
-	return nil, errors.New("Data type not handled")
+	return nil, ErrUnhandledDataType(string(dataType))
 }
 
 // extractDateTimeInformation extracts useful date time information from JSON
@@ -169,28 +167,22 @@ func extractDateTimeInformation(object *jason.Object) (time.Time, nlp.DateTimeGr
 	value, err := object.GetString("value")
 
 	if err != nil {
-		log.Info("Unable to find from's value")
-		// @todo: log, handle error better and use a predefined error
-		return time.Time{}, "", err
+		return time.Time{}, "", ErrMissingKey("value")
 	}
 
 	t, err := stringToTime(value)
 
 	if err != nil {
-		log.Info("Unable to case the from time to time.Time")
-		// @todo: log, handle error better and use a predefined error
 		return time.Time{}, "", err
 	}
 
 	grain, err := object.GetString("grain")
 
 	if err != nil {
-		log.Info("Unable to find from's grain")
-		// @todo: log, handle error better and use a predefined error
-		return time.Time{}, "", err
+		return time.Time{}, "", ErrMissingKey("grain")
 	}
 
-	// @todo: use a converter that will switch between values
+	// @todo: use a converter that will check that the granularity exists
 	return t, nlp.DateTimeGranularity(grain), nil
 }
 
@@ -200,8 +192,11 @@ func stringToTime(value string) (time.Time, error) {
 	t, err := time.Parse(time.RFC3339, value)
 
 	if err != nil {
-		// @todo: use custom error and handle better
-		return time.Time{}, errors.New("Invalid value")
+		log.WithFields(log.Fields{
+			"value":          value,
+			"expectedLayout": "RFC3339",
+		}).Infof("Could not cast string to time.Time: %s", err)
+		return time.Time{}, ErrMalformedDateTime
 	}
 
 	return t, nil
@@ -213,16 +208,14 @@ func toIntent(value *jason.Value) (*nlp.Intent, error) {
 	object, err := value.ObjectArray()
 
 	if err != nil {
-		// @todo: log, handle error better and use a predefined error
-		return nil, errors.New("Could not cast to object")
+		return nil, ErrCouldNotParseJsonObject
 	}
 
 	// Handle single intents only
 	intentName, err := object[0].GetString("value")
 
 	if err != nil {
-		// @todo: log, handle error better and use a predefined error
-		return nil, err
+		return nil, ErrMissingKey("value")
 	}
 
 	return nlp.NewIntent(intentName), nil

@@ -2,12 +2,21 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
 
+	"fmt"
 	"github.com/antonholmquist/jason"
+	log "github.com/sirupsen/logrus"
+)
+
+var (
+	ErrCouldNotReadRequestBody = errors.New("Could not read the request's body")
+	ErrInvalidJson             = errors.New("Invalid JSON")
+	ErrMissingKey              = func(key string) error { return errors.New(fmt.Sprintf("Missing key: %s", key)) }
+	ErrNoEntry                 = errors.New("No entry to parse")
+	ErrNoMessage               = errors.New("No message to parse")
 )
 
 // ReceivedMessage is the base struct for received messages
@@ -27,28 +36,31 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 	defer r.Body.Close()
 
 	if err != nil {
-		// @todo: log and handle error types
-		return nil, err
+		log.Infof("Could not read the request's body: %s", err)
+		return nil, ErrCouldNotReadRequestBody
 	}
 
 	json, err := jason.NewObjectFromBytes(body)
 
+	// @todo: remove (use with debug only)
 	prettyPrint(body)
 
 	if err != nil {
-		fmt.Println(err)
-		return nil, errors.New("Could not parse JSON") // @todo: error types
+		log.WithField("body", string(body)).Infof("Could not parse JSON from the request: %s", err)
+		return nil, ErrInvalidJson
 	}
 
 	// The message content itself is embedded inside the "entry" array
 	entries, err := json.GetObjectArray("entry")
 
 	if err != nil {
-		return nil, errors.New("Missing entry key")
+		log.WithField("key", "entry").Info("Missing key")
+		return nil, ErrMissingKey("entry")
 	}
 
 	if len(entries) == 0 {
-		return nil, errors.New("No message to parse")
+		log.Info("No entries to parse")
+		return nil, ErrNoEntry
 	}
 
 	entry := entries[0]
@@ -56,11 +68,13 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 	messaging, err := entry.GetObjectArray("messaging")
 
 	if err != nil {
-		return nil, errors.New("Missing messaging key")
+		log.WithField("key", "messaging").Info("Missing key")
+		return nil, ErrMissingKey("messaging")
 	}
 
 	if len(messaging) == 0 {
-		return nil, errors.New("No message to parse")
+		log.Info("No message to parse")
+		return nil, ErrNoMessage
 	}
 
 	messageData := messaging[0]
@@ -68,25 +82,29 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 	mid, err := messageData.GetString("message", "mid")
 
 	if err != nil {
-		return nil, errors.New("Missing message.id")
+		log.WithField("key", "message.id").Info("Missing key")
+		return nil, ErrMissingKey("message.id")
 	}
 
 	senderId, err := messageData.GetString("sender", "id")
 
 	if err != nil {
-		return nil, errors.New("Missing sender.id")
+		log.WithField("key", "sender.id").Info("Missing key")
+		return nil, ErrMissingKey("sender.id")
 	}
 
 	recipientId, err := messageData.GetString("recipient", "id")
 
 	if err != nil {
-		return nil, errors.New("Missing recipient.id")
+		log.WithField("key", "recipient.id").Info("Missing key")
+		return nil, ErrMissingKey("recipient.id")
 	}
 
 	sentAt, err := messageData.GetInt64("timestamp")
 
 	if err != nil {
-		return nil, errors.New("Missing timestamp")
+		log.WithField("key", "timestamp").Info("Missing key")
+		return nil, ErrMissingKey("timestamp")
 	}
 
 	text, _ := messageData.GetString("message", "text")

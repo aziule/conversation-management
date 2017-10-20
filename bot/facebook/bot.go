@@ -12,10 +12,10 @@ import (
 
 // Bot is the main structure
 type facebookBot struct {
-	verifyToken     string
-	fbApi           *api.FacebookApi
-	webhooks        []*bot.Webhook
-	nlpParser       nlp.Parser
+	verifyToken string
+	fbApi       *api.FacebookApi
+	webhooks    []*bot.Webhook
+	nlpParser   nlp.Parser
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
@@ -26,10 +26,9 @@ func NewFacebookBot(config *core.Config) *facebookBot {
 	dataTypeMap := getDefaultDataTypeMap()
 
 	bot := &facebookBot{
-		verifyToken:     config.FbVerifyToken,
-		fbApi:           api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
-		webhooks:        nil,
-		nlpParser:       wit.NewParser(dataTypeMap),
+		verifyToken: config.FbVerifyToken,
+		fbApi:       api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
+		nlpParser:   wit.NewParser(dataTypeMap),
 	}
 
 	bot.BindDefaultWebhooks()

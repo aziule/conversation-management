@@ -42,12 +42,7 @@ func (api *FacebookApi) getSendTextUrl() *url.URL {
 // getBaseUrl returns the base url for a Facebook graph API call
 func (api *FacebookApi) getBaseUrl() *url.URL {
 	rawUrl := "https://graph.facebook.com/v" + api.Version()
-	u, err := url.Parse(rawUrl)
-
-	if err != nil {
-		// @todo improve
-		panic(err)
-	}
+	u, _ := url.Parse(rawUrl)
 
 	return u
 }

@@ -3,9 +3,15 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
+)
+
+var (
+	ErrCouldNotMarshalJson = errors.New("Could not marshal JSON object")
 )
 
 // SendTextToUser is the FacebookApi's interface method responsible for sending a 1-to-1 message to a user
@@ -16,15 +22,21 @@ func (api *FacebookApi) SendTextToUser(recipientId, text string) error {
 	jsonObject, err := json.Marshal(object)
 
 	if err != nil {
-		// @todo: fix
-		return err
+		log.WithFields(log.Fields{
+			"recipientId": recipientId,
+			"text":        text,
+		}).Infof("Could not send the message to the user due to a JSON marshal issue: %s", err)
+		return ErrCouldNotMarshalJson
 	}
 
 	request, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonObject))
 	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
-		// @todo: fix
+		log.WithFields(log.Fields{
+			"url":        url.String(),
+			"jsonObject": string(jsonObject),
+		}).Infof("Could not create a new request: %s", err)
 		return err
 	}
 
@@ -32,13 +44,17 @@ func (api *FacebookApi) SendTextToUser(recipientId, text string) error {
 	response, err := client.Do(request)
 
 	if err != nil {
-		// @todo: fix
+		log.Infof("Failed to send the request: %s", err)
 		return err
 	}
 
 	defer response.Body.Close()
 
-	body, _ := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		log.Infof("Failed to read the response's body: %s", err)
+	}
 
 	// @todo: handle errors
 	fmt.Println(string(body))
