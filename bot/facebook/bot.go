@@ -12,7 +12,6 @@ import (
 
 // Bot is the main structure
 type facebookBot struct {
-	pageAccessToken string
 	verifyToken     string
 	fbApi           *api.FacebookApi
 	webhooks        []*bot.Webhook
@@ -27,7 +26,6 @@ func NewFacebookBot(config *core.Config) *facebookBot {
 	dataTypeMap := getDefaultDataTypeMap()
 
 	bot := &facebookBot{
-		pageAccessToken: config.FbPageAccessToken,
 		verifyToken:     config.FbVerifyToken,
 		fbApi:           api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 		webhooks:        nil,
