@@ -14,6 +14,8 @@ var ErrCouldNotFetchParam = func(key string) error { return errors.New(fmt.Sprin
 // We parse the message, extract relevant NLP data, check the context, validate
 // the data, and return a response.
 func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Request) {
+	log.Debug("New Facebook message received")
+
 	receivedMessage, err := bot.fbApi.ParseRequestMessageReceived(r)
 
 	if err != nil {
@@ -46,6 +48,8 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 // HandleValidateWebhook tries to validate the Facebook webhook
 // More information here: https://developers.facebook.com/docs/messenger-platform/getting-started/quick-start
 func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Request) {
+	log.Debug("New Facebook webhook validation request")
+
 	queryParams := r.URL.Query()
 
 	hubMode, err := getSingleQueryParam(queryParams, "hub.mode")

@@ -7,6 +7,7 @@ import (
 
 // Config is the struct that will hold the runtime configuration
 type Config struct {
+	Debug             bool   `json:"debug"`
 	ListeningPort     int    `json:"listening_port"`
 	FbVerifyToken     string `json:"fb_verify_token"`
 	FbApiVersion      string `json:"fb_api_version"`
