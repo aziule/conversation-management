@@ -84,6 +84,25 @@ func (parser *WitParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
 	return nlp.NewParsedData(intent, entities), nil
 }
 
+// toIntent converts a jason intent to a built-in NLP representation of an intent
+// Returns an error if the JSON is malformed
+func toIntent(value *jason.Value) (*nlp.Intent, error) {
+	object, err := value.ObjectArray()
+
+	if err != nil {
+		return nil, ErrCouldNotParseJsonObject
+	}
+
+	// Handle single intents only
+	intentName, err := object[0].GetString("value")
+
+	if err != nil {
+		return nil, ErrMissingKey("value")
+	}
+
+	return nlp.NewIntent(intentName), nil
+}
+
 // toEntity converts a jason entity to a built-in NLP representation of an entity
 // Returns an error if the JSON is malformed or if we do not handle the data type correctly
 func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entity, error) {
@@ -151,7 +170,6 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 			t, granularity, err := extractDateTimeInformation(e)
 
 			if err != nil {
-				// @todo: log, handle error better and use a predefined error
 				return nil, err
 			}
 
@@ -201,23 +219,4 @@ func stringToTime(value string) (time.Time, error) {
 	}
 
 	return t, nil
-}
-
-// toIntent converts a jason intent to a built-in NLP representation of an intent
-// Returns an error if the JSON is malformed
-func toIntent(value *jason.Value) (*nlp.Intent, error) {
-	object, err := value.ObjectArray()
-
-	if err != nil {
-		return nil, ErrCouldNotParseJsonObject
-	}
-
-	// Handle single intents only
-	intentName, err := object[0].GetString("value")
-
-	if err != nil {
-		return nil, ErrMissingKey("value")
-	}
-
-	return nlp.NewIntent(intentName), nil
 }
