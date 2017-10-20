@@ -16,18 +16,14 @@ type Parser interface {
 
 // ParsedData represents intents and entities as understood after using NLP services
 type ParsedData struct {
-	intent   *Intent
-	entities []Entity
+	Intent   *Intent
+	Entities []Entity
 }
 
 // NewParsedData is the constructor method for ParsedData
 func NewParsedData(intent *Intent, entities []Entity) *ParsedData {
 	return &ParsedData{
-		intent:   intent,
-		entities: entities,
+		Intent:   intent,
+		Entities: entities,
 	}
 }
-
-// Getters
-func (parsedData *ParsedData) Intent() *Intent    { return parsedData.intent }
-func (parsedData *ParsedData) Entities() []Entity { return parsedData.entities }

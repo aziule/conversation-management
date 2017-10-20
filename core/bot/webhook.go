@@ -27,7 +27,20 @@ func NewWebHook(method HttpMethod, path string, handler http.HandlerFunc) *Webho
 	}
 }
 
-// Getters
-func (webhook *Webhook) Method() HttpMethod        { return webhook.method }
-func (webhook *Webhook) Path() string              { return webhook.path }
-func (webhook *Webhook) Handler() http.HandlerFunc { return webhook.handler }
+// Method returns the webhook's method.
+// This method is required in order to implement the Webhook interface
+func (webhook *Webhook) Method() HttpMethod {
+	return webhook.method
+}
+
+// Path returns the webhook's path.
+// This method is required in order to implement the Webhook interface
+func (webhook *Webhook) Path() string {
+	return webhook.path
+}
+
+// Handler returns the webhook's handler func.
+// This method is required in order to implement the Webhook interface
+func (webhook *Webhook) Handler() http.HandlerFunc {
+	return webhook.handler
+}

@@ -21,13 +21,13 @@ var (
 
 // ReceivedMessage is the base struct for received messages
 type ReceivedMessage struct {
-	mid               string
-	senderId          string
-	recipientId       string
-	sentAt            time.Time
-	text              string
-	quickReplyPayload string
-	nlp               []byte
+	Mid               string
+	SenderId          string
+	RecipientId       string
+	SentAt            time.Time
+	Text              string
+	QuickReplyPayload string
+	Nlp               []byte
 }
 
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
@@ -124,21 +124,12 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 	}
 
 	return &ReceivedMessage{
-		mid:               mid,
-		senderId:          senderId,
-		recipientId:       recipientId,
-		sentAt:            time.Unix(sentAt, 0),
-		text:              text,
-		quickReplyPayload: quickReplyPayload,
-		nlp:               nlpBytes,
+		Mid:               mid,
+		SenderId:          senderId,
+		RecipientId:       recipientId,
+		SentAt:            time.Unix(sentAt, 0),
+		Text:              text,
+		QuickReplyPayload: quickReplyPayload,
+		Nlp:               nlpBytes,
 	}, nil
 }
-
-// Getters
-func (m *ReceivedMessage) SenderId() string          { return m.senderId }
-func (m *ReceivedMessage) RecipientId() string       { return m.recipientId }
-func (m *ReceivedMessage) SentAt() time.Time         { return m.sentAt }
-func (m *ReceivedMessage) Mid() string               { return m.mid }
-func (m *ReceivedMessage) Text() string              { return m.text }
-func (m *ReceivedMessage) QuickReplyPayload() string { return m.quickReplyPayload }
-func (m *ReceivedMessage) Nlp() []byte               { return m.nlp }

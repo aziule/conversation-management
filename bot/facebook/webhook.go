@@ -3,9 +3,10 @@ package facebook
 import (
 	"errors"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/url"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var ErrCouldNotFetchParam = func(key string) error { return errors.New(fmt.Sprintf("Could not fetch param: %s", key)) }
@@ -24,8 +25,8 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if receivedMessage.Nlp() != nil {
-		parsedData, err := bot.nlpParser.ParseNlpData(receivedMessage.Nlp())
+	if receivedMessage.Nlp != nil {
+		parsedData, err := bot.nlpParser.ParseNlpData(receivedMessage.Nlp)
 
 		if err != nil {
 			// @todo: handle this case and return something to the user
@@ -33,16 +34,16 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		for _, e := range parsedData.Entities() {
-			fmt.Println(e.Type(), e.Name(), e.Confidence())
+		for _, e := range parsedData.Entities {
+			fmt.Println(e.Type, e.Name, e.Confidence)
 		}
 
-		if parsedData.Intent() != nil {
-			fmt.Println(parsedData.Intent().Name())
+		if parsedData.Intent != nil {
+			fmt.Println(parsedData.Intent.Name)
 		}
 	}
 
-	bot.fbApi.SendTextToUser(receivedMessage.SenderId(), receivedMessage.Text())
+	bot.fbApi.SendTextToUser(receivedMessage.SenderId, receivedMessage.Text)
 }
 
 // HandleValidateWebhook tries to validate the Facebook webhook

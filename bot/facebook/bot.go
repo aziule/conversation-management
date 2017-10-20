@@ -22,7 +22,7 @@ type facebookBot struct {
 // By default, we attach webhooks to the bot when constructing it.
 // Later on, we can think about managing webhooks as we would manage events, and
 // subscribe to the ones we like (for example, as defined in the conf).
-func NewFacebookBot(config *core.Config) *facebookBot {
+func NewFacebookBot(config *core.Config) bot.Bot {
 	dataTypeMap := getDefaultDataTypeMap()
 
 	bot := &facebookBot{
@@ -65,6 +65,14 @@ func getDefaultDataTypeMap() nlp.DataTypeMap {
 	return DataTypeMap
 }
 
-// Getters
-func (facebookBot *facebookBot) Webhooks() []*bot.Webhook { return facebookBot.webhooks }
-func (facebookBot *facebookBot) NlpParser() nlp.Parser    { return facebookBot.nlpParser }
+// Webhooks returns the bot's webhooks.
+// This method is required in order to inherit from the Bot interface.
+func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
+	return facebookBot.webhooks
+}
+
+// NlpParser returns the bot's nlp parser.
+// This method is required in order to inherit from the Bot interface.
+func (facebookBot *facebookBot) NlpParser() nlp.Parser {
+	return facebookBot.nlpParser
+}

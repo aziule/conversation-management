@@ -7,10 +7,12 @@ import (
 	"os"
 )
 
+var baseUrl string
+
 // FacebookApi is the real-world implementation of the API
 type FacebookApi struct {
-	version         string
-	pageAccessToken string
+	Version         string
+	PageAccessToken string
 	client          *http.Client
 }
 
@@ -18,8 +20,8 @@ type FacebookApi struct {
 // user-defined variables such as the FB API version or the pageAccessToken.
 func NewFacebookApi(version, pageAccessToken string, client *http.Client) *FacebookApi {
 	return &FacebookApi{
-		version:         version,
-		pageAccessToken: pageAccessToken,
+		Version:         version,
+		PageAccessToken: pageAccessToken,
 		client:          client,
 	}
 }
@@ -32,7 +34,7 @@ func (api *FacebookApi) getSendTextUrl() *url.URL {
 	u, _ := url.Parse(baseUrl.String() + "/me/messages")
 
 	q := u.Query()
-	q.Set("access_token", api.pageAccessToken)
+	q.Set("access_token", api.PageAccessToken)
 
 	u.RawQuery = q.Encode()
 
@@ -41,7 +43,7 @@ func (api *FacebookApi) getSendTextUrl() *url.URL {
 
 // getBaseUrl returns the base url for a Facebook graph API call
 func (api *FacebookApi) getBaseUrl() *url.URL {
-	rawUrl := "https://graph.facebook.com/v" + api.Version()
+	rawUrl := "https://graph.facebook.com/v" + api.Version
 	u, _ := url.Parse(rawUrl)
 
 	return u
@@ -54,7 +56,3 @@ func prettyPrint(data []byte) {
 	prettyJson, _ := json.MarshalIndent(v, "", "    ")
 	os.Stdout.Write(prettyJson)
 }
-
-// Getters
-func (api *FacebookApi) Version() string         { return api.version }
-func (api *FacebookApi) PageAccessToken() string { return api.pageAccessToken }

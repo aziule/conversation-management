@@ -3,10 +3,11 @@ package wit
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/antonholmquist/jason"
 	"github.com/aziule/conversation-management/core/nlp"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 var (
