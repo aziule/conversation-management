@@ -1,9 +1,5 @@
 package nlp
 
-import (
-	"errors"
-)
-
 // Parser is the main interface for parsing raw data and returning parsed data
 type Parser interface {
 	ParseNlpData([]byte) (*ParsedData, error)

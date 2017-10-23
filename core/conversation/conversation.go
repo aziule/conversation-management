@@ -9,7 +9,6 @@ const (
 )
 
 type Conversation interface {
-	Channel() Channel
-	Messages() []Message
 	Status() Status
+	MessagesFlow() MessagesFlow
 }
