@@ -4,11 +4,6 @@ import (
 	"errors"
 )
 
-var (
-	ErrInvalidDataType       = errors.New("Invalid data type provided")
-	ErrInvalidEntityDataType = errors.New("Invalid entity data type provided")
-)
-
 // Parser is the main interface for parsing raw data and returning parsed data
 type Parser interface {
 	ParseNlpData([]byte) (*ParsedData, error)
