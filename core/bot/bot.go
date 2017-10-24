@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
 )
 
@@ -8,4 +9,5 @@ import (
 type Bot interface {
 	Webhooks() []*Webhook
 	NlpParser() nlp.Parser
+	ConversationReader() conversation.ConversationReader
 }

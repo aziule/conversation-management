@@ -1,26 +1,29 @@
 package conversation
 
 import (
-	"time"
-
 	"github.com/aziule/conversation-management/core/nlp"
+	"time"
 )
 
 type Message interface {
-	Channel() Channel
 	Text() string
 	SentAt() time.Time
 }
 
-type UserMessage interface {
-	Message
-	Sender() User
-	ParsedData() nlp.ParsedData
+type message struct {
+	Text   string
+	SentAt time.Time
 }
 
-type BotMessage interface {
-	Message
-	RepliesTo() UserMessage
+type UserMessage struct {
+	message
+	Sender     User
+	ParsedData nlp.ParsedData
+}
+
+type BotMessage struct {
+	message
+	RepliesTo *UserMessage
 }
 
 type MessagesFlow struct {

@@ -1,6 +1,6 @@
 package conversation
 
-type User interface {
-	Id() string
-	Name() string
+type User struct {
+	Id   string
+	Name string
 }

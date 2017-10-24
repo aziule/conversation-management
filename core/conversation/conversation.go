@@ -8,7 +8,11 @@ const (
 	StatusOver              Status = "over"
 )
 
-type Conversation interface {
-	Status() Status
-	MessagesFlow() MessagesFlow
+type Conversation struct {
+	Status       Status
+	MessagesFlow *MessagesFlow
+}
+
+type ConversationReader interface {
+	FindLatest(*User) (*Conversation, error)
 }
