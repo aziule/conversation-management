@@ -10,6 +10,7 @@ import (
 	"github.com/aziule/conversation-management/config"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
+	"github.com/aziule/conversation-management/middleware"
 )
 
 var configFlagPath = flag.String("config", "config.json", "Config file path")
@@ -30,6 +31,8 @@ func main() {
 	b := facebook.NewFacebookBot(config)
 
 	r := chi.NewRouter()
+
+	r.Use(middleware.MongoDB{})
 
 	// Automatically set the bot's webhooks routes
 	for _, webhook := range b.Webhooks() {
