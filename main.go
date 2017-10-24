@@ -8,9 +8,11 @@ import (
 	"github.com/aziule/conversation-management/bot"
 	"github.com/aziule/conversation-management/bot/facebook"
 	"github.com/aziule/conversation-management/config"
+	"github.com/aziule/conversation-management/conversation/mongo"
+	"github.com/aziule/conversation-management/nlp/wit"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
-	"github.com/aziule/conversation-management/middleware"
+	"gopkg.in/mgo.v2"
 )
 
 var configFlagPath = flag.String("config", "config.json", "Config file path")
@@ -28,11 +30,25 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	b := facebook.NewFacebookBot(config)
+	session, err := mgo.Dial(config.DbHost)
+
+	if err != nil {
+		log.Fatalf("An error occurred when connecting to the db: %s", err)
+	}
+
+	defer session.Close()
+
+	b := facebook.NewBot(
+		facebook.NewConfig(
+			config.FbVerifyToken,
+			config.FbApiVersion,
+			config.FbPageAccessToken,
+			wit.NewParser(facebook.DefaultDataTypeMap),
+			mongo.NewMongoConversationReader(session),
+		),
+	)
 
 	r := chi.NewRouter()
-
-	r.Use(middleware.MongoDB{})
 
 	// Automatically set the bot's webhooks routes
 	for _, webhook := range b.Webhooks() {

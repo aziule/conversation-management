@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 )
 
+// @todo: use built-in configs for each package and move this config to the main package
 // Config is the struct that will hold the runtime configuration
 type Config struct {
 	Debug             bool   `json:"debug"`
@@ -13,6 +14,10 @@ type Config struct {
 	FbApiVersion      string `json:"fb_api_version"`
 	FbPageAccessToken string `json:"fb_page_access_token"`
 	NlpService        string `json:"nlp_service"`
+	DbName            string `json:"db_name"`
+	DbHost            string `json:"db_host"`
+	DbUser            string `json:"db_user"`
+	DbPass            string `json:"db_pass"`
 }
 
 // LoadConfig loads the configuration located at the given path

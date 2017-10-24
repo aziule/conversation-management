@@ -5,12 +5,35 @@ import (
 
 	"github.com/aziule/conversation-management/bot"
 	"github.com/aziule/conversation-management/bot/facebook/api"
-	"github.com/aziule/conversation-management/config"
 	"github.com/aziule/conversation-management/conversation"
-	"github.com/aziule/conversation-management/conversation/mongo"
 	"github.com/aziule/conversation-management/nlp"
-	"github.com/aziule/conversation-management/nlp/wit"
 )
+
+// DefaultDataTypeMap is the default data type map to be used with Wit.
+// For now, this is highly coupled with Wit's data types and should
+// be updated every time a change is made to Wit.
+// It is initialised in the init() function
+var DefaultDataTypeMap nlp.DataTypeMap
+
+// Config is the config required in order to instantiate a new FacebookBot
+type Config struct {
+	VerifyToken        string
+	ApiVersion         string
+	PageAccessToken    string
+	NlpParser          nlp.Parser
+	ConversationReader conversation.Reader
+}
+
+// NewConfig is the constructor method for Config
+func NewConfig(verifyToken, apiVersion, pageAccessToken string, nlpParser nlp.Parser, conversationReader conversation.Reader) *Config {
+	return &Config{
+		VerifyToken:        verifyToken,
+		ApiVersion:         apiVersion,
+		PageAccessToken:    pageAccessToken,
+		NlpParser:          nlpParser,
+		ConversationReader: conversationReader,
+	}
+}
 
 // Bot is the main structure
 type facebookBot struct {
@@ -25,14 +48,12 @@ type facebookBot struct {
 // By default, we attach webhooks to the bot when constructing it.
 // Later on, we can think about managing webhooks as we would manage events, and
 // subscribe to the ones we like (for example, as defined in the conf).
-func NewFacebookBot(config *config.Config) bot.Bot {
-	dataTypeMap := getDefaultDataTypeMap()
-
+func NewBot(config *Config) bot.Bot {
 	bot := &facebookBot{
-		verifyToken:        config.FbVerifyToken,
-		fbApi:              api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
-		nlpParser:          wit.NewParser(dataTypeMap),
-		conversationReader: mongo.NewMongoConversationReader(),
+		verifyToken:        config.VerifyToken,
+		fbApi:              api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
+		nlpParser:          config.NlpParser,
+		conversationReader: config.ConversationReader,
 	}
 
 	bot.BindDefaultWebhooks()
@@ -56,19 +77,6 @@ func (facebookBot *facebookBot) BindDefaultWebhooks() {
 	))
 }
 
-// getDefaultDataTypeMap returns the default data type map.
-// For now, this is highly coupled with Wit's data types and should
-// be updated every time a change is made to Wit.
-func getDefaultDataTypeMap() nlp.DataTypeMap {
-	DataTypeMap := make(nlp.DataTypeMap)
-
-	DataTypeMap["nb_persons"] = nlp.DataTypeInt
-	DataTypeMap["intent"] = nlp.DataTypeIntent
-	DataTypeMap["datetime"] = nlp.DataTypeDateTime
-
-	return DataTypeMap
-}
-
 // Webhooks returns the bot's webhooks.
 // This method is required in order to inherit from the Bot interface.
 func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
@@ -81,6 +89,15 @@ func (facebookBot *facebookBot) NlpParser() nlp.Parser {
 	return facebookBot.nlpParser
 }
 
+// ConversationReader returns the ConversationReader.
+// This method is required in order to inherit from the Bot interface.
 func (facebookBot *facebookBot) ConversationReader() conversation.Reader {
 	return facebookBot.conversationReader
+}
+
+func init() {
+	DefaultDataTypeMap = make(nlp.DataTypeMap)
+	DefaultDataTypeMap["nb_persons"] = nlp.DataTypeInt
+	DefaultDataTypeMap["intent"] = nlp.DataTypeIntent
+	DefaultDataTypeMap["datetime"] = nlp.DataTypeDateTime
 }

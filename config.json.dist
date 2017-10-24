@@ -3,5 +3,9 @@
     "listening_port": 3000,
     "fb_verify_token": "app_verify_token",
     "fb_api_version": "2.6",
-    "fb_page_access_token": ""
+    "fb_page_access_token": "",
+    "db_name": "rt_conv_mgmt",
+    "db_host": "localhost",
+    "db_user": "",
+    "db_pass": ""
 }

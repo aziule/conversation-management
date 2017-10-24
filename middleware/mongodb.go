@@ -1,12 +1,13 @@
+// @todo: remove - here only for inspiration
 package middleware
 
 import (
-	"gopkg.in/mgo.v2"
-	"time"
-	"github.com/aziule/conversation-management/config"
-	"net/http"
 	"fmt"
+	"gopkg.in/mgo.v2"
+	"net/http"
+	"time"
 )
+
 type Options struct {
 	ServerName   string
 	DatabaseName string
