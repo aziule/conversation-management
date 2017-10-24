@@ -1,7 +1,7 @@
 package conversation
 
 import (
-	"github.com/aziule/conversation-management/core/nlp"
+	"github.com/aziule/conversation-management/nlp"
 	"time"
 )
 
@@ -42,7 +42,7 @@ func (flow *MessagesFlow) LastMessage() Message {
 	var lastMessage Message
 
 	for _, message := range flow.Messages {
-		if message.SentAt() > lastMessage.SentAt() {
+		if message.SentAt().After(lastMessage.SentAt()) {
 			lastMessage = message
 		}
 	}

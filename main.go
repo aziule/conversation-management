@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/aziule/conversation-management/bot"
 	"github.com/aziule/conversation-management/bot/facebook"
-	"github.com/aziule/conversation-management/core"
-	"github.com/aziule/conversation-management/core/bot"
+	"github.com/aziule/conversation-management/config"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
 )
@@ -17,7 +17,7 @@ var configFlagPath = flag.String("config", "config.json", "Config file path")
 func main() {
 	flag.Parse()
 
-	config, err := core.LoadConfig(*configFlagPath)
+	config, err := config.LoadConfig(*configFlagPath)
 
 	if err != nil {
 		log.Fatalf("An error occurred when loading the config: %s", err)

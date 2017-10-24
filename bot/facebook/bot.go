@@ -3,32 +3,36 @@ package facebook
 import (
 	"net/http"
 
+	"github.com/aziule/conversation-management/bot"
 	"github.com/aziule/conversation-management/bot/facebook/api"
-	"github.com/aziule/conversation-management/core"
-	"github.com/aziule/conversation-management/core/bot"
-	"github.com/aziule/conversation-management/core/nlp"
+	"github.com/aziule/conversation-management/config"
+	"github.com/aziule/conversation-management/conversation"
+	"github.com/aziule/conversation-management/conversation/mongo"
+	"github.com/aziule/conversation-management/nlp"
 	"github.com/aziule/conversation-management/nlp/wit"
 )
 
 // Bot is the main structure
 type facebookBot struct {
-	verifyToken string
-	fbApi       *api.FacebookApi
-	webhooks    []*bot.Webhook
-	nlpParser   nlp.Parser
+	verifyToken        string
+	fbApi              *api.FacebookApi
+	webhooks           []*bot.Webhook
+	nlpParser          nlp.Parser
+	conversationReader conversation.Reader
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
 // By default, we attach webhooks to the bot when constructing it.
 // Later on, we can think about managing webhooks as we would manage events, and
 // subscribe to the ones we like (for example, as defined in the conf).
-func NewFacebookBot(config *core.Config) bot.Bot {
+func NewFacebookBot(config *config.Config) bot.Bot {
 	dataTypeMap := getDefaultDataTypeMap()
 
 	bot := &facebookBot{
-		verifyToken: config.FbVerifyToken,
-		fbApi:       api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
-		nlpParser:   wit.NewParser(dataTypeMap),
+		verifyToken:        config.FbVerifyToken,
+		fbApi:              api.NewFacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
+		nlpParser:          wit.NewParser(dataTypeMap),
+		conversationReader: mongo.NewMongoConversationReader(),
 	}
 
 	bot.BindDefaultWebhooks()
@@ -75,4 +79,8 @@ func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
 // This method is required in order to inherit from the Bot interface.
 func (facebookBot *facebookBot) NlpParser() nlp.Parser {
 	return facebookBot.nlpParser
+}
+
+func (facebookBot *facebookBot) ConversationReader() conversation.Reader {
+	return facebookBot.conversationReader
 }

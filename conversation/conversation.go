@@ -13,6 +13,6 @@ type Conversation struct {
 	MessagesFlow *MessagesFlow
 }
 
-type ConversationReader interface {
-	FindLatest(*User) (*Conversation, error)
+type Reader interface {
+	FindLatestConversation(*User) (*Conversation, error)
 }
