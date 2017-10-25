@@ -15,7 +15,3 @@ type Db struct {
 	Session *mgo.Session
 	Params  Params
 }
-
-func (db *Db) Close() {
-	db.Session.Close()
-}
