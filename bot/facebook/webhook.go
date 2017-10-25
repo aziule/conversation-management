@@ -8,6 +8,7 @@ import (
 
 	"github.com/aziule/conversation-management/conversation"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var ErrCouldNotFetchParam = func(key string) error { return errors.New(fmt.Sprintf("Could not fetch param: %s", key)) }
@@ -32,20 +33,13 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	parsedData, err := bot.nlpParser.ParseNlpData(receivedMessage.Nlp)
+	// @todo: move back the parsedData variable instead of _
+	_, err = bot.nlpParser.ParseNlpData(receivedMessage.Nlp)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
 		log.Errorf("Could not parse NLP data: %s", err.Error())
 		return
-	}
-
-	for _, e := range parsedData.Entities {
-		fmt.Println(e.Type, e.Name, e.Confidence)
-	}
-
-	if parsedData.Intent != nil {
-		fmt.Println(parsedData.Intent.Name)
 	}
 
 	userId := conversation.UserId(receivedMessage.SenderId)
@@ -59,6 +53,18 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 
 	if user == nil {
 		// Insert the user
+		err = bot.conversationWriter.InsertUser(
+			&conversation.User{
+				Id:   bson.NewObjectId(),
+				FbId: receivedMessage.SenderId,
+			},
+		)
+
+		if err != nil {
+			// @todo: handle this case and return something to the user
+			log.Errorf("Could not insert the user: %s", receivedMessage.SenderId)
+			return
+		}
 	}
 
 	conversation, err := bot.conversationReader.FindLatestConversation(user)

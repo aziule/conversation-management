@@ -3,5 +3,9 @@
     "listening_port": 3000,
     "fb_verify_token": "app_verify_token",
     "fb_api_version": "2.6",
-    "fb_page_access_token": "EAALQ00uMgf8BACxsTu75poGIqpkEtepvAZAZCzbuZC8TfQDv6wbZAFjWAjhaV0XwS7lNFcyZC8OrOe1AQrGeAFiCCIU683DekRRmDEy3B6EFsRshNsx8tP9SPusNcJ0Cty3Qt2HedwCUihFShFPbHXP5qZAuZBXCPAorZCNLGR8tAgZDZD"
+    "fb_page_access_token": "EAALQ00uMgf8BACxsTu75poGIqpkEtepvAZAZCzbuZC8TfQDv6wbZAFjWAjhaV0XwS7lNFcyZC8OrOe1AQrGeAFiCCIU683DekRRmDEy3B6EFsRshNsx8tP9SPusNcJ0Cty3Qt2HedwCUihFShFPbHXP5qZAuZBXCPAorZCNLGR8tAgZDZD",
+    "db_name": "rt_conv_mgmt",
+    "db_host": "localhost:27017",
+    "db_user": "",
+    "db_pass": ""
 }

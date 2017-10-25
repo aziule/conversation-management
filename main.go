@@ -4,15 +4,15 @@ import (
 	"flag"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/aziule/conversation-management/bot"
 	"github.com/aziule/conversation-management/bot/facebook"
-	"github.com/aziule/conversation-management/conversation/mongo"
+	"github.com/aziule/conversation-management/conversation"
 	"github.com/aziule/conversation-management/nlp/wit"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
-	"time"
 )
 
 var configFlagPath = flag.String("config", "config.json", "Config file path")
@@ -30,7 +30,7 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	mongodbParams := mongo.Params{
+	dbParams := conversation.DbParams{
 		DbHost: config.DbHost,
 		DbName: config.DbName,
 		DbUser: config.DbUser,
@@ -38,10 +38,8 @@ func main() {
 	}
 
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs:    []string{mongodbParams.DbHost},
-		Username: mongodbParams.DbName,
-		Password: mongodbParams.DbPass,
-		Database: mongodbParams.DbName,
+		Addrs:    []string{dbParams.DbHost},
+		Database: dbParams.DbName,
 		Timeout:  2 * time.Second,
 	})
 
@@ -57,13 +55,13 @@ func main() {
 			ApiVersion:      config.FbApiVersion,
 			PageAccessToken: config.FbPageAccessToken,
 			NlpParser:       wit.NewParser(facebook.DefaultDataTypeMap),
-			ConversationReader: mongo.NewMongoConversationReader(&mongo.Db{
+			ConversationReader: conversation.NewReader(&conversation.Db{
 				Session: session,
-				Params:  mongodbParams,
+				Params:  dbParams,
 			}),
-			ConversationWriter: mongo.NewMongoConversationWriter(&mongo.Db{
+			ConversationWriter: conversation.NewWriter(&conversation.Db{
 				Session: session,
-				Params:  mongodbParams,
+				Params:  dbParams,
 			}),
 		},
 	)

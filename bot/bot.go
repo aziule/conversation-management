@@ -9,6 +9,6 @@ import (
 type Bot interface {
 	Webhooks() []*Webhook
 	NlpParser() nlp.Parser
-	ConversationReader() conversation.Reader
-	ConversationWriter() conversation.Writer
+	ConversationReader() *conversation.Reader
+	ConversationWriter() *conversation.Writer
 }
