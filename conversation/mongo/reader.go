@@ -21,3 +21,10 @@ func (reader *MongoConversationReader) FindLatestConversation(user *conversation
 
 	return nil, nil
 }
+
+func (reader *MongoConversationReader) FindUser(userId conversation.UserId) (*conversation.User, error) {
+	session := reader.session.Clone()
+	defer session.Close()
+
+	return nil, nil
+}

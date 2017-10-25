@@ -1,6 +1,8 @@
 package conversation
 
+type UserId string
+
 type User struct {
-	Id   string
+	Id   UserId
 	Name string
 }

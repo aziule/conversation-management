@@ -38,13 +38,14 @@ func main() {
 	defer session.Close()
 
 	b := facebook.NewBot(
-		facebook.NewConfig(
-			config.FbVerifyToken,
-			config.FbApiVersion,
-			config.FbPageAccessToken,
-			wit.NewParser(facebook.DefaultDataTypeMap),
-			mongo.NewMongoConversationReader(session),
-		),
+		&facebook.Config{
+			VerifyToken:        config.FbVerifyToken,
+			ApiVersion:         config.FbApiVersion,
+			PageAccessToken:    config.FbPageAccessToken,
+			NlpParser:          wit.NewParser(facebook.DefaultDataTypeMap),
+			ConversationReader: mongo.NewMongoConversationReader(session),
+			ConversationWriter: mongo.NewMongoConversationWriter(session),
+		},
 	)
 
 	r := chi.NewRouter()

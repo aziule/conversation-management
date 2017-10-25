@@ -22,17 +22,7 @@ type Config struct {
 	PageAccessToken    string
 	NlpParser          nlp.Parser
 	ConversationReader conversation.Reader
-}
-
-// NewConfig is the constructor method for Config
-func NewConfig(verifyToken, apiVersion, pageAccessToken string, nlpParser nlp.Parser, conversationReader conversation.Reader) *Config {
-	return &Config{
-		VerifyToken:        verifyToken,
-		ApiVersion:         apiVersion,
-		PageAccessToken:    pageAccessToken,
-		NlpParser:          nlpParser,
-		ConversationReader: conversationReader,
-	}
+	ConversationWriter conversation.Writer
 }
 
 // Bot is the main structure
@@ -42,6 +32,7 @@ type facebookBot struct {
 	webhooks           []*bot.Webhook
 	nlpParser          nlp.Parser
 	conversationReader conversation.Reader
+	conversationWriter conversation.Writer
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot
@@ -54,6 +45,7 @@ func NewBot(config *Config) bot.Bot {
 		fbApi:              api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
 		nlpParser:          config.NlpParser,
 		conversationReader: config.ConversationReader,
+		conversationWriter: config.ConversationWriter,
 	}
 
 	bot.BindDefaultWebhooks()
@@ -93,6 +85,12 @@ func (facebookBot *facebookBot) NlpParser() nlp.Parser {
 // This method is required in order to inherit from the Bot interface.
 func (facebookBot *facebookBot) ConversationReader() conversation.Reader {
 	return facebookBot.conversationReader
+}
+
+// ConversationWriter returns the ConversationWriter.
+// This method is required in order to inherit from the Bot interface.
+func (facebookBot *facebookBot) ConversationWriter() conversation.Writer {
+	return facebookBot.conversationWriter
 }
 
 func init() {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/aziule/conversation-management/conversation"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,22 +26,51 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if receivedMessage.Nlp != nil {
-		parsedData, err := bot.nlpParser.ParseNlpData(receivedMessage.Nlp)
+	if receivedMessage.Nlp == nil {
+		// @todo: handle this case
+		log.Errorf("No data to parse")
+		return
+	}
 
-		if err != nil {
-			// @todo: handle this case and return something to the user
-			log.Errorf("Could not parse NLP data: %s", err.Error())
-			return
-		}
+	parsedData, err := bot.nlpParser.ParseNlpData(receivedMessage.Nlp)
 
-		for _, e := range parsedData.Entities {
-			fmt.Println(e.Type, e.Name, e.Confidence)
-		}
+	if err != nil {
+		// @todo: handle this case and return something to the user
+		log.Errorf("Could not parse NLP data: %s", err.Error())
+		return
+	}
 
-		if parsedData.Intent != nil {
-			fmt.Println(parsedData.Intent.Name)
-		}
+	for _, e := range parsedData.Entities {
+		fmt.Println(e.Type, e.Name, e.Confidence)
+	}
+
+	if parsedData.Intent != nil {
+		fmt.Println(parsedData.Intent.Name)
+	}
+
+	userId := conversation.UserId(receivedMessage.SenderId)
+	user, err := bot.conversationReader.FindUser(userId)
+
+	if err != nil {
+		// @todo: handle this case and return something to the user
+		log.Errorf("Could not find the user: %s", userId)
+		return
+	}
+
+	if user == nil {
+		// Insert the user
+	}
+
+	conversation, err := bot.conversationReader.FindLatestConversation(user)
+
+	if err != nil {
+		// @todo: handle this case and return something to the user
+		log.Errorf("Could not find the user: %s", userId)
+		return
+	}
+
+	if conversation == nil {
+		// Create a new conversation
 	}
 
 	bot.fbApi.SendTextToUser(receivedMessage.SenderId, receivedMessage.Text)

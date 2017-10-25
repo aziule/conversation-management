@@ -15,4 +15,10 @@ type Conversation struct {
 
 type Reader interface {
 	FindLatestConversation(*User) (*Conversation, error)
+	FindUser(UserId) (*User, error)
+}
+
+type Writer interface {
+	InsertUser(*User) error
+	Save(*Conversation) error
 }
