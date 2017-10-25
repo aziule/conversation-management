@@ -38,14 +38,15 @@ func (reader *Reader) FindLatestConversation(user *User) (*Conversation, error) 
 }
 
 // FindUser tries to find a user based on its UserId
-func (reader *Reader) FindUser(userId UserId) (*User, error) {
+func (reader *Reader) FindUser(userId string) (*User, error) {
 	session := reader.db.NewSession()
 	defer session.Close()
 
-	var user *User
+	user := &User{}
 
-	err := session.DB(reader.db.Params.DbName).C("conversation").Find(bson.M{
-		"uid": string(userId),
+	// Tied to Facebook at the moment...
+	err := session.DB(reader.db.Params.DbName).C("user").Find(bson.M{
+		"fbid": userId,
 	}).One(user)
 
 	if err != nil {

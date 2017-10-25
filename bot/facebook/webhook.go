@@ -42,16 +42,17 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	userId := conversation.UserId(receivedMessage.SenderId)
-	user, err := bot.conversationReader.FindUser(userId)
+	user, err := bot.conversationReader.FindUser(receivedMessage.SenderId)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.Errorf("Could not find the user: %s", userId)
+		log.Errorf("Could not find the user: %s", receivedMessage.SenderId)
 		return
 	}
 
 	if user == nil {
+		log.Debugf("Inserting the user: %s", receivedMessage.SenderId)
+
 		// Insert the user
 		err = bot.conversationWriter.InsertUser(
 			&conversation.User{
@@ -67,11 +68,12 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		}
 	}
 
+	log.Debugf("Request from user: %s", receivedMessage.SenderId)
 	conversation, err := bot.conversationReader.FindLatestConversation(user)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.Errorf("Could not find the user: %s", userId)
+		log.Errorf("Could not find the user: %s", receivedMessage.SenderId)
 		return
 	}
 
