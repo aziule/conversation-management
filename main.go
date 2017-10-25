@@ -30,11 +30,18 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	mongodbParams := mongo.Params{
+		DbHost: config.DbHost,
+		DbName: config.DbName,
+		DbUser: config.DbUser,
+		DbPass: config.DbPass,
+	}
+
 	session, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs:    []string{config.DbHost},
-		Username: config.DbName,
-		Password: config.DbPass,
-		Database: config.DbName,
+		Addrs:    []string{mongodbParams.DbHost},
+		Username: mongodbParams.DbName,
+		Password: mongodbParams.DbPass,
+		Database: mongodbParams.DbName,
 		Timeout:  2 * time.Second,
 	})
 
@@ -43,13 +50,6 @@ func main() {
 	}
 
 	defer session.Close()
-
-	mongodbParams := mongo.Params{
-		DbHost: config.DbHost,
-		DbName: config.DbName,
-		DbUser: config.DbUser,
-		DbPass: config.DbPass,
-	}
 
 	b := facebook.NewBot(
 		&facebook.Config{
