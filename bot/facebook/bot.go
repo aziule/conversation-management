@@ -17,22 +17,20 @@ var DefaultDataTypeMap nlp.DataTypeMap
 
 // Config is the config required in order to instantiate a new FacebookBot
 type Config struct {
-	VerifyToken        string
-	ApiVersion         string
-	PageAccessToken    string
-	NlpParser          nlp.Parser
-	ConversationReader *conversation.Reader
-	ConversationWriter *conversation.Writer
+	VerifyToken            string
+	ApiVersion             string
+	PageAccessToken        string
+	NlpParser              nlp.Parser
+	ConversationRepository conversation.Repository
 }
 
 // Bot is the main structure
 type facebookBot struct {
-	verifyToken        string
-	fbApi              *api.FacebookApi
-	webhooks           []*bot.Webhook
-	nlpParser          nlp.Parser
-	conversationReader *conversation.Reader
-	conversationWriter *conversation.Writer
+	verifyToken            string
+	fbApi                  *api.FacebookApi
+	webhooks               []*bot.Webhook
+	nlpParser              nlp.Parser
+	conversationRepository conversation.Repository
 }
 
 // NewFacebookBot is the constructor method that creates a Facebook bot, using
@@ -42,11 +40,10 @@ type facebookBot struct {
 // subscribe to the ones we like (for example, as defined in the conf).
 func NewBot(config *Config) bot.Bot {
 	bot := &facebookBot{
-		verifyToken:        config.VerifyToken,
-		fbApi:              api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
-		nlpParser:          config.NlpParser,
-		conversationReader: config.ConversationReader,
-		conversationWriter: config.ConversationWriter,
+		verifyToken:            config.VerifyToken,
+		fbApi:                  api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
+		nlpParser:              config.NlpParser,
+		conversationRepository: config.ConversationRepository,
 	}
 
 	bot.BindDefaultWebhooks()
@@ -82,16 +79,10 @@ func (facebookBot *facebookBot) NlpParser() nlp.Parser {
 	return facebookBot.nlpParser
 }
 
-// ConversationReader returns the ConversationReader.
+// ConversationRepository returns the ConversationRepository.
 // This method is required in order to inherit from the Bot interface.
-func (facebookBot *facebookBot) ConversationReader() *conversation.Reader {
-	return facebookBot.conversationReader
-}
-
-// ConversationWriter returns the ConversationWriter.
-// This method is required in order to inherit from the Bot interface.
-func (facebookBot *facebookBot) ConversationWriter() *conversation.Writer {
-	return facebookBot.conversationWriter
+func (facebookBot *facebookBot) ConversationRepository() conversation.Repository {
+	return facebookBot.conversationRepository
 }
 
 func init() {

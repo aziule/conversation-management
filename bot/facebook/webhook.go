@@ -42,7 +42,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	user, err := bot.conversationReader.FindUser(receivedMessage.SenderId)
+	user, err := bot.conversationRepository.FindUser(receivedMessage.SenderId)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
@@ -54,7 +54,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		log.Debugf("Inserting the user: %s", receivedMessage.SenderId)
 
 		// Insert the user
-		err = bot.conversationWriter.InsertUser(
+		err = bot.conversationRepository.InsertUser(
 			&conversation.User{
 				Id:   bson.NewObjectId(),
 				FbId: receivedMessage.SenderId,
@@ -69,7 +69,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 
 	log.Debugf("Request from user: %s", receivedMessage.SenderId)
-	conversation, err := bot.conversationReader.FindLatestConversation(user)
+	conversation, err := bot.conversationRepository.FindLatestConversation(user)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
