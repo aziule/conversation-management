@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 )
 
-// @todo: use built-in configs for each package and move this config to the main package
 // Config is the struct that will hold the runtime configuration
 type Config struct {
 	Debug             bool   `json:"debug"`
