@@ -12,8 +12,8 @@ type Config struct {
 	FbVerifyToken     string `json:"fb_verify_token"`
 	FbApiVersion      string `json:"fb_api_version"`
 	FbPageAccessToken string `json:"fb_page_access_token"`
-	DbName            string `json:"db_name"`
 	DbHost            string `json:"db_host"`
+	DbName            string `json:"db_name"`
 	DbUser            string `json:"db_user"`
 	DbPass            string `json:"db_pass"`
 }

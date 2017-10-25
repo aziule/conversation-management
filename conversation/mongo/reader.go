@@ -2,28 +2,27 @@ package mongo
 
 import (
 	"github.com/aziule/conversation-management/conversation"
-	"gopkg.in/mgo.v2"
 )
 
 type MongoConversationReader struct {
-	session *mgo.Session
+	db *Db
 }
 
-func NewMongoConversationReader(session *mgo.Session) *MongoConversationReader {
+func NewMongoConversationReader(db *Db) *MongoConversationReader {
 	return &MongoConversationReader{
-		session: session,
+		db: db,
 	}
 }
 
 func (reader *MongoConversationReader) FindLatestConversation(user *conversation.User) (*conversation.Conversation, error) {
-	session := reader.session.Clone()
+	session := reader.db.Session.Clone()
 	defer session.Close()
 
 	return nil, nil
 }
 
 func (reader *MongoConversationReader) FindUser(userId conversation.UserId) (*conversation.User, error) {
-	session := reader.session.Clone()
+	session := reader.db.Session.Clone()
 	defer session.Close()
 
 	return nil, nil

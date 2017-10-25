@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
+	"time"
 )
 
 var configFlagPath = flag.String("config", "config.json", "Config file path")
@@ -29,7 +30,13 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	session, err := mgo.Dial(config.DbHost)
+	session, err := mgo.DialWithInfo(&mgo.DialInfo{
+		Addrs:    []string{config.DbHost},
+		Username: config.DbName,
+		Password: config.DbPass,
+		Database: config.DbName,
+		Timeout:  2 * time.Second,
+	})
 
 	if err != nil {
 		log.Fatalf("An error occurred when connecting to the db: %s", err)
@@ -37,14 +44,27 @@ func main() {
 
 	defer session.Close()
 
+	mongodbParams := mongo.Params{
+		DbHost: config.DbHost,
+		DbName: config.DbName,
+		DbUser: config.DbUser,
+		DbPass: config.DbPass,
+	}
+
 	b := facebook.NewBot(
 		&facebook.Config{
-			VerifyToken:        config.FbVerifyToken,
-			ApiVersion:         config.FbApiVersion,
-			PageAccessToken:    config.FbPageAccessToken,
-			NlpParser:          wit.NewParser(facebook.DefaultDataTypeMap),
-			ConversationReader: mongo.NewMongoConversationReader(session),
-			ConversationWriter: mongo.NewMongoConversationWriter(session),
+			VerifyToken:     config.FbVerifyToken,
+			ApiVersion:      config.FbApiVersion,
+			PageAccessToken: config.FbPageAccessToken,
+			NlpParser:       wit.NewParser(facebook.DefaultDataTypeMap),
+			ConversationReader: mongo.NewMongoConversationReader(&mongo.Db{
+				Session: session,
+				Params:  mongodbParams,
+			}),
+			ConversationWriter: mongo.NewMongoConversationWriter(&mongo.Db{
+				Session: session,
+				Params:  mongodbParams,
+			}),
 		},
 	)
 

@@ -2,28 +2,27 @@ package mongo
 
 import (
 	"github.com/aziule/conversation-management/conversation"
-	"gopkg.in/mgo.v2"
 )
 
 type MongoConversationWriter struct {
-	session *mgo.Session
+	db *Db
 }
 
-func NewMongoConversationWriter(session *mgo.Session) *MongoConversationWriter {
+func NewMongoConversationWriter(db *Db) *MongoConversationWriter {
 	return &MongoConversationWriter{
-		session: session,
+		db: db,
 	}
 }
 
 func (writer *MongoConversationWriter) InsertUser(user *conversation.User) error {
-	session := writer.session.Clone()
+	session := writer.db.Session.Clone()
 	defer session.Close()
 
 	return nil
 }
 
 func (writer *MongoConversationWriter) Save(conversation *conversation.Conversation) error {
-	session := writer.session.Clone()
+	session := writer.db.Session.Clone()
 	defer session.Close()
 
 	return nil
