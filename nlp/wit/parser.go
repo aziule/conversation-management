@@ -21,21 +21,21 @@ var (
 	ErrUnhandledDataType = func(dataType string) error { return errors.New(fmt.Sprintf("Unhandled data type %s", dataType)) }
 )
 
-// WitParser is the NLP parser for Wit.
+// witParser is the NLP parser for Wit.
 // It implements the nlp.Parser interface
-type WitParser struct {
+type witParser struct {
 	dataTypeMap nlp.DataTypeMap
 }
 
-// NewParser is the constructor method for WitParser
+// NewParser is the constructor method for witParser
 func NewParser(dataTypeMap nlp.DataTypeMap) nlp.Parser {
-	return &WitParser{
+	return &witParser{
 		dataTypeMap: dataTypeMap,
 	}
 }
 
 // ParseNlpData parses raw data and returns parsed data
-func (parser *WitParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
+func (parser *witParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
 	var intent *nlp.Intent
 	var entities []nlp.Entity
 
