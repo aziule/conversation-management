@@ -7,7 +7,6 @@ import (
 
 	"github.com/aziule/conversation-management/bot"
 	"github.com/aziule/conversation-management/bot/facebook"
-	"github.com/aziule/conversation-management/config"
 	"github.com/aziule/conversation-management/conversation/mongo"
 	"github.com/aziule/conversation-management/nlp/wit"
 	"github.com/go-chi/chi"
@@ -20,7 +19,7 @@ var configFlagPath = flag.String("config", "config.json", "Config file path")
 func main() {
 	flag.Parse()
 
-	config, err := config.LoadConfig(*configFlagPath)
+	config, err := LoadConfig(*configFlagPath)
 
 	if err != nil {
 		log.Fatalf("An error occurred when loading the config: %s", err)
