@@ -33,8 +33,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// @todo: move back the parsedData variable instead of _
-	_, err = bot.nlpParser.ParseNlpData(receivedMessage.Nlp)
+	parsedData, err := bot.nlpParser.ParseNlpData(receivedMessage.Nlp)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
@@ -69,17 +68,33 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 
 	log.Debugf("Request from user: %s", receivedMessage.SenderId)
-	conversation, err := bot.conversationRepository.FindLatestConversation(user)
+	c, err := bot.conversationRepository.FindLatestConversation(user)
 
 	if err != nil {
-		// @todo: handle this case and return something to the user
-		log.Errorf("Could not find the user: %s", receivedMessage.SenderId)
-		return
+		if err != conversation.ErrNotFound {
+			// @todo: handle this case and return something to the user
+			log.Errorf("Could not find the latest conversation: %s", receivedMessage.SenderId)
+			return
+		}
+
+		// The conversation was not found: create a new one
+		c = conversation.NewConversation()
 	}
 
-	if conversation == nil {
-		// Create a new conversation
+	// Create a new conversation if the previous one is over
+	if c.Status == conversation.StatusOver {
+		c = conversation.NewConversation()
 	}
+
+	userMessage := conversation.NewUserMessage(
+		receivedMessage.Text,
+		receivedMessage.SentAt,
+		user,
+		parsedData,
+	)
+
+	log.Debug(userMessage)
+	c.Received(userMessage)
 
 	bot.fbApi.SendTextToUser(receivedMessage.SenderId, receivedMessage.Text)
 }

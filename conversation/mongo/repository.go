@@ -6,24 +6,31 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// mongoDbRepository is the unexported struct that implements the Repository interface
 type mongoDbRepository struct {
 	db *Db
 }
 
+// NewMongodbRepository creates a new conversation repository using MongoDb as the data source
 func NewMongodbRepository(db *Db) conversation.Repository {
 	return &mongoDbRepository{
 		db: db,
 	}
 }
 
+// FindLatestConversation tries to find the latest conversation that happened with a user.
+// In case this is a new user, then no conversation is returned. Otherwise the latest one,
+// which can be the current one, is returned.
+// Returns a conversation.ErrNotFound error when the user is not found.
 func (repository *mongoDbRepository) FindLatestConversation(user *conversation.User) (*conversation.Conversation, error) {
 	session := repository.db.Session.Clone()
 	defer session.Close()
 
-	return nil, nil
+	return nil, conversation.ErrNotFound
 }
 
 // FindUser tries to find a user based on its UserId
+// Returns a conversation.ErrNotFound error when the user is not found
 func (repository *mongoDbRepository) FindUser(userId string) (*conversation.User, error) {
 	session := repository.db.NewSession()
 	defer session.Close()
@@ -37,7 +44,7 @@ func (repository *mongoDbRepository) FindUser(userId string) (*conversation.User
 
 	if err != nil {
 		if err == mgo.ErrNotFound {
-			return nil, nil
+			return nil, conversation.ErrNotFound
 		}
 
 		// @todo: handle and log
