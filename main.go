@@ -8,7 +8,6 @@ import (
 
 	"github.com/aziule/conversation-management/bot"
 	"github.com/aziule/conversation-management/bot/facebook"
-	"github.com/aziule/conversation-management/conversation"
 	"github.com/aziule/conversation-management/conversation/mongo"
 	"github.com/aziule/conversation-management/nlp/wit"
 	"github.com/go-chi/chi"
@@ -56,7 +55,7 @@ func main() {
 			ApiVersion:      config.FbApiVersion,
 			PageAccessToken: config.FbPageAccessToken,
 			NlpParser:       wit.NewParser(facebook.DefaultDataTypeMap),
-			ConversationRepository: conversation.NewMongodbRepository(&mongo.Db{
+			ConversationRepository: mongo.NewMongodbRepository(&mongo.Db{
 				Session: session,
 				Params:  dbParams,
 			}),
