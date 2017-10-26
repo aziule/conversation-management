@@ -13,5 +13,4 @@ func main() {
 	if err != nil {
 		log.Fatalf("An error occurred when handling the command: %s", err)
 	}
-
 }

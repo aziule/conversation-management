@@ -27,6 +27,12 @@ func NewRunCommand() *RunCommand {
 	return &RunCommand{}
 }
 
+// Usage returns the usage text for the command
+func (c *RunCommand) Usage() string {
+	return `run [-config=./config.json]:
+	Runs the server and listens to incoming messages`
+}
+
 // Execute runs the command
 func (c *RunCommand) Execute(f *flag.FlagSet) error {
 	// Shared flags between the commands
