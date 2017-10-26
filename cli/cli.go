@@ -35,8 +35,7 @@ func NewHandler() *CliHandler {
 func (h *CliHandler) explain() {
 	fmt.Println("COMMANDS:")
 	for _, c := range h.commands {
-		fmt.Println(c.Name())
-		fmt.Println("    ", c.Usage())
+		fmt.Println(c.Usage())
 		fmt.Println("---")
 	}
 }
