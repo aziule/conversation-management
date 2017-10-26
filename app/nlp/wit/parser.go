@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/antonholmquist/jason"
-	"github.com/aziule/conversation-management/nlp"
+	"github.com/aziule/conversation-management/app/nlp"
 	log "github.com/sirupsen/logrus"
 )
 

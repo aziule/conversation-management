@@ -41,7 +41,7 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 	}
 
 	json, err := jason.NewObjectFromBytes(body)
-
+	fmt.Println(string(body))
 	// @todo: remove (use with debug only)
 	prettyPrint(body)
 

@@ -1,7 +1,7 @@
 package conversation
 
 import (
-	"github.com/aziule/conversation-management/nlp"
+	"github.com/aziule/conversation-management/app/nlp"
 	"time"
 )
 

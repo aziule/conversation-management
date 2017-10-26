@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/aziule/conversation-management/conversation"
+	"github.com/aziule/conversation-management/app/conversation"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -94,7 +94,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	)
 
 	log.Debug(userMessage)
-	c.Received(userMessage)
+	//c.Received(userMessage)
 
 	bot.fbApi.SendTextToUser(receivedMessage.SenderId, receivedMessage.Text)
 }

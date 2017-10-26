@@ -1,7 +1,7 @@
 package mongo
 
 import (
-	"github.com/aziule/conversation-management/conversation"
+	"github.com/aziule/conversation-management/app/conversation"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
