@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"os"
 )
 
 // Command is the main inteface for creating new commands to be used from the CLI
@@ -33,10 +34,10 @@ func NewHandler() *CliHandler {
 
 // explain explains how to use the commands and what commands are available
 func (h *CliHandler) explain() {
-	fmt.Println("COMMANDS:")
+	fmt.Fprintln(os.Stderr, "COMMANDS:")
+
 	for _, c := range h.commands {
-		fmt.Println(c.Usage())
-		fmt.Println("---")
+		fmt.Fprintln(os.Stderr, c.Usage())
 	}
 }
 
