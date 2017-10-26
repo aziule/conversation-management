@@ -8,6 +8,7 @@ import (
 func main() {
 	cliHandler := cli.NewHandler()
 	cliHandler.RegisterCommand(cli.NewRunCommand())
+	cliHandler.RegisterCommand(cli.NewReceiveCommand())
 	err := cliHandler.Handle()
 
 	if err != nil {

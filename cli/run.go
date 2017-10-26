@@ -35,10 +35,10 @@ func (c *RunCommand) Usage() string {
 
 // Execute runs the command
 func (c *RunCommand) Execute(f *flag.FlagSet) error {
-	// Shared flags between the commands
 	config, err := app.LoadConfig(c.configFilePath)
 
 	if err != nil {
+		// @todo: move this to the handler
 		log.Fatalf("An error occurred when loading the config: %s", err)
 	}
 

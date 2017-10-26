@@ -71,12 +71,13 @@ func (h *CliHandler) Handle() error {
 
 		if err := f.Parse(h.topLevelFlags.Args()[1:]); err != nil {
 			// @todo: handle
-			return errors.New("Error")
+			return errors.New("Error 1")
 		}
 
 		return command.Execute(f)
 	}
 
+	h.topLevelFlags.Usage()
 	// @todo: handle
-	return errors.New("Error")
+	return errors.New("Error 2")
 }

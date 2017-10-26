@@ -3,34 +3,53 @@ package cli
 import (
 	"flag"
 	"fmt"
+
+	"github.com/aziule/conversation-management/app"
+	log "github.com/sirupsen/logrus"
 )
 
-// ReceiveCommand is the command responsible for simulating messages received
-// from Facebook (or any other platform).
-// Its purpose is mainly to test the bot.
-type ReceiveCommand struct{}
+// ReceiveCommand is the command responsible for running our bot using the given configuration.
+// This is the main command.
+type ReceiveCommand struct {
+	configFilePath string
+}
+
+// NewReceiveCommand returns a new ReceiveCommand
+func NewReceiveCommand() *ReceiveCommand {
+	return &ReceiveCommand{}
+}
+
+// Usage returns the usage text for the command
+func (c *ReceiveCommand) Usage() string {
+	return `receive [-config=./config.json] -data=file.json:
+	Sends a message to the bot, in order to fake a message sent by a user.`
+}
 
 // Execute runs the command
-func (c *ReceiveCommand) Execute() error {
-	var dtype string
-	dataType := flag.String("data", "abc", "The kind of data to send")
-	flag.StringVar(&dtype, "dtype", "abc", "a var")
-	flag.Parse()
+func (c *ReceiveCommand) Execute(f *flag.FlagSet) error {
+	// Shared flags between the commands
+	config, err := app.LoadConfig(c.configFilePath)
 
-	fmt.Println("dataType:", *dataType)
-	fmt.Println("dtype:", dtype)
-	//
-	//config, err := app.LoadConfig(*configFlagPath)
-	//
-	//if err != nil {
-	//	log.Fatalf("An error occurred when loading the config: %s", err)
-	//}
+	if err != nil {
+		// @todo: move this to the handler
+		log.Fatalf("An error occurred when loading the config: %s", err)
+	}
 
-	//url := "http://localhost:" + config.ListeningPort
+	if config.Debug {
+		log.SetLevel(log.DebugLevel)
+	}
+
+	fmt.Println("here")
+
 	return nil
 }
 
-// GetName returns the command's name, to be used when invoking it from the cli
-func (c *ReceiveCommand) GetName() string {
+// FlagSet returns the command's flag set
+func (c *ReceiveCommand) SetFlags(f *flag.FlagSet) {
+	f.StringVar(&c.configFilePath, "config", "config.json", "Config file path")
+}
+
+// Name returns the command's name, to be used when invoking it from the cli
+func (c *ReceiveCommand) Name() string {
 	return "receive"
 }
