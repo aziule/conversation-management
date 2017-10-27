@@ -6,10 +6,10 @@ import (
 	"flag"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/aziule/conversation-management/app"
 	log "github.com/sirupsen/logrus"
-	"strconv"
 )
 
 // ReceiveCommand is the command responsible for running our bot using the given configuration.
