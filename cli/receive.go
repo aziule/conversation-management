@@ -1,17 +1,22 @@
 package cli
 
 import (
+	"bytes"
+	"errors"
 	"flag"
-	"fmt"
+	"io/ioutil"
+	"net/http"
 
 	"github.com/aziule/conversation-management/app"
 	log "github.com/sirupsen/logrus"
+	"strconv"
 )
 
 // ReceiveCommand is the command responsible for running our bot using the given configuration.
 // This is the main command.
 type ReceiveCommand struct {
 	configFilePath string
+	dataFilePath   string
 }
 
 // NewReceiveCommand returns a new ReceiveCommand
@@ -35,11 +40,26 @@ func (c *ReceiveCommand) Execute(f *flag.FlagSet) error {
 		log.Fatalf("An error occurred when loading the config: %s", err)
 	}
 
+	// @todo: move it also somewhere else
 	if config.Debug {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	fmt.Println("here")
+	data, err := ioutil.ReadFile(c.dataFilePath)
+
+	if err != nil {
+		return errors.New("Err")
+	}
+
+	// For now, only ping localhost
+	url := "http://localhost:" + strconv.Itoa(config.ListeningPort)
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	client := http.DefaultClient
+	_, err = client.Do(request)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -47,6 +67,7 @@ func (c *ReceiveCommand) Execute(f *flag.FlagSet) error {
 // FlagSet returns the command's flag set
 func (c *ReceiveCommand) SetFlags(f *flag.FlagSet) {
 	f.StringVar(&c.configFilePath, "config", "config.json", "Config file path")
+	f.StringVar(&c.dataFilePath, "data", "", "The data to receive")
 }
 
 // Name returns the command's name, to be used when invoking it from the cli
