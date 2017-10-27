@@ -27,6 +27,12 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	session := repository.db.Session.Clone()
 	defer session.Close()
 
+	session.DB(repository.db.Params.DbName).C("conversation").Find(bson.M{
+		"messages": bson.M{
+
+		},
+	})
+
 	return nil, conversation.ErrNotFound
 }
 
