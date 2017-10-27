@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"github.com/aziule/conversation-management/app/conversation"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -68,9 +69,28 @@ func (repository *mongoDbRepository) InsertUser(user *conversation.User) error {
 	return nil
 }
 
-func (repository *mongoDbRepository) SaveConversation(conversation *conversation.Conversation) error {
+// SaveConversation saves a conversation to the database.
+// The conversation can be an existing one or a new one
+func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversation) error {
 	session := repository.db.Session.Clone()
 	defer session.Close()
+
+	var err error
+	collection := session.DB(repository.db.Params.DbName).C("conversation")
+
+	if c.Id == "" {
+		log.Infof("Inserting conversation: %s", c.Id.String())
+		c.Id = bson.NewObjectId()
+		err = collection.Insert(c)
+	} else {
+		log.Infof("Updating conversation: %s", c.Id.String())
+		err = collection.Update(bson.M{"_id,omitempty": c.Id}, c)
+	}
+
+	if err != nil {
+		// @todo: handle and log
+		return err
+	}
 
 	return nil
 }

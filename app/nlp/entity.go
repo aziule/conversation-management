@@ -27,46 +27,46 @@ type Entity interface {
 }
 
 type entity struct {
-	name       string
-	confidence float32
+	Name       string  `bson:"name"`
+	Confidence float32 `bson:"confidence"`
 }
 
 type IntEntity struct {
-	*entity
-	Value int
+	entity `bson:",inline"`
+	Value  int `bson:"value"`
 }
 
-func (e *IntEntity) Name() string        { return e.name }
-func (e *IntEntity) Confidence() float32 { return e.confidence }
+func (e *IntEntity) Name() string        { return e.entity.Name }
+func (e *IntEntity) Confidence() float32 { return e.entity.Confidence }
 func (e *IntEntity) Type() DataType      { return DataTypeInt }
 
 type SingleDateTimeEntity struct {
-	*entity
-	Value       time.Time
-	Granularity DateTimeGranularity
+	entity
+	Value       time.Time           `bson:"value"`
+	Granularity DateTimeGranularity `bson:"granularity"`
 }
 
-func (e *SingleDateTimeEntity) Name() string        { return e.name }
-func (e *SingleDateTimeEntity) Confidence() float32 { return e.confidence }
+func (e *SingleDateTimeEntity) Name() string        { return e.entity.Name }
+func (e *SingleDateTimeEntity) Confidence() float32 { return e.entity.Confidence }
 func (e *SingleDateTimeEntity) Type() DataType      { return DataTypeDateTime }
 
 type IntervalDateTimeEntity struct {
-	*entity
-	FromValue       time.Time
-	FromGranularity DateTimeGranularity
-	ToValue         time.Time
-	ToGranularity   DateTimeGranularity
+	entity
+	FromValue       time.Time           `bson:"from"`
+	FromGranularity DateTimeGranularity `bson:"from_granularity"`
+	ToValue         time.Time           `bson:"to"`
+	ToGranularity   DateTimeGranularity `bson:"to_granularity"`
 }
 
-func (e *IntervalDateTimeEntity) Name() string        { return e.name }
-func (e *IntervalDateTimeEntity) Confidence() float32 { return e.confidence }
+func (e *IntervalDateTimeEntity) Name() string        { return e.entity.Name }
+func (e *IntervalDateTimeEntity) Confidence() float32 { return e.entity.Confidence }
 func (e *IntervalDateTimeEntity) Type() DataType      { return DataTypeDateTime }
 
 // newEntity creates a new base entity
-func newEntity(name string, confidence float32) *entity {
-	return &entity{
-		name:       name,
-		confidence: confidence,
+func newEntity(name string, confidence float32) entity {
+	return entity{
+		Name:       name,
+		Confidence: confidence,
 	}
 }
 

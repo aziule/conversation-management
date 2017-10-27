@@ -2,7 +2,7 @@ package nlp
 
 // Intent represents the underlying action of some text, as understood by the NLP service
 type Intent struct {
-	Name string
+	Name string `bson:"name"`
 }
 
 // NewIntent is the constructor method for Intent

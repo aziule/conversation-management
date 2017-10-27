@@ -1,6 +1,9 @@
 package conversation
 
-import "errors"
+import (
+	"errors"
+	"gopkg.in/mgo.v2/bson"
+)
 
 type Status string
 
@@ -19,21 +22,30 @@ type Repository interface {
 	InsertUser(user *User) error
 }
 
+// @todo: manage the internal state (current step, status, etc.)
 // Conversation is the struct that will handle our conversations between
 // the bot and the various users.
 type Conversation struct {
-	Status       Status
-	messagesFlow *messagesFlow
+	Id       bson.ObjectId `bson:"_id"`
+	Status   Status        `bson:"status"`
+	Messages []Message     `bson:"messages"`
 }
 
 // NewConversation is the constructor for Conversation.
 // The initial status is ongoing
 func NewConversation() *Conversation {
 	return &Conversation{
-		Status: StatusOngoing,
+		Status:   StatusOngoing,
+		Messages: nil,
 	}
 }
 
+// Received is called when a new message is received
 func (conversation *Conversation) Received(message *UserMessage) {
-	conversation.messagesFlow.Messages = append(conversation.messagesFlow.Messages, message)
+	conversation.Messages = append(conversation.Messages, message)
+}
+
+// IsNew tells us if the conversation is a new one
+func (conversation *Conversation) IsNew() bool {
+	return len(conversation.Messages) == 0
 }

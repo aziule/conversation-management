@@ -50,7 +50,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 
 	if user == nil {
-		log.Debugf("Inserting the user: %s", receivedMessage.SenderId)
+		log.Infof("Creating new user: %s", receivedMessage.SenderId)
 
 		// Insert the user
 		err = bot.conversationRepository.InsertUser(
@@ -93,8 +93,14 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		parsedData,
 	)
 
-	log.Debug(userMessage)
-	//c.Received(userMessage)
+	c.Received(userMessage)
+
+	err = bot.conversationRepository.SaveConversation(c)
+
+	if err != nil {
+		log.Errorf("Could not save the conversation: %s", err)
+		return
+	}
 
 	bot.fbApi.SendTextToUser(receivedMessage.SenderId, receivedMessage.Text)
 }

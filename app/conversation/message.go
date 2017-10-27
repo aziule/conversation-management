@@ -12,8 +12,8 @@ type Message interface {
 
 // message is the struct that contains the base information about a generic message
 type message struct {
-	Text   string
-	SentAt time.Time
+	Text   string    `bson:"text"`
+	SentAt time.Time `bson:"sent_at"`
 }
 
 // newMessage is the private constructor method for message
@@ -28,7 +28,7 @@ func newMessage(text string, sentAt time.Time) *message {
 type UserMessage struct {
 	*message
 	Sender     *User
-	ParsedData *nlp.ParsedData
+	ParsedData *nlp.ParsedData `bson:"parsed_data"`
 }
 
 // NewUserMessage is the constructor method for UserMessage
@@ -51,28 +51,4 @@ func (msg *UserMessage) SentAt() time.Time {
 type BotMessage struct {
 	message
 	RepliesTo *UserMessage
-}
-
-type messagesFlow struct {
-	Messages []Message
-}
-
-func (flow *messagesFlow) IsNew() bool {
-	return len(flow.Messages) == 0
-}
-
-func (flow *messagesFlow) LastMessage() Message {
-	if len(flow.Messages) == 0 {
-		return nil
-	}
-
-	var lastMessage Message
-
-	for _, message := range flow.Messages {
-		if message.SentAt().After(lastMessage.SentAt()) {
-			lastMessage = message
-		}
-	}
-
-	return lastMessage
 }

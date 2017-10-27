@@ -2,11 +2,11 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
 
-	"fmt"
 	"github.com/antonholmquist/jason"
 	log "github.com/sirupsen/logrus"
 )
@@ -41,9 +41,6 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 	}
 
 	json, err := jason.NewObjectFromBytes(body)
-	fmt.Println(string(body))
-	// @todo: remove (use with debug only)
-	prettyPrint(body)
 
 	if err != nil {
 		log.WithField("body", string(body)).Infof("Could not parse JSON from the request: %s", err)
