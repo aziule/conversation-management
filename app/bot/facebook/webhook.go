@@ -52,13 +52,13 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	if user == nil {
 		log.Infof("Creating new user: %s", receivedMessage.SenderId)
 
+		user = &conversation.User{
+			Id:   bson.NewObjectId(),
+			FbId: receivedMessage.SenderId,
+		}
+
 		// Insert the user
-		err = bot.conversationRepository.InsertUser(
-			&conversation.User{
-				Id:   bson.NewObjectId(),
-				FbId: receivedMessage.SenderId,
-			},
-		)
+		err = bot.conversationRepository.InsertUser(user)
 
 		if err != nil {
 			// @todo: handle this case and return something to the user

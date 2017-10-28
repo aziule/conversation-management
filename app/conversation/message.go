@@ -1,26 +1,37 @@
 package conversation
 
 import (
-	"github.com/aziule/conversation-management/app/nlp"
 	"time"
+
+	"github.com/aziule/conversation-management/app/nlp"
+)
+
+type MessageType string
+
+const (
+	MessageFromUser MessageType = "from-user"
+	MessageFromBot  MessageType = "from-bot"
 )
 
 type Message interface {
 	Text() string
 	SentAt() time.Time
+	Type() MessageType
 }
 
 // message is the struct that contains the base information about a generic message
 type message struct {
-	Text   string    `bson:"text"`
-	SentAt time.Time `bson:"sent_at"`
+	Text   string      `bson:"text"`
+	SentAt time.Time   `bson:"sent_at"`
+	Type   MessageType `bson:"type"`
 }
 
 // newMessage is the private constructor method for message
-func newMessage(text string, sentAt time.Time) *message {
+func newMessage(text string, sentAt time.Time, messageType MessageType) *message {
 	return &message{
 		Text:   text,
 		SentAt: sentAt,
+		Type:   messageType,
 	}
 }
 
@@ -34,7 +45,7 @@ type UserMessage struct {
 // NewUserMessage is the constructor method for UserMessage
 func NewUserMessage(text string, sentAt time.Time, sender *User, parsedData *nlp.ParsedData) *UserMessage {
 	return &UserMessage{
-		newMessage(text, sentAt),
+		newMessage(text, sentAt, MessageFromUser),
 		sender,
 		parsedData,
 	}
@@ -46,6 +57,10 @@ func (msg *UserMessage) Text() string {
 
 func (msg *UserMessage) SentAt() time.Time {
 	return msg.message.SentAt
+}
+
+func (msg *UserMessage) Type() MessageType {
+	return msg.message.Type
 }
 
 type BotMessage struct {
