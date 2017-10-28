@@ -43,7 +43,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 
 	user, err := bot.conversationRepository.FindUser(receivedMessage.SenderId)
 
-	if err != nil {
+	if err != nil && err != conversation.ErrNotFound {
 		// @todo: handle this case and return something to the user
 		log.Errorf("Could not find the user: %s", receivedMessage.SenderId)
 		return

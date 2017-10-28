@@ -85,8 +85,8 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 	collection := session.DB(repository.db.Params.DbName).C("conversation")
 
 	if c.Id == "" {
-		log.Infof("Inserting conversation: %s", c.Id.String())
 		c.Id = bson.NewObjectId()
+		log.Infof("Inserting conversation: %s", c.Id.String())
 		err = collection.Insert(c)
 	} else {
 		log.Infof("Updating conversation: %s", c.Id.String())
