@@ -4,7 +4,6 @@ import (
 	"flag"
 
 	"github.com/aziule/conversation-management/app"
-	log "github.com/sirupsen/logrus"
 )
 
 // RunCommand is the command responsible for running our bot using the given configuration.
@@ -26,17 +25,7 @@ func (c *RunCommand) Usage() string {
 
 // Execute runs the command
 func (c *RunCommand) Execute(f *flag.FlagSet) error {
-	config, err := app.LoadConfig(c.configFilePath)
-
-	if err != nil {
-		log.Fatalf("An error occurred when loading the config: %s", err)
-	}
-
-	if config.Debug {
-		log.SetLevel(log.DebugLevel)
-	}
-
-	app.Run(config)
+	app.Run(c.configFilePath)
 
 	return nil
 }

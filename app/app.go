@@ -15,7 +15,17 @@ import (
 )
 
 // Run starts the server and waits for interactions
-func Run(config *Config) {
+func Run(configFilePath string) {
+	config, err := LoadConfig(configFilePath)
+
+	if err != nil {
+		log.Fatalf("An error occurred when loading the config: %s", err)
+	}
+
+	if config.Debug {
+		log.SetLevel(log.DebugLevel)
+	}
+
 	dbParams := mongo.DbParams{
 		DbHost: config.DbHost,
 		DbName: config.DbName,
