@@ -15,19 +15,7 @@ type mongoDbRepository struct {
 	db *Db
 }
 
-// mongoConversation is a mongo-defined struct that embeds the core Conversation.
-// Its purpose is to override the Messages using a mongo-defined MessagesList, so that
-// we can implement the SetBSON method on this custom type rather than on the core Conversation.
-// This mongoConversation is only used as a temporary struct when unmarshalling conversations.
-type mongoConversation struct {
-	conversation.Conversation
-	Messages mongoMessagesList
-}
-
-// mongoMessagesList is a mongo-defined MessagesList object, here to implement the SetBSON method.
-// This allows us to unmarshal the correct messages given the raw bson data.
-type mongoMessagesList conversation.MessagesList
-
+// @todo: give it a variable for the mapping between messages <=> facebook messages (implementation)
 // NewMongodbRepository creates a new conversation repository using MongoDb as the data source
 func NewMongodbRepository(db *Db) conversation.Repository {
 	return &mongoDbRepository{
@@ -44,7 +32,7 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	defer session.Close()
 
 	// Store the result of the query in our own struct
-	var c *mongoConversation
+	var converted *mongoConversation
 
 	err := session.DB(repository.db.Params.DbName).C("conversation").Find(bson.M{
 		"messages": bson.M{
@@ -52,7 +40,7 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 				"sender.fbid": "1429733950458154",
 			},
 		},
-	}).Sort("-created_at").One(&c)
+	}).Sort("-created_at").One(&converted)
 
 	if err != nil {
 		if err == mgo.ErrNotFound {
@@ -65,15 +53,10 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 		return nil, err
 	}
 
-	// Convert our own mongoMessagesList to the core MessagesList, as here it has
-	// already been unmarshalled using SetBSON
-	c.Conversation.Messages = conversation.MessagesList(c.Messages)
-	conv := conversation.Conversation(c.Conversation)
-
 	// Return a pointer to the core Conversation struct
 	// @todo: check that we have no memory leak here, for example after
 	// unmarshalling 10000 conversations
-	return &conv, nil
+	return toConversation(converted), nil
 }
 
 // FindUser tries to find a user based on its UserId
@@ -129,12 +112,14 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 	fmt.Println(c.Messages)
 	c.UpdatedAt = time.Now()
 
+	// @todo: convert to mongoConversation beforehand
+
 	if c.Id == "" {
-		c.Id = bson.NewObjectId()
-		log.Infof("Inserting conversation: %s", c.Id.String())
+		c.Id = bson.NewObjectId().String()
+		log.Infof("Inserting conversation: %s", c.Id)
 		err = collection.Insert(c)
 	} else {
-		log.Infof("Updating conversation: %s", c.Id.String())
+		log.Infof("Updating conversation: %s", c.Id)
 		err = collection.Update(bson.M{"_id,omitempty": c.Id}, c)
 	}
 
@@ -142,31 +127,6 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 		// @todo: handle and log
 		return err
 	}
-
-	return nil
-}
-
-// @todo: absolutely test this method to check that the correct Message type
-// is returned in every case.
-// SetBSON is called when unmarshalling a conversation. Here, we need to explicitely
-// recreate the messages that we want, as a regular Message is simply an interface.
-func (m *mongoMessagesList) SetBSON(raw bson.Raw) error {
-	fmt.Println("In SetBSON: MessagesList")
-
-	*m = append(*m, conversation.NewUserMessage(
-		"Test",
-		time.Now(),
-		nil,
-		nil,
-	))
-	*m = append(*m, conversation.NewUserMessage(
-		"Test",
-		time.Now(),
-		nil,
-		nil,
-	))
-
-	fmt.Println(m)
 
 	return nil
 }

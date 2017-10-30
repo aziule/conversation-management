@@ -1,3 +1,4 @@
+// @todo: move to a dedicated package outside conversation
 package mongo
 
 import "gopkg.in/mgo.v2"

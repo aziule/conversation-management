@@ -3,8 +3,6 @@ package conversation
 import (
 	"errors"
 	"time"
-
-	"gopkg.in/mgo.v2/bson"
 )
 
 type Status string
@@ -32,11 +30,11 @@ type MessagesList []Message
 // Conversation is the struct that will handle our conversations between
 // the bot and the various users.
 type Conversation struct {
-	Id        bson.ObjectId `bson:"_id"`
-	Status    Status        `bson:"status"`
-	Messages  MessagesList  `bson:"messages"`
-	CreatedAt time.Time     `bson:"created_at"`
-	UpdatedAt time.Time     `bson:"updated_at"`
+	Id        string
+	Status    Status
+	Messages  MessagesList
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // NewConversation is the constructor for Conversation.
