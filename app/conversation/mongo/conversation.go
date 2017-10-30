@@ -1,9 +1,9 @@
 package mongo
 
 import (
+	"fmt"
 	"time"
 
-	"fmt"
 	"github.com/aziule/conversation-management/app/conversation"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -50,20 +50,26 @@ func newMessageWithType(message conversation.Message) *mongoMessageWithType {
 	}
 }
 
-func toMongoConversation(conversation *conversation.Conversation) *mongoConversation {
+func toMongoConversation(c *conversation.Conversation) *mongoConversation {
+	var id bson.ObjectId
+
+	if c.Id != "" {
+		id = bson.ObjectIdHex(c.Id)
+	}
+
 	return &mongoConversation{
-		Id:        bson.ObjectIdHex(conversation.Id),
-		Status:    conversation.Status,
-		Messages:  toMongoMessagesList(conversation.Messages),
-		CreatedAt: conversation.CreatedAt,
-		UpdatedAt: conversation.UpdatedAt,
+		Id:        id,
+		Status:    c.Status,
+		Messages:  toMongoMessagesList(c.Messages),
+		CreatedAt: c.CreatedAt,
+		UpdatedAt: c.UpdatedAt,
 	}
 }
 
 func toConversation(mongoConversation *mongoConversation) *conversation.Conversation {
 	// @todo: fix this constructor
 	return &conversation.Conversation{
-		Id:        mongoConversation.Id.String(),
+		Id:        mongoConversation.Id.Hex(),
 		Status:    mongoConversation.Status,
 		Messages:  toMessagesList(mongoConversation.Messages),
 		CreatedAt: mongoConversation.CreatedAt,

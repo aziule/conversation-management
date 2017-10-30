@@ -1,7 +1,6 @@
 package mongo
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aziule/conversation-management/app/conversation"
@@ -23,6 +22,41 @@ func NewMongodbRepository(db *Db) conversation.Repository {
 	}
 }
 
+// SaveConversation saves a conversation to the database.
+// The conversation can be an existing one or a new one
+func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversation) error {
+	session := repository.db.Session.Clone()
+	defer session.Close()
+
+	var err error
+	collection := session.DB(repository.db.Params.DbName).C("conversation")
+
+	// Convert the conversation to our own object
+	converted := toMongoConversation(c)
+	converted.UpdatedAt = time.Now()
+
+	if c.Id == "" {
+		converted.Id = bson.NewObjectId()
+		converted.CreatedAt = time.Now()
+
+		log.WithField("conversation", c).Debugf("Inserting conversation: %s", converted.Id)
+		err = collection.Insert(converted)
+	} else {
+		log.WithField("conversation", converted).Debugf("Updating conversation", converted.Id)
+		log.WithField("id", converted.Id).Debug("Updating conv with id")
+		err = collection.UpdateId(converted.Id, converted)
+	}
+
+	if err != nil {
+		// @todo: handle and log
+		return err
+	}
+
+	c = toConversation(converted)
+
+	return nil
+}
+
 // FindLatestConversation tries to find the latest conversation that happened with a user.
 // In case this is a new user, then no conversation is returned. Otherwise the latest one,
 // which can be the current one, is returned.
@@ -34,30 +68,34 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	// Store the result of the query in our own struct
 	var converted *mongoConversation
 
-	err := session.DB(repository.db.Params.DbName).C("conversation").Find(bson.M{
-		"messages": bson.M{
-			"$elemMatch": bson.M{
-				"sender.fbid": "1429733950458154",
-			},
-		},
-	}).Sort("-created_at").One(&converted)
+	log.Debug("Finding latest conversation")
+	err := session.DB(repository.db.Params.DbName).C("conversation").FindId(
+		bson.ObjectIdHex("59f726b61821814e4653c895"),
+	).Sort("-created_at").One(&converted)
 
 	if err != nil {
 		if err == mgo.ErrNotFound {
-			fmt.Println("Conversation not found")
+			log.Debug("Latest conversation not found")
 			return nil, conversation.ErrNotFound
 		}
 
 		// @todo: handle and log
-		fmt.Println("Another error: ", err)
+		log.Debugf("Error: %s", err)
 		return nil, err
 	}
+
+	log.WithField("conversation", converted).Debug("Found latest conversation")
 
 	// Return a pointer to the core Conversation struct
 	// @todo: check that we have no memory leak here, for example after
 	// unmarshalling 10000 conversations
 	return toConversation(converted), nil
 }
+
+//func (c *mongoConversation) SetBSON(raw bson.Raw) error {
+//	fmt.Println("In setbson")
+//	return nil
+//}
 
 // FindUser tries to find a user based on its UserId
 // Returns a conversation.ErrNotFound error when the user is not found
@@ -92,36 +130,6 @@ func (repository *mongoDbRepository) InsertUser(user *conversation.User) error {
 	defer session.Close()
 
 	err := session.DB(repository.db.Params.DbName).C("user").Insert(user)
-
-	if err != nil {
-		// @todo: handle and log
-		return err
-	}
-
-	return nil
-}
-
-// SaveConversation saves a conversation to the database.
-// The conversation can be an existing one or a new one
-func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversation) error {
-	session := repository.db.Session.Clone()
-	defer session.Close()
-
-	var err error
-	collection := session.DB(repository.db.Params.DbName).C("conversation")
-	fmt.Println(c.Messages)
-	c.UpdatedAt = time.Now()
-
-	// @todo: convert to mongoConversation beforehand
-
-	if c.Id == "" {
-		c.Id = bson.NewObjectId().String()
-		log.Infof("Inserting conversation: %s", c.Id)
-		err = collection.Insert(c)
-	} else {
-		log.Infof("Updating conversation: %s", c.Id)
-		err = collection.Update(bson.M{"_id,omitempty": c.Id}, c)
-	}
 
 	if err != nil {
 		// @todo: handle and log
