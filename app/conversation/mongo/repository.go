@@ -68,10 +68,14 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	// Store the result of the query in our own struct
 	var converted *mongoConversation
 
-	log.Debug("Finding latest conversation")
-	err := session.DB(repository.db.Params.DbName).C("conversation").FindId(
-		bson.ObjectIdHex("59f726b61821814e4653c895"),
-	).Sort("-created_at").One(&converted)
+	log.WithField("fbid", user.FbId).Debug("Finding latest conversation")
+	err := session.DB(repository.db.Params.DbName).C("conversation").Find(bson.M{
+		"messages": bson.M{
+			"$elemMatch": bson.M{
+				"message.sender.fbid": user.FbId,
+			},
+		},
+	}).Sort("-created_at").One(&converted)
 
 	if err != nil {
 		if err == mgo.ErrNotFound {
