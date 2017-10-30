@@ -5,7 +5,7 @@ package mongo
 import (
 	"time"
 
-	"github.com/aziule/conversation-management/app/conversation"
+	"github.com/aziule/conversation-management/app/core/conversation"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

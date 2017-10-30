@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aziule/conversation-management/app/conversation"
+	"github.com/aziule/conversation-management/app/core/conversation"
 	"gopkg.in/mgo.v2/bson"
 )
 

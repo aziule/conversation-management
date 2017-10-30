@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/aziule/conversation-management/app/conversation"
+	"github.com/aziule/conversation-management/app/core/conversation"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 )
