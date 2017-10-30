@@ -1,3 +1,5 @@
+// mongo package provides all of the required methods to interact with
+// a mongodb database, using mgo as the driver.
 package mongo
 
 import (
@@ -31,7 +33,7 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 	var err error
 	collection := session.DB(repository.db.Params.DbName).C("conversation")
 
-	// Convert the conversation to our own object
+	// Convert the conversation to our own mongo object
 	converted := toMongoConversation(c)
 	converted.UpdatedAt = time.Now()
 
@@ -52,6 +54,7 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 		return err
 	}
 
+	// Update the conversation pointer with the new values - only if the transaction succeeded
 	c = toConversation(converted)
 
 	return nil
@@ -65,10 +68,11 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	session := repository.db.Session.Clone()
 	defer session.Close()
 
-	// Store the result of the query in our own struct
+	// Store the result of the query in our own mongo struct
 	var converted *mongoConversation
 
 	log.WithField("fbid", user.FbId).Debug("Finding latest conversation")
+
 	err := session.DB(repository.db.Params.DbName).C("conversation").Find(bson.M{
 		"messages": bson.M{
 			"$elemMatch": bson.M{
@@ -90,16 +94,9 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 
 	log.WithField("conversation", converted).Debug("Found latest conversation")
 
-	// Return a pointer to the core Conversation struct
-	// @todo: check that we have no memory leak here, for example after
-	// unmarshalling 10000 conversations
+	// We return the domain Conversation object
 	return toConversation(converted), nil
 }
-
-//func (c *mongoConversation) SetBSON(raw bson.Raw) error {
-//	fmt.Println("In setbson")
-//	return nil
-//}
 
 // FindUser tries to find a user based on its UserId
 // Returns a conversation.ErrNotFound error when the user is not found
