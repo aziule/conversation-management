@@ -11,7 +11,6 @@ type MessageType string
 
 const (
 	MessageFromUser MessageType = "from-user"
-	MessageFromBot  MessageType = "from-bot"
 )
 
 // Message is the main interface for a Message, containing the shared information
@@ -63,9 +62,4 @@ func (msg *UserMessage) Type() MessageType {
 
 func (msg *UserMessage) SentAt() time.Time {
 	return msg.message.SentAt
-}
-
-type BotMessage struct {
-	message
-	RepliesTo *UserMessage
 }
