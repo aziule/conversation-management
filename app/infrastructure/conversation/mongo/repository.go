@@ -34,19 +34,25 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 	collection := session.DB(repository.db.Params.DbName).C("conversation")
 
 	// Convert the conversation to our own mongo object
-	converted := toMongoConversation(c)
-	converted.UpdatedAt = time.Now()
+	c.UpdatedAt = time.Now()
+
+	for _, m := range c.Messages {
+		log.Info(m.Type)
+		log.Info(m.Message.Type())
+		log.Info(m.Message.SentAt())
+		log.Info(m.Message.Text())
+	}
 
 	if c.Id == "" {
-		converted.Id = bson.NewObjectId()
-		converted.CreatedAt = time.Now()
+		c.Id = bson.NewObjectId()
+		c.CreatedAt = time.Now()
 
-		log.WithField("conversation", c).Debugf("Inserting conversation: %s", converted.Id)
-		err = collection.Insert(converted)
+		log.WithField("conversation", c).Debugf("Inserting conversation: %s", c.Id)
+		err = collection.Insert(c)
 	} else {
-		log.WithField("conversation", converted).Debugf("Updating conversation", converted.Id)
-		log.WithField("id", converted.Id).Debug("Updating conv with id")
-		err = collection.UpdateId(converted.Id, converted)
+		log.WithField("conversation", c).Debugf("Updating conversation", c.Id)
+		log.WithField("id", c.Id).Debug("Updating conv with id")
+		err = collection.UpdateId(c.Id, c)
 	}
 
 	if err != nil {
@@ -55,7 +61,6 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 	}
 
 	// Update the conversation pointer with the new values - only if the transaction succeeded
-	c = toConversation(converted)
 
 	return nil
 }
@@ -69,7 +74,7 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	defer session.Close()
 
 	// Store the result of the query in our own mongo struct
-	var converted *mongoConversation
+	var c *conversation.Conversation
 
 	log.WithField("fbid", user.FbId).Debug("Finding latest conversation")
 
@@ -79,7 +84,7 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 				"message.sender.fbid": user.FbId,
 			},
 		},
-	}).Sort("-created_at").One(&converted)
+	}).Sort("-created_at").One(&c)
 
 	if err != nil {
 		if err == mgo.ErrNotFound {
@@ -92,10 +97,10 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 		return nil, err
 	}
 
-	log.WithField("conversation", converted).Debug("Found latest conversation")
+	log.WithField("conversation", c).Debug("Found latest conversation")
 
 	// We return the domain Conversation object
-	return toConversation(converted), nil
+	return c, nil
 }
 
 // FindUser tries to find a user based on its UserId

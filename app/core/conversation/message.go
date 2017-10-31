@@ -39,7 +39,7 @@ func newMessage(text string, messageType MessageType, sentAt time.Time) *message
 // UserMessage represents a message received from a user
 type UserMessage struct {
 	*message
-	Sender     *User
+	Sender     *User           `bson:"sender"`
 	ParsedData *nlp.ParsedData `bson:"parsed_data"`
 }
 
