@@ -3,7 +3,7 @@ package conversation
 import (
 	"time"
 
-	"github.com/aziule/conversation-management/app/core/nlp"
+	"github.com/aziule/conversation-management/core/nlp"
 )
 
 type MessageType string
