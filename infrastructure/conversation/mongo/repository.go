@@ -42,8 +42,7 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 		log.WithField("conversation", c).Debugf("Inserting conversation: %s", c.Id)
 		err = collection.Insert(c)
 	} else {
-		log.WithField("conversation", c).Debugf("Updating conversation", c.Id)
-		log.WithField("id", c.Id).Debug("Updating conv with id")
+		log.WithField("conversation", c).Debugf("Updating conversation: %s", c.Id)
 		err = collection.UpdateId(c.Id, c)
 	}
 
@@ -71,7 +70,7 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	err := session.DB(repository.db.Params.DbName).C("conversation").Find(bson.M{
 		"messages": bson.M{
 			"$elemMatch": bson.M{
-				"message.sender.fbid": user.FbId,
+				"message.sender_id": user.Id,
 			},
 		},
 	}).Sort("-created_at").One(&c)

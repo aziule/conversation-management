@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/aziule/conversation-management/core/nlp"
+	"gopkg.in/mgo.v2/bson"
 )
 
 type MessageType string
@@ -39,7 +40,7 @@ func newMessage(text string, messageType MessageType, sentAt time.Time) *message
 // UserMessage represents a message received from a user
 type UserMessage struct {
 	*message
-	Sender     *User           `bson:"sender"`
+	Sender     bson.ObjectId   `bson:"sender_id"`
 	ParsedData *nlp.ParsedData `bson:"parsed_data"`
 }
 
@@ -47,7 +48,7 @@ type UserMessage struct {
 func NewUserMessage(text string, sentAt time.Time, sender *User, parsedData *nlp.ParsedData) *UserMessage {
 	return &UserMessage{
 		newMessage(text, MessageFromUser, sentAt),
-		sender,
+		sender.Id,
 		parsedData,
 	}
 }

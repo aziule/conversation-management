@@ -102,7 +102,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	bot.fbApi.SendTextToUser(receivedMessage.SenderId, receivedMessage.Text)
+	//bot.fbApi.SendTextToUser(receivedMessage.SenderId, receivedMessage.Text)
 }
 
 // HandleValidateWebhook tries to validate the Facebook webhook
