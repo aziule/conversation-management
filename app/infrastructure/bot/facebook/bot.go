@@ -33,7 +33,7 @@ type facebookBot struct {
 	conversationRepository conversation.Repository
 }
 
-// NewFacebookBot is the constructor method that creates a Facebook bot, using
+// NewBot is the constructor method that creates a Facebook bot, using
 // the Config struct as method parameters.
 // By default, we attach webhooks to the bot when constructing it.
 // Later on, we can think about managing webhooks as we would manage events, and
