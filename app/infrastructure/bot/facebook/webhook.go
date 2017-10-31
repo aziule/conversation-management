@@ -78,12 +78,12 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		}
 
 		// The conversation was not found: create a new one
-		c = conversation.NewConversation()
+		c = conversation.StartConversation()
 	}
 
 	// Create a new conversation if the previous one is over
 	if c.Status == conversation.StatusOver {
-		c = conversation.NewConversation()
+		c = conversation.StartConversation()
 	}
 
 	userMessage := conversation.NewUserMessage(

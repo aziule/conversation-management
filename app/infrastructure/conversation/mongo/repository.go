@@ -33,15 +33,7 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 	var err error
 	collection := session.DB(repository.db.Params.DbName).C("conversation")
 
-	// Convert the conversation to our own mongo object
 	c.UpdatedAt = time.Now()
-
-	for _, m := range c.Messages {
-		log.Info(m.Type)
-		log.Info(m.Message.Type())
-		log.Info(m.Message.SentAt())
-		log.Info(m.Message.Text())
-	}
 
 	if c.Id == "" {
 		c.Id = bson.NewObjectId()
@@ -59,8 +51,6 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 		// @todo: handle and log
 		return err
 	}
-
-	// Update the conversation pointer with the new values - only if the transaction succeeded
 
 	return nil
 }

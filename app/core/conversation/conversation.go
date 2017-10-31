@@ -2,7 +2,6 @@ package conversation
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -26,6 +25,8 @@ type Repository interface {
 	InsertUser(user *User) error
 }
 
+// MessageWithType is the struct grouping a message along with its type.
+// Its purpose is to be used with mongodb so that we can unmarshal any Message interface easily.
 type MessageWithType struct {
 	Type    MessageType `bson:"type"`
 	Message Message     `bson:"message"`
@@ -42,9 +43,8 @@ type Conversation struct {
 	UpdatedAt time.Time          `bson:"updated_at"`
 }
 
-// NewConversation is the constructor for Conversation.
-// The initial status is ongoing
-func NewConversation() *Conversation {
+// StartConversation initialises a new conversation
+func StartConversation() *Conversation {
 	return &Conversation{
 		Status:    StatusOngoing,
 		Messages:  nil,
@@ -66,11 +66,10 @@ func (conversation *Conversation) IsNew() bool {
 	return len(conversation.Messages) == 0
 }
 
-// SetBSON converts the MessageWithType's message to a correct Message struct
-// as the MessageWithType.Message is an interface.
-func (ml *MessageWithType) SetBSON(raw bson.Raw) error {
-	fmt.Println("Here in SetBSON")
-
+// SetBSON converts the MessageWithType's message, of type interface, to the corresponding Message struct.
+// We have moved the SetBSON method here for now, as it was faster to develop. In the future,
+// we may think about extracting it completely to the "conversation/mongo" package.
+func (m *MessageWithType) SetBSON(raw bson.Raw) error {
 	decodedType := struct {
 		Type MessageType `bson:"type"`
 	}{}
@@ -83,7 +82,7 @@ func (ml *MessageWithType) SetBSON(raw bson.Raw) error {
 			Message *UserMessage `bson:"message"`
 		}{}
 		raw.Unmarshal(&decodedMessage)
-		ml.Message = decodedMessage.Message
+		m.Message = decodedMessage.Message
 		break
 	default:
 		// @todo: handle and log
@@ -91,7 +90,7 @@ func (ml *MessageWithType) SetBSON(raw bson.Raw) error {
 		return errors.New("Unhandled case")
 	}
 
-	ml.Type = decodedType.Type
+	m.Type = decodedType.Type
 
 	return nil
 }
