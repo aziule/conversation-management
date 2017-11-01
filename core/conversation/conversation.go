@@ -59,8 +59,8 @@ type Conversation struct {
 	UpdatedAt   time.Time          `bson:"updated_at"`
 }
 
-// StartConversation initialises a new conversation
-func StartConversation() *Conversation {
+// CreateNewConversation initialises a new conversation
+func CreateNewConversation() *Conversation {
 	return &Conversation{
 		Status:      StatusOngoing,
 		CurrentStep: "",

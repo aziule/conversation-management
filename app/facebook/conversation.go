@@ -34,14 +34,14 @@ func (h *conversationHandler) GetConversation(user *conversation.User) (*convers
 		log.WithField("user", user).Info("Starting a first conversation")
 
 		// The conversation was not found: start a new one
-		c = conversation.StartConversation()
+		c = conversation.CreateNewConversation()
 	}
 
 	// Start a new conversation if the previous one is over
 	if c.Status == conversation.StatusOver {
 		log.WithField("user", user).Info("Starting a new conversation")
 
-		c = conversation.StartConversation()
+		c = conversation.CreateNewConversation()
 	}
 
 	return c, nil
