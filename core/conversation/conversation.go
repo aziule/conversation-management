@@ -15,6 +15,7 @@ var (
 	StatusHumanIntervention Status = "human"
 	StatusOver              Status = "over"
 	ErrNotFound                    = errors.New("Not found")
+	ErrCannotUnmarshalBson         = errors.New("Can't unmarshal BSON")
 )
 
 // Repository is the main interface for accessing conversation-related objects
@@ -74,7 +75,12 @@ func (m *MessageWithType) SetBSON(raw bson.Raw) error {
 		Type MessageType `bson:"type"`
 	}{}
 
-	raw.Unmarshal(&decodedType)
+	err := raw.Unmarshal(&decodedType)
+
+	if err != nil {
+		log.Infof("Could not unmarshal BSON: %s", err)
+		return ErrCannotUnmarshalBson
+	}
 
 	switch decodedType.Type {
 	case MessageFromUser:
@@ -85,9 +91,8 @@ func (m *MessageWithType) SetBSON(raw bson.Raw) error {
 		m.Message = decodedMessage.Message
 		break
 	default:
-		// @todo: handle and log
-		log.WithField("type", decodedType.Type).Error("Unhandled message type to decode")
-		return errors.New("Unhandled case")
+		log.WithField("type", decodedType.Type).Infof("Could not unmarshal BSON: unhandled message type")
+		return ErrCannotUnmarshalBson
 	}
 
 	m.Type = decodedType.Type

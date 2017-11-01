@@ -47,7 +47,7 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 	}
 
 	if err != nil {
-		// @todo: handle and log
+		log.WithField("conversation", c).Infof("Could not save the conversation: %s", err)
 		return err
 	}
 
@@ -65,7 +65,7 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	// Store the result of the query in our own mongo struct
 	var c *conversation.Conversation
 
-	log.WithField("fbid", user.FbId).Debug("Finding latest conversation")
+	log.WithField("fbid", user.FbId).Debug("Finding latest conversation for user")
 
 	err := session.DB(repository.db.Params.DbName).C("conversation").Find(bson.M{
 		"messages": bson.M{
@@ -81,14 +81,12 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 			return nil, conversation.ErrNotFound
 		}
 
-		// @todo: handle and log
-		log.Debugf("Error: %s", err)
+		log.Infof("Could not find the latest conversation: %s", err)
 		return nil, err
 	}
 
-	log.WithField("conversation", c).Debug("Found latest conversation")
+	log.WithField("conversation", c.Id).Debug("Found latest conversation")
 
-	// We return the domain Conversation object
 	return c, nil
 }
 
@@ -101,6 +99,7 @@ func (repository *mongoDbRepository) FindUser(userId string) (*conversation.User
 	user := &conversation.User{}
 
 	// Tied to Facebook at the moment... Should use a specification pattern
+	// @todo: use the _id or find something better
 	err := session.DB(repository.db.Params.DbName).C("user").Find(bson.M{
 		"fbid": userId,
 	}).One(user)
@@ -110,7 +109,7 @@ func (repository *mongoDbRepository) FindUser(userId string) (*conversation.User
 			return nil, conversation.ErrNotFound
 		}
 
-		// @todo: handle and log
+		log.WithField("user", userId).Infof("Could not find the user: %s", err)
 		return nil, err
 	}
 
@@ -120,6 +119,7 @@ func (repository *mongoDbRepository) FindUser(userId string) (*conversation.User
 // InsertUser creates a new user in the DB
 func (repository *mongoDbRepository) InsertUser(user *conversation.User) error {
 	// @todo: if the user has an ID, return an error
+	// @todo: check that the user does not exist yet
 
 	session := repository.db.NewSession()
 	defer session.Close()
@@ -127,7 +127,7 @@ func (repository *mongoDbRepository) InsertUser(user *conversation.User) error {
 	err := session.DB(repository.db.Params.DbName).C("user").Insert(user)
 
 	if err != nil {
-		// @todo: handle and log
+		log.WithField("user", user).Infof("Could not insert the user: %s", err)
 		return err
 	}
 

@@ -73,7 +73,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		if err != conversation.ErrNotFound {
 			// @todo: handle this case and return something to the user
-			log.Errorf("Could not find the latest conversation: %s", receivedMessage.SenderId)
+			log.WithField("from", user).Errorf("Could not find the latest conversation: %s", err)
 			return
 		}
 
