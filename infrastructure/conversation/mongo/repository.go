@@ -28,7 +28,7 @@ func NewMongodbRepository(db *db.Db) conversation.Repository {
 // SaveConversation saves a conversation to the database.
 // The conversation can be an existing one or a new one
 func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversation) error {
-	session := repository.db.Session.Clone()
+	session := repository.db.NewSession()
 	defer session.Close()
 
 	var err error
@@ -60,7 +60,7 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 // which can be the current one, is returned.
 // Returns a conversation.ErrNotFound error when the user is not found.
 func (repository *mongoDbRepository) FindLatestConversation(user *conversation.User) (*conversation.Conversation, error) {
-	session := repository.db.Session.Clone()
+	session := repository.db.NewSession()
 	defer session.Close()
 
 	// Store the result of the query in our own mongo struct

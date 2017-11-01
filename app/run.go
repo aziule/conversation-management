@@ -3,7 +3,6 @@ package app
 import (
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/infrastructure/bot/facebook"
@@ -12,7 +11,6 @@ import (
 	"github.com/aziule/conversation-management/infrastructure/nlp/wit"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2"
 )
 
 // Run starts the server and waits for interactions
@@ -27,35 +25,26 @@ func Run(configFilePath string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	dbParams := db.DbParams{
+	db, err := db.CreateSession(db.DbParams{
 		DbHost: config.DbHost,
 		DbName: config.DbName,
 		DbUser: config.DbUser,
 		DbPass: config.DbPass,
-	}
-
-	session, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs:    []string{dbParams.DbHost},
-		Database: dbParams.DbName,
-		Timeout:  2 * time.Second,
 	})
 
 	if err != nil {
 		log.Fatalf("An error occurred when connecting to the db: %s", err)
 	}
 
-	defer session.Close()
+	defer db.Close()
 
 	b := facebook.NewBot(
 		&facebook.Config{
-			VerifyToken:     config.FbVerifyToken,
-			ApiVersion:      config.FbApiVersion,
-			PageAccessToken: config.FbPageAccessToken,
-			NlpParser:       wit.NewParser(facebook.DefaultDataTypeMap),
-			ConversationRepository: mongo.NewMongodbRepository(&db.Db{
-				Session: session,
-				Params:  dbParams,
-			}),
+			VerifyToken:            config.FbVerifyToken,
+			ApiVersion:             config.FbApiVersion,
+			PageAccessToken:        config.FbPageAccessToken,
+			NlpParser:              wit.NewParser(facebook.DefaultDataTypeMap),
+			ConversationRepository: mongo.NewMongodbRepository(db),
 		},
 	)
 
