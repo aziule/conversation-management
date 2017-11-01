@@ -10,12 +10,14 @@ import (
 // conversationHandler is the struct responsible for handling Facebook conversations
 type conversationHandler struct {
 	conversationRepository conversation.Repository
+	storyRepository        conversation.StoryRepository
 }
 
 // NewConversationHandler is the constructor method for conversationHandler
-func NewConversationHandler(conversationRepository conversation.Repository) *conversationHandler {
+func NewConversationHandler(conversationRepository conversation.Repository, storyRepository conversation.StoryRepository) *conversationHandler {
 	return &conversationHandler{
 		conversationRepository: conversationRepository,
+		storyRepository:        storyRepository,
 	}
 }
 

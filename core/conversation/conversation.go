@@ -18,7 +18,11 @@ var (
 	ErrCannotUnmarshalBson         = errors.New("Can't unmarshal BSON")
 )
 
-// Handler is here to handle generic, conversation-related tasks
+// Handler is here to handle generic, conversation-related tasks.
+// It is the object that will contain the conversation logic for
+// each platform.
+// It makes the link between the application and the underlying
+// data access layers.
 type Handler interface {
 	// GetUser returns a generic User object, looking for a given id.
 	GetUser(id string) (*User, error)

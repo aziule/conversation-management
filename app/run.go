@@ -48,6 +48,12 @@ func Run(configFilePath string) {
 		},
 	)
 
+	err = b.LoadStories()
+
+	if err != nil {
+		log.Fatalf("An error occurred when loading the stories: %s", err)
+	}
+
 	r := chi.NewRouter()
 
 	// Automatically set the bot's webhooks routes

@@ -16,6 +16,7 @@ type Config struct {
 	PageAccessToken        string
 	NlpParser              nlp.Parser
 	ConversationRepository conversation.Repository
+	StoryRepository        conversation.StoryRepository
 }
 
 // facebookBot is the main structure
@@ -35,7 +36,7 @@ func NewBot(config *Config) *facebookBot {
 		verifyToken:         config.VerifyToken,
 		fbApi:               api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
 		nlpParser:           config.NlpParser,
-		conversationHandler: NewConversationHandler(config.ConversationRepository),
+		conversationHandler: NewConversationHandler(config.ConversationRepository, config.StoryRepository),
 	}
 
 	bot.bindDefaultWebhooks()
@@ -43,24 +44,29 @@ func NewBot(config *Config) *facebookBot {
 	return bot
 }
 
-// bindDefaultWebhooks initialises the default Facebook-related webhooks.
-// Use this method to create and bind the default Facebook webhooks to the bot.
-func (facebookBot *facebookBot) bindDefaultWebhooks() {
-	facebookBot.webhooks = append(facebookBot.webhooks, bot.NewWebHook(
-		bot.HttpMethodGet,
-		"/",
-		facebookBot.HandleValidateWebhook,
-	))
-
-	facebookBot.webhooks = append(facebookBot.webhooks, bot.NewWebHook(
-		bot.HttpMethodPost,
-		"/",
-		facebookBot.HandleMessageReceived,
-	))
-}
-
 // Webhooks returns the bot's webhooks.
 // This method is required in order to inherit from the Bot interface.
-func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
-	return facebookBot.webhooks
+func (b *facebookBot) Webhooks() []*bot.Webhook {
+	return b.webhooks
+}
+
+// LoadStories loads the stories that will be used for the bot
+func (b *facebookBot) LoadStories() error {
+	return nil
+}
+
+// bindDefaultWebhooks initialises the default Facebook-related webhooks.
+// Use this method to create and bind the default Facebook webhooks to the bot.
+func (b *facebookBot) bindDefaultWebhooks() {
+	b.webhooks = append(b.webhooks, bot.NewWebHook(
+		bot.HttpMethodGet,
+		"/",
+		b.HandleValidateWebhook,
+	))
+
+	b.webhooks = append(b.webhooks, bot.NewWebHook(
+		bot.HttpMethodPost,
+		"/",
+		b.HandleMessageReceived,
+	))
 }
