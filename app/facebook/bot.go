@@ -26,11 +26,15 @@ type facebookBot struct {
 	fbApi               *api.FacebookApi
 	nlpParser           nlp.Parser
 	conversationHandler conversation.Handler
+	stories             []*conversation.Story
 }
 
 // NewBot is the constructor method that creates a Facebook bot, using
 // the Config struct as method parameters.
-// By default, we attach all of the webhooks to the bot when constructing it.
+//
+// Upon creation:
+// - The webhooks are attached.
+// - We load the list of stories.
 func NewBot(config *Config) *facebookBot {
 	bot := &facebookBot{
 		verifyToken:         config.VerifyToken,
@@ -48,11 +52,6 @@ func NewBot(config *Config) *facebookBot {
 // This method is required in order to inherit from the Bot interface.
 func (b *facebookBot) Webhooks() []*bot.Webhook {
 	return b.webhooks
-}
-
-// LoadStories loads the stories that will be used for the bot
-func (b *facebookBot) LoadStories() error {
-	return nil
 }
 
 // bindDefaultWebhooks initialises the default Facebook-related webhooks.

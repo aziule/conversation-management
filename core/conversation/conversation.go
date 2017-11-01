@@ -24,7 +24,7 @@ var (
 // It makes the link between the application and the underlying
 // data access layers.
 type Handler interface {
-	// GetUser returns a generic User object, looking for a given id.
+	// GetUser returns a generic User object, looking using a given id.
 	GetUser(id string) (*User, error)
 
 	// GetConversation returns the conversation for a given user.

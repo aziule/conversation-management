@@ -6,6 +6,7 @@ import (
 
 	"github.com/aziule/conversation-management/app/facebook"
 	"github.com/aziule/conversation-management/core/bot"
+	"github.com/aziule/conversation-management/infrastructure/conversation/memory"
 	"github.com/aziule/conversation-management/infrastructure/conversation/mongo"
 	db "github.com/aziule/conversation-management/infrastructure/mongo"
 	"github.com/aziule/conversation-management/infrastructure/nlp/wit"
@@ -45,14 +46,18 @@ func Run(configFilePath string) {
 			PageAccessToken:        config.FbPageAccessToken,
 			NlpParser:              wit.NewParser(),
 			ConversationRepository: mongo.NewMongodbRepository(db),
+			StoryRepository:        memory.NewStepRepository(),
 		},
 	)
 
-	err = b.LoadStories()
-
-	if err != nil {
-		log.Fatalf("An error occurred when loading the stories: %s", err)
-	}
+	// @todo: see how to load stories:
+	// - Either from the bot
+	// - Either from the conversation handler
+	//err = b.LoadStories()
+	//
+	//if err != nil {
+	//	log.Fatalf("An error occurred when loading the stories: %s", err)
+	//}
 
 	r := chi.NewRouter()
 
