@@ -1,6 +1,5 @@
-// @todo: move to a dedicated package outside conversation
 // @todo: init indexes (unique, etc.)
-package mongo
+package db
 
 import "gopkg.in/mgo.v2"
 

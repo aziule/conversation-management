@@ -8,6 +8,7 @@ import (
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/infrastructure/bot/facebook"
 	"github.com/aziule/conversation-management/infrastructure/conversation/mongo"
+	db "github.com/aziule/conversation-management/infrastructure/mongo"
 	"github.com/aziule/conversation-management/infrastructure/nlp/wit"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
@@ -26,7 +27,7 @@ func Run(configFilePath string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	dbParams := mongo.DbParams{
+	dbParams := db.DbParams{
 		DbHost: config.DbHost,
 		DbName: config.DbName,
 		DbUser: config.DbUser,
@@ -51,7 +52,7 @@ func Run(configFilePath string) {
 			ApiVersion:      config.FbApiVersion,
 			PageAccessToken: config.FbPageAccessToken,
 			NlpParser:       wit.NewParser(facebook.DefaultDataTypeMap),
-			ConversationRepository: mongo.NewMongodbRepository(&mongo.Db{
+			ConversationRepository: mongo.NewMongodbRepository(&db.Db{
 				Session: session,
 				Params:  dbParams,
 			}),

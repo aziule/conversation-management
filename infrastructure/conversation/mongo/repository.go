@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/aziule/conversation-management/core/conversation"
+	db "github.com/aziule/conversation-management/infrastructure/mongo"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -13,12 +14,12 @@ import (
 
 // mongoDbRepository is the unexported struct that implements the Repository interface
 type mongoDbRepository struct {
-	db *Db
+	db *db.Db
 }
 
 // @todo: give it a variable for the mapping between messages <=> facebook messages (implementation)
 // NewMongodbRepository creates a new conversation repository using MongoDb as the data source
-func NewMongodbRepository(db *Db) conversation.Repository {
+func NewMongodbRepository(db *db.Db) conversation.Repository {
 	return &mongoDbRepository{
 		db: db,
 	}
