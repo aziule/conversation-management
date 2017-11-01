@@ -104,6 +104,9 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 		return nil, ErrMissingKey("timestamp")
 	}
 
+	// Get the number of seconds
+	sentAt = sentAt / 1000
+
 	text, _ := messageData.GetString("message", "text")
 	quickReplyPayload, _ := messageData.GetString("quick_reply", "payload")
 
