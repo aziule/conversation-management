@@ -91,18 +91,17 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 	return c, nil
 }
 
-// FindUser tries to find a user based on its UserId
+// FindUserByFbId tries to find a user based on its fbId
 // Returns a conversation.ErrNotFound error when the user is not found
-func (repository *mongoDbRepository) FindUser(userId string) (*conversation.User, error) {
+// @todo: we should use a specification pattern
+func (repository *mongoDbRepository) FindUserByFbId(fbId string) (*conversation.User, error) {
 	session := repository.db.NewSession()
 	defer session.Close()
 
 	user := &conversation.User{}
 
-	// Tied to Facebook at the moment... Should use a specification pattern
-	// @todo: use the _id or find something better
 	err := session.DB(repository.db.Params.DbName).C("user").Find(bson.M{
-		"fbid": userId,
+		"fbid": fbId,
 	}).One(user)
 
 	if err != nil {
@@ -110,7 +109,7 @@ func (repository *mongoDbRepository) FindUser(userId string) (*conversation.User
 			return nil, conversation.ErrNotFound
 		}
 
-		log.WithField("user", userId).Infof("Could not find the user: %s", err)
+		log.WithField("fbId", fbId).Infof("Could not find the user: %s", err)
 		return nil, err
 	}
 

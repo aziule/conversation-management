@@ -22,7 +22,7 @@ var (
 type Repository interface {
 	FindLatestConversation(user *User) (*Conversation, error)
 	SaveConversation(conversation *Conversation) error
-	FindUser(userId string) (*User, error)
+	FindUserByFbId(fbId string) (*User, error)
 	InsertUser(user *User) error
 }
 
