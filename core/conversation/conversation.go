@@ -18,6 +18,20 @@ var (
 	ErrCannotUnmarshalBson         = errors.New("Can't unmarshal BSON")
 )
 
+// Handler is here to handle generic, conversation-related tasks
+type Handler interface {
+	// GetUser returns a generic User object, looking for a given id.
+	GetUser(id string) (*User, error)
+
+	// GetConversation returns the conversation for a given user.
+	// It can be a new or an existing conversation.
+	GetConversation(user *User) (*Conversation, error)
+
+	// HandleStep handles the given step and returns an error
+	// if anything prevents the program from handling the step.
+	HandleStep(step *Step) error
+}
+
 // Repository is the main interface for accessing conversation-related objects
 type Repository interface {
 	FindLatestConversation(user *User) (*Conversation, error)
@@ -37,20 +51,22 @@ type MessageWithType struct {
 // Conversation is the struct that will handle our conversations between
 // the bot and the various users.
 type Conversation struct {
-	Id        bson.ObjectId      `bson:"_id"`
-	Status    Status             `bson:"status"`
-	Messages  []*MessageWithType `bson:"messages"`
-	CreatedAt time.Time          `bson:"created_at"`
-	UpdatedAt time.Time          `bson:"updated_at"`
+	Id          bson.ObjectId      `bson:"_id"`
+	Status      Status             `bson:"status"`
+	CurrentStep string             `bson:"step"`
+	Messages    []*MessageWithType `bson:"messages"`
+	CreatedAt   time.Time          `bson:"created_at"`
+	UpdatedAt   time.Time          `bson:"updated_at"`
 }
 
 // StartConversation initialises a new conversation
 func StartConversation() *Conversation {
 	return &Conversation{
-		Status:    StatusOngoing,
-		Messages:  nil,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Status:      StatusOngoing,
+		CurrentStep: "",
+		Messages:    nil,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 }
 

@@ -1,17 +1,11 @@
 package facebook
 
 import (
-	"errors"
-	"fmt"
 	"net/http"
-	"net/url"
 
-	"github.com/aziule/conversation-management/core/conversation"
+	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2/bson"
 )
-
-var ErrCouldNotFetchParam = func(key string) error { return errors.New(fmt.Sprintf("Could not fetch param: %s", key)) }
 
 // HandleMessageReceived is called when a new message is sent by the user to the page
 // We parse the message, extract relevant NLP data, check the context, validate
@@ -23,7 +17,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.Errorf("Could not parse the received message: %s", err.Error())
+		log.Errorf("Could not parse the received message: %s", err)
 		return
 	}
 
@@ -37,74 +31,27 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.Errorf("Could not parse NLP data: %s", err.Error())
+		log.WithField("nlp", receivedMessage.Nlp).Errorf("Could not parse NLP data: %s", err)
 		return
 	}
 
-	user, err := bot.conversationRepository.FindUserByFbId(receivedMessage.SenderId)
+	log.WithField("data", parsedData).Debug("Data parsed from message")
 
-	if err != nil && err != conversation.ErrNotFound {
+	user, err := bot.conversationHandler.GetUser(receivedMessage.SenderId)
+
+	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.Errorf("Could not find the user: %s", receivedMessage.SenderId)
+		log.WithField("user", receivedMessage.SenderId).Errorf("Could not find the user: %s", err)
 		return
 	}
 
-	if user == nil {
-		log.Infof("Creating new user: %s", receivedMessage.SenderId)
-
-		user = &conversation.User{
-			Id:   bson.NewObjectId(),
-			FbId: receivedMessage.SenderId,
-		}
-
-		// Insert the user
-		err = bot.conversationRepository.InsertUser(user)
-
-		if err != nil {
-			// @todo: handle this case and return something to the user
-			log.Errorf("Could not insert the user: %s", receivedMessage.SenderId)
-			return
-		}
-	}
-
-	log.WithField("user", receivedMessage.SenderId).Debugf("Request from user")
-	// @todo: use an intermediate layer to find a user by its facebook ID
-	// => this will help with consolidated users (fb + slack + anything)
-	c, err := bot.conversationRepository.FindLatestConversation(user)
+	conversation, err := bot.conversationHandler.GetConversation(user)
 
 	if err != nil {
-		if err != conversation.ErrNotFound {
-			// @todo: handle this case and return something to the user
-			log.WithField("from", user).Errorf("Could not find the latest conversation: %s", err)
-			return
-		}
-
-		// The conversation was not found: start a new one
-		c = conversation.StartConversation()
+		log.WithField("user", user).Infof("Could not get the conversation: %s", err)
 	}
 
-	// Start a new conversation if the previous one is over
-	if c.Status == conversation.StatusOver {
-		c = conversation.StartConversation()
-	}
-
-	userMessage := conversation.NewUserMessage(
-		receivedMessage.Text,
-		receivedMessage.SentAt,
-		user,
-		parsedData,
-	)
-
-	c.AddMessage(userMessage)
-
-	err = bot.conversationRepository.SaveConversation(c)
-
-	if err != nil {
-		log.Errorf("Could not save the conversation: %s", err)
-		return
-	}
-
-	//bot.fbApi.SendTextToUser(receivedMessage.SenderId, receivedMessage.Text)
+	log.WithField("conversation", conversation).Debug("Conversation fetched")
 }
 
 // HandleValidateWebhook tries to validate the Facebook webhook
@@ -114,7 +61,7 @@ func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Req
 
 	queryParams := r.URL.Query()
 
-	hubMode, err := getSingleQueryParam(queryParams, "hub.mode")
+	hubMode, err := utils.GetSingleQueryParam(queryParams, "hub.mode")
 
 	if err != nil {
 		log.Infof("Could not fetch param: %s", err)
@@ -126,7 +73,7 @@ func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	verifyToken, err := getSingleQueryParam(queryParams, "hub.verify_token")
+	verifyToken, err := utils.GetSingleQueryParam(queryParams, "hub.verify_token")
 
 	if err != nil {
 		log.Infof("Could not fetch param: %s", err)
@@ -138,7 +85,7 @@ func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	challenge, err := getSingleQueryParam(queryParams, "hub.challenge")
+	challenge, err := utils.GetSingleQueryParam(queryParams, "hub.challenge")
 
 	if err != nil {
 		log.Infof("Could not fetch param: %s", err)
@@ -147,15 +94,4 @@ func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Req
 
 	// Validate the webhook by writing back the "hub.challenge" query param
 	w.Write([]byte(challenge))
-}
-
-// getSingleQueryParam fetches a single query param using the given url values
-func getSingleQueryParam(values url.Values, key string) (string, error) {
-	params, ok := values[key]
-
-	if !ok || len(params) != 1 {
-		return "", ErrCouldNotFetchParam(key)
-	}
-
-	return params[0], nil
 }

@@ -18,26 +18,24 @@ type Config struct {
 	ConversationRepository conversation.Repository
 }
 
-// Bot is the main structure
+// facebookBot is the main structure
 type facebookBot struct {
-	webhooks               []*bot.Webhook
-	verifyToken            string
-	fbApi                  *api.FacebookApi
-	nlpParser              nlp.Parser
-	conversationRepository conversation.Repository
+	webhooks            []*bot.Webhook
+	verifyToken         string
+	fbApi               *api.FacebookApi
+	nlpParser           nlp.Parser
+	conversationHandler conversation.Handler
 }
 
 // NewBot is the constructor method that creates a Facebook bot, using
 // the Config struct as method parameters.
-// By default, we attach webhooks to the bot when constructing it.
-// Later on, we can think about managing webhooks as we would manage events, and
-// subscribe to the ones we like (for example, as defined in the conf).
-func NewBot(config *Config) bot.Bot {
+// By default, we attach all of the webhooks to the bot when constructing it.
+func NewBot(config *Config) *facebookBot {
 	bot := &facebookBot{
-		verifyToken:            config.VerifyToken,
-		fbApi:                  api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
-		nlpParser:              config.NlpParser,
-		conversationRepository: config.ConversationRepository,
+		verifyToken:         config.VerifyToken,
+		fbApi:               api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
+		nlpParser:           config.NlpParser,
+		conversationHandler: NewConversationHandler(config.ConversationRepository),
 	}
 
 	bot.bindDefaultWebhooks()
@@ -45,8 +43,8 @@ func NewBot(config *Config) bot.Bot {
 	return bot
 }
 
-// bindDefaultWebhooks initialises the default Facebook-related webhooks
-// Use this method to create and bind the default Facebook webhooks to the bot
+// bindDefaultWebhooks initialises the default Facebook-related webhooks.
+// Use this method to create and bind the default Facebook webhooks to the bot.
 func (facebookBot *facebookBot) bindDefaultWebhooks() {
 	facebookBot.webhooks = append(facebookBot.webhooks, bot.NewWebHook(
 		bot.HttpMethodGet,
