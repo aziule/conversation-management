@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/aziule/conversation-management/app/facebook"
 	"github.com/aziule/conversation-management/core/bot"
-	"github.com/aziule/conversation-management/infrastructure/bot/facebook"
 	"github.com/aziule/conversation-management/infrastructure/conversation/mongo"
 	db "github.com/aziule/conversation-management/infrastructure/mongo"
 	"github.com/aziule/conversation-management/infrastructure/nlp/wit"

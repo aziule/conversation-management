@@ -3,10 +3,10 @@ package facebook
 import (
 	"net/http"
 
+	"github.com/aziule/conversation-management/app/facebook/api"
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
-	"github.com/aziule/conversation-management/infrastructure/bot/facebook/api"
 )
 
 // DefaultDataTypeMap is the default data type map to be used with Wit.
