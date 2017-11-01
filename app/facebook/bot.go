@@ -9,12 +9,6 @@ import (
 	"github.com/aziule/conversation-management/core/nlp"
 )
 
-// DefaultDataTypeMap is the default data type map to be used with Wit.
-// For now, this is highly coupled with Wit's data types and should
-// be updated every time a change is made to Wit.
-// It is initialised in the init() function
-var DefaultDataTypeMap nlp.DataTypeMap
-
 // Config is the config required in order to instantiate a new FacebookBot
 type Config struct {
 	VerifyToken            string
@@ -26,9 +20,9 @@ type Config struct {
 
 // Bot is the main structure
 type facebookBot struct {
+	webhooks               []*bot.Webhook
 	verifyToken            string
 	fbApi                  *api.FacebookApi
-	webhooks               []*bot.Webhook
 	nlpParser              nlp.Parser
 	conversationRepository conversation.Repository
 }
@@ -46,14 +40,14 @@ func NewBot(config *Config) bot.Bot {
 		conversationRepository: config.ConversationRepository,
 	}
 
-	bot.BindDefaultWebhooks()
+	bot.bindDefaultWebhooks()
 
 	return bot
 }
 
-// InitWebhooks initialises the default Facebook-related webhooks
+// bindDefaultWebhooks initialises the default Facebook-related webhooks
 // Use this method to create and bind the default Facebook webhooks to the bot
-func (facebookBot *facebookBot) BindDefaultWebhooks() {
+func (facebookBot *facebookBot) bindDefaultWebhooks() {
 	facebookBot.webhooks = append(facebookBot.webhooks, bot.NewWebHook(
 		bot.HttpMethodGet,
 		"/",
@@ -71,24 +65,4 @@ func (facebookBot *facebookBot) BindDefaultWebhooks() {
 // This method is required in order to inherit from the Bot interface.
 func (facebookBot *facebookBot) Webhooks() []*bot.Webhook {
 	return facebookBot.webhooks
-}
-
-// NlpParser returns the bot's nlp parser.
-// This method is required in order to inherit from the Bot interface.
-func (facebookBot *facebookBot) NlpParser() nlp.Parser {
-	return facebookBot.nlpParser
-}
-
-// ConversationRepository returns the ConversationRepository.
-// This method is required in order to inherit from the Bot interface.
-func (facebookBot *facebookBot) ConversationRepository() conversation.Repository {
-	return facebookBot.conversationRepository
-}
-
-func init() {
-	// @todo: move this somewhere else
-	DefaultDataTypeMap = make(nlp.DataTypeMap)
-	DefaultDataTypeMap["nb_persons"] = nlp.DataTypeInt
-	DefaultDataTypeMap["intent"] = nlp.DataTypeIntent
-	DefaultDataTypeMap["datetime"] = nlp.DataTypeDateTime
 }

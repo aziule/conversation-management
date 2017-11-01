@@ -7,19 +7,32 @@ import (
 
 	"github.com/antonholmquist/jason"
 	"github.com/aziule/conversation-management/core/nlp"
+	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 )
 
 var (
 	ErrCouldNotParseJson       = errors.New("Could not parse JSON")
-	ErrMalformedDateTime       = errors.New("Malformed datetime value")
 	ErrCouldNotParseJsonObject = errors.New("Could not parse object from JSON")
 	ErrMissingKey              = func(key string) error { return errors.New(fmt.Sprintf("Missing key: %s", key)) }
 	ErrCouldNotCastValue       = func(key, expectedType string) error {
 		return errors.New(fmt.Sprintf("Could not cast %s to %s", expectedType))
 	}
 	ErrUnhandledDataType = func(dataType string) error { return errors.New(fmt.Sprintf("Unhandled data type %s", dataType)) }
+
+	// DefaultDataTypeMap is the default data type map to be used with Wit.
+	// For now, this is highly coupled with Wit's data types and should
+	// be updated every time a change is made to Wit.
+	// It is initialised in the init() function
+	defaultDataTypeMap nlp.DataTypeMap
 )
+
+func init() {
+	defaultDataTypeMap = make(nlp.DataTypeMap)
+	defaultDataTypeMap["nb_persons"] = nlp.DataTypeInt
+	defaultDataTypeMap["intent"] = nlp.DataTypeIntent
+	defaultDataTypeMap["datetime"] = nlp.DataTypeDateTime
+}
 
 // witParser is the NLP parser for Wit.
 // It implements the nlp.Parser interface
@@ -28,9 +41,9 @@ type witParser struct {
 }
 
 // NewParser is the constructor method for witParser
-func NewParser(dataTypeMap nlp.DataTypeMap) nlp.Parser {
+func NewParser() nlp.Parser {
 	return &witParser{
-		dataTypeMap: dataTypeMap,
+		dataTypeMap: defaultDataTypeMap,
 	}
 }
 
@@ -189,7 +202,7 @@ func extractDateTimeInformation(object *jason.Object) (time.Time, nlp.DateTimeGr
 		return time.Time{}, "", ErrMissingKey("value")
 	}
 
-	t, err := stringToTime(value)
+	t, err := utils.ParseTime(value)
 
 	if err != nil {
 		return time.Time{}, "", err
@@ -203,20 +216,4 @@ func extractDateTimeInformation(object *jason.Object) (time.Time, nlp.DateTimeGr
 
 	// @todo: use a converter that will check that the granularity exists
 	return t, nlp.DateTimeGranularity(grain), nil
-}
-
-// stringToTime converts a given string to a tine.Time
-// @TODO: move somewhere else
-func stringToTime(value string) (time.Time, error) {
-	t, err := time.Parse(time.RFC3339, value)
-
-	if err != nil {
-		log.WithFields(log.Fields{
-			"value":          value,
-			"expectedLayout": "RFC3339",
-		}).Infof("Could not cast string to time.Time: %s", err)
-		return time.Time{}, ErrMalformedDateTime
-	}
-
-	return t, nil
 }

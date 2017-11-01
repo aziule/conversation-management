@@ -43,7 +43,7 @@ func Run(configFilePath string) {
 			VerifyToken:            config.FbVerifyToken,
 			ApiVersion:             config.FbApiVersion,
 			PageAccessToken:        config.FbPageAccessToken,
-			NlpParser:              wit.NewParser(facebook.DefaultDataTypeMap),
+			NlpParser:              wit.NewParser(),
 			ConversationRepository: mongo.NewMongodbRepository(db),
 		},
 	)
