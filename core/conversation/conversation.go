@@ -54,8 +54,8 @@ func StartConversation() *Conversation {
 	}
 }
 
-// Received is called when a new message is received
-func (conversation *Conversation) Received(message *UserMessage) {
+// AddMessage is called when a new message needs to be added to the conversation
+func (conversation *Conversation) AddMessage(message *UserMessage) {
 	conversation.Messages = append(
 		conversation.Messages,
 		&MessageWithType{message.Type(), message},

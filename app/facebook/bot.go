@@ -86,6 +86,7 @@ func (facebookBot *facebookBot) ConversationRepository() conversation.Repository
 }
 
 func init() {
+	// @todo: move this somewhere else
 	DefaultDataTypeMap = make(nlp.DataTypeMap)
 	DefaultDataTypeMap["nb_persons"] = nlp.DataTypeInt
 	DefaultDataTypeMap["intent"] = nlp.DataTypeIntent

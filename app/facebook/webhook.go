@@ -67,7 +67,9 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		}
 	}
 
-	log.Debugf("Request from user: %s", receivedMessage.SenderId)
+	log.WithField("user", receivedMessage.SenderId).Debugf("Request from user")
+	// @todo: use an intermediate layer to find a user by its facebook ID
+	// => this will help with consolidated users (fb + slack + anything)
 	c, err := bot.conversationRepository.FindLatestConversation(user)
 
 	if err != nil {
@@ -77,11 +79,11 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		// The conversation was not found: create a new one
+		// The conversation was not found: start a new one
 		c = conversation.StartConversation()
 	}
 
-	// Create a new conversation if the previous one is over
+	// Start a new conversation if the previous one is over
 	if c.Status == conversation.StatusOver {
 		c = conversation.StartConversation()
 	}
@@ -93,7 +95,7 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 		parsedData,
 	)
 
-	c.Received(userMessage)
+	c.AddMessage(userMessage)
 
 	err = bot.conversationRepository.SaveConversation(c)
 

@@ -40,10 +40,10 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 		c.Id = bson.NewObjectId()
 		c.CreatedAt = time.Now()
 
-		log.WithField("conversation", c).Debugf("Inserting conversation: %s", c.Id)
+		log.WithField("conversation", c).Debugf("Inserting conversation")
 		err = collection.Insert(c)
 	} else {
-		log.WithField("conversation", c).Debugf("Updating conversation: %s", c.Id)
+		log.WithField("conversation", c).Debugf("Updating conversation")
 		err = collection.UpdateId(c.Id, c)
 	}
 
