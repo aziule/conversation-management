@@ -64,31 +64,37 @@ func (bot *facebookBot) HandleValidateWebhook(w http.ResponseWriter, r *http.Req
 	hubMode, err := utils.GetSingleQueryParam(queryParams, "hub.mode")
 
 	if err != nil {
-		log.Infof("Could not fetch param: %s", err)
+		log.WithField("param", "hub.mode").Infof("Could not fetch param: %s", err)
 		return
 	}
 
 	if hubMode != "subscribe" {
-		log.Debugf("Invalid hub mode: %s", hubMode)
+		log.WithFields(log.Fields{
+			"expected": "subscribe",
+			"mode":     hubMode,
+		}).Info("Invalid hub mode")
 		return
 	}
 
 	verifyToken, err := utils.GetSingleQueryParam(queryParams, "hub.verify_token")
 
 	if err != nil {
-		log.Infof("Could not fetch param: %s", err)
+		log.WithField("param", "hub.verify_token").Infof("Could not fetch param: %s", err)
 		return
 	}
 
 	if verifyToken != bot.verifyToken {
-		log.Debugf("Invalid verify token: %s", verifyToken)
+		log.WithFields(log.Fields{
+			"expected": bot.verifyToken,
+			"token":    verifyToken,
+		}).Info("Invalid verify token")
 		return
 	}
 
 	challenge, err := utils.GetSingleQueryParam(queryParams, "hub.challenge")
 
 	if err != nil {
-		log.Infof("Could not fetch param: %s", err)
+		log.WithField("param", "hub.challenge").Infof("Could not fetch param: %s", err)
 		return
 	}
 
