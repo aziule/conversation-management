@@ -14,6 +14,7 @@ type StoryRepository interface {
 
 // FindStep returns the step with the provided name, if found.
 // Returns nil if no step is found.
+// @todo: return an error instead and handle the not found with an ErrNotFound
 func (s *Story) FindStep(name string) *Step {
 	for _, step := range s.StartingSteps {
 		if step.Name == name {

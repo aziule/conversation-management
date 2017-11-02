@@ -4,6 +4,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/aziule/conversation-management/core/nlp"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -31,9 +32,9 @@ type Handler interface {
 	// It can be a new or an existing conversation.
 	GetConversation(user *User) (*Conversation, error)
 
-	// HandleStep handles the given step and returns an error
-	// if anything prevents the program from handling the step.
-	HandleStep(step *Step) error
+	// ProcessData handles the given ParsedData and tries
+	// to make the conversation progress from there.
+	ProcessData(*nlp.ParsedData, *Conversation) error
 }
 
 // Repository is the main interface for accessing conversation-related objects

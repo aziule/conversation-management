@@ -1,6 +1,7 @@
 package facebook
 
 import (
+	"errors"
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
 	log "github.com/sirupsen/logrus"
@@ -9,6 +10,7 @@ import (
 
 // conversationHandler is the struct responsible for handling Facebook conversations
 type conversationHandler struct {
+	stepHandler            conversation.StepHandler
 	conversationRepository conversation.Repository
 	storyRepository        conversation.StoryRepository
 }
@@ -16,6 +18,7 @@ type conversationHandler struct {
 // NewConversationHandler is the constructor method for conversationHandler
 func NewConversationHandler(conversationRepository conversation.Repository, storyRepository conversation.StoryRepository) *conversationHandler {
 	return &conversationHandler{
+		stepHandler:            &stepHandler{},
 		conversationRepository: conversationRepository,
 		storyRepository:        storyRepository,
 	}
@@ -49,10 +52,6 @@ func (h *conversationHandler) GetConversation(user *conversation.User) (*convers
 	return c, nil
 }
 
-func (h *conversationHandler) HandleStep(step *conversation.Step) error {
-	return nil
-}
-
 // GetUser tries to find an existing user using the id provided as the facebook id.
 // If it does not find any user then it will create a new one using the facebook id.
 func (h *conversationHandler) GetUser(id string) (*conversation.User, error) {
@@ -83,14 +82,97 @@ func (h *conversationHandler) GetUser(id string) (*conversation.User, error) {
 	return user, nil
 }
 
+// ProcessData is the method responsible for taking actions on a conversation using the provided NLP data
+func (h *conversationHandler) ProcessData(data *nlp.ParsedData, c *conversation.Conversation) error {
+	var err error
+
+	if c.CurrentStep == "" {
+		log.Debug("Try starting a new story")
+		err = h.tryStartStory(data, c)
+	} else {
+		log.Debug("Try validating the current step")
+		err = h.tryValidateCurrentStep(data, c)
+	}
+
+	if err != nil {
+		// @todo: handle
+		return err
+	}
+
+	return nil
+}
+
+func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversation.Conversation) error {
+	stories, err := h.storyRepository.FindAll()
+
+	if err != nil {
+		// @todo: log
+		return errors.New("Cannot load stories")
+	}
+
+	var startingStep *conversation.Step
+
+	for _, story := range stories {
+		if startingStep != nil {
+			break
+		}
+
+		for _, step := range story.StartingSteps {
+			if h.stepHandler.CanValidate(step, data) {
+				startingStep = step
+				break
+			}
+		}
+	}
+
+	if startingStep == nil {
+		log.WithFields(log.Fields{
+			"data":         data,
+			"conversation": c,
+		}).Info("Cannot start a story")
+
+		return errors.New("Handle this")
+	}
+
+	// Update the conversation
+	return nil
+}
+
+func (h *conversationHandler) tryValidateCurrentStep(data *nlp.ParsedData, c *conversation.Conversation) error {
+	stories, err := h.storyRepository.FindAll()
+
+	if err != nil {
+		// @todo: log
+		return errors.New("Cannot load stories")
+	}
+
+	var currentStep *conversation.Step
+
+	// Find the current step of the conversation
+	for _, story := range stories {
+		step := story.FindStep(c.CurrentStep)
+
+		if step != nil {
+			currentStep = step
+			break
+		}
+	}
+
+	canValidate := h.stepHandler.CanValidate(currentStep, data)
+
+	log.Info("Validating conversation: %s", canValidate)
+
+	return nil
+}
+
 // stepHandler is the struct responsible for handling steps for a Facebook bot
 type stepHandler struct {
 }
 
-func (h *stepHandler) CanValidate(step *conversation.Step, data nlp.ParsedData) bool {
+func (h *stepHandler) CanValidate(step *conversation.Step, data *nlp.ParsedData) bool {
 	return false
 }
 
-func (h *stepHandler) Process(step *conversation.Step, data nlp.ParsedData) error {
+func (h *stepHandler) Process(step *conversation.Step, data *nlp.ParsedData) error {
 	return nil
 }

@@ -5,10 +5,10 @@ import "github.com/aziule/conversation-management/core/nlp"
 // StepHandler handles any step given
 type StepHandler interface {
 	// CanValidate will check if the step is valid using the given ParsedData
-	CanValidate(step *Step, data nlp.ParsedData) bool
+	CanValidate(step *Step, data *nlp.ParsedData) bool
 
 	// Process will process the step and take the relevant actions
-	Process(step *Step, data nlp.ParsedData) error
+	Process(step *Step, data *nlp.ParsedData) error
 }
 
 // Step is the main structure for the various steps taken within a single story.

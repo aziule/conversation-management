@@ -52,6 +52,15 @@ func (bot *facebookBot) HandleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 
 	log.WithField("conversation", conversation).Debug("Conversation fetched")
+
+	err = bot.conversationHandler.ProcessData(parsedData, conversation)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"data":         parsedData,
+			"conversation": conversation,
+		}).Errorf("Could not process the data: %s", err)
+	}
 }
 
 // HandleValidateWebhook tries to validate the Facebook webhook

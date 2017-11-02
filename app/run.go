@@ -50,15 +50,6 @@ func Run(configFilePath string) {
 		},
 	)
 
-	// @todo: see how to load stories:
-	// - Either from the bot
-	// - Either from the conversation handler
-	//err = b.LoadStories()
-	//
-	//if err != nil {
-	//	log.Fatalf("An error occurred when loading the stories: %s", err)
-	//}
-
 	r := chi.NewRouter()
 
 	// Automatically set the bot's webhooks routes
