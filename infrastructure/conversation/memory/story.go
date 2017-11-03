@@ -2,7 +2,6 @@ package memory
 
 import (
 	"github.com/aziule/conversation-management/core/conversation"
-	"github.com/aziule/conversation-management/core/nlp"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,7 +27,7 @@ func (r *inMemoryStoryRepository) FindAll() ([]*conversation.Story, error) {
 	story := conversation.NewStory("Book a table", nil)
 	step1 := conversation.NewStep(
 		"get_intent",
-		nlp.NewIntent("book_table"),
+		"book_table",
 		nil,
 		nil,
 	)

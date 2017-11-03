@@ -18,13 +18,13 @@ type StepHandler interface {
 // in which case we can consider the Story as done.
 type Step struct {
 	Name             string
-	ExpectedIntent   *nlp.Intent
-	ExpectedEntities []nlp.Entity
+	ExpectedIntent   string
+	ExpectedEntities []string
 	NextSteps        []*Step
 }
 
 // NewStep is our constructor method for Step
-func NewStep(name string, expectedIntent *nlp.Intent, expectedEntities []nlp.Entity, nextSteps []*Step) *Step {
+func NewStep(name string, expectedIntent string, expectedEntities []string, nextSteps []*Step) *Step {
 	return &Step{
 		Name:             name,
 		ExpectedIntent:   expectedIntent,

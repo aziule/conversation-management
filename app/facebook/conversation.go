@@ -122,7 +122,10 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 
 		for _, step := range story.StartingSteps {
 			log.WithField("step", step).Debugf("Seeing if we can step in")
+
 			if h.stepHandler.CanStepIn(step, data) {
+				log.WithField("step", step).Debugf("Stepping in")
+
 				startingStep = step
 				break
 			}
@@ -137,6 +140,8 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 
 		return errors.New("Handle this")
 	}
+
+	// Process the step
 
 	// Update the conversation
 	return nil
@@ -183,8 +188,17 @@ func newStepHandler() *stepHandler {
 // process the step.
 // It will check for the expected intent / entities and return true or false accordingly.
 func (h *stepHandler) CanStepIn(step *conversation.Step, data *nlp.ParsedData) bool {
+	// NLP data provides an intent but it's not the same name
+	if data.Intent != nil && step.ExpectedIntent != data.Intent.Name {
+		return false
+	}
 
-	return false
+	// NLP data does not provide an intent but we are expecting one
+	if data.Intent == nil && step.ExpectedIntent != "" {
+		return false
+	}
+
+	return true
 }
 
 func (h *stepHandler) Process(step *conversation.Step, data *nlp.ParsedData) error {
