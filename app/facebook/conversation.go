@@ -115,14 +115,14 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 	var startingStep *conversation.Step
 
 	for _, story := range stories {
-		log.WithField("story", story).Debugf("Trying to validate story")
+		log.WithField("story", story).Debugf("Trying to step in story")
 		if startingStep != nil {
 			break
 		}
 
 		for _, step := range story.StartingSteps {
-			log.WithField("step", step).Debugf("Trying to validate starting step")
-			if h.stepHandler.CanValidate(step, data) {
+			log.WithField("step", step).Debugf("Seeing if we can step in")
+			if h.stepHandler.CanStepIn(step, data) {
 				startingStep = step
 				break
 			}
@@ -162,9 +162,9 @@ func (h *conversationHandler) tryProgressInStory(data *nlp.ParsedData, c *conver
 		}
 	}
 
-	canValidate := h.stepHandler.CanValidate(currentStep, data)
+	canStepIn := h.stepHandler.CanStepIn(currentStep, data)
 
-	log.Info("Validating conversation: %s", canValidate)
+	log.Info("Stepping in: %s", canStepIn)
 
 	return nil
 }
@@ -179,9 +179,10 @@ func newStepHandler() *stepHandler {
 	return &stepHandler{}
 }
 
-// CanValidate tries to validate a step given the NLP data.
+// CanStepIn tries to see if the NLP data meets the step's requirements in order to
+// process the step.
 // It will check for the expected intent / entities and return true or false accordingly.
-func (h *stepHandler) CanValidate(step *conversation.Step, data *nlp.ParsedData) bool {
+func (h *stepHandler) CanStepIn(step *conversation.Step, data *nlp.ParsedData) bool {
 
 	return false
 }

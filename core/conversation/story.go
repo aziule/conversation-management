@@ -6,7 +6,7 @@ type StoryRepository interface {
 }
 
 // Story is the main structure for user stories, which are basically
-// a flow of steps to validate and process.
+// a flow of steps to step in and process.
 type Story struct {
 	Name          string
 	StartingSteps []*Step
