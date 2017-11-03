@@ -18,9 +18,24 @@ type StepHandler interface {
 // in which case we can consider the Story as done.
 type Step struct {
 	Name             string
-	ExpectedIntent   nlp.Intent
+	ExpectedIntent   *nlp.Intent
 	ExpectedEntities []nlp.Entity
 	NextSteps        []*Step
+}
+
+// NewStep is our constructor method for Step
+func NewStep(name string, expectedIntent *nlp.Intent, expectedEntities []nlp.Entity, nextSteps []*Step) *Step {
+	return &Step{
+		Name:             name,
+		ExpectedIntent:   expectedIntent,
+		ExpectedEntities: expectedEntities,
+		NextSteps:        nextSteps,
+	}
+}
+
+// AddNextStep adds a new step to the list of the next available steps
+func (s *Step) AddNextStep(step *Step) {
+	s.NextSteps = append(s.NextSteps, step)
 }
 
 // findSubStep looks for sub steps within a step, and returns the one matching the provided name.

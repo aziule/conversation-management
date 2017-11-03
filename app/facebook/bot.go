@@ -40,7 +40,7 @@ func NewBot(config *Config) *facebookBot {
 		verifyToken:         config.VerifyToken,
 		fbApi:               api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
 		nlpParser:           config.NlpParser,
-		conversationHandler: NewConversationHandler(config.ConversationRepository, config.StoryRepository),
+		conversationHandler: newConversationHandler(config.ConversationRepository, config.StoryRepository),
 	}
 
 	bot.bindDefaultWebhooks()

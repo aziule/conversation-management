@@ -1,5 +1,10 @@
 package conversation
 
+// StoryRepository is the repository responsible for fetching our stories
+type StoryRepository interface {
+	FindAll() ([]*Story, error)
+}
+
 // Story is the main structure for user stories, which are basically
 // a flow of steps to validate and process.
 type Story struct {
@@ -7,9 +12,17 @@ type Story struct {
 	StartingSteps []*Step
 }
 
-// StoryRepository is the repository responsible for fetching our stories
-type StoryRepository interface {
-	FindAll() ([]*Story, error)
+// NewStory is our constructor method for Story
+func NewStory(name string, startingSteps []*Step) *Story {
+	return &Story{
+		Name:          name,
+		StartingSteps: startingSteps,
+	}
+}
+
+// AddStartingStep attaches a new starting step to the story
+func (s *Story) AddStartingStep(step *Step) {
+	s.StartingSteps = append(s.StartingSteps, step)
 }
 
 // FindStep returns the step with the provided name, if found.

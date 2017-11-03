@@ -12,6 +12,8 @@ import (
 )
 
 var (
+	// @todo: move these variables to the core and return only core errors
+	// related to the Parser interface itself
 	ErrCouldNotParseJson       = errors.New("Could not parse JSON")
 	ErrCouldNotParseJsonObject = errors.New("Could not parse object from JSON")
 	ErrMissingKey              = func(key string) error { return errors.New(fmt.Sprintf("Missing key: %s", key)) }

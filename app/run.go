@@ -46,7 +46,7 @@ func Run(configFilePath string) {
 			PageAccessToken:        config.FbPageAccessToken,
 			NlpParser:              wit.NewParser(),
 			ConversationRepository: mongo.NewMongodbRepository(db),
-			StoryRepository:        memory.NewStepRepository(),
+			StoryRepository:        memory.NewStoryRepository(),
 		},
 	)
 

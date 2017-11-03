@@ -34,7 +34,7 @@ type Handler interface {
 
 	// ProcessData handles the given ParsedData and tries
 	// to make the conversation progress from there.
-	ProcessData(*nlp.ParsedData, *Conversation) error
+	ProcessData(data *nlp.ParsedData, c *Conversation) error
 }
 
 // Repository is the main interface for accessing conversation-related objects

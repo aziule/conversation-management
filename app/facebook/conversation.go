@@ -15,10 +15,10 @@ type conversationHandler struct {
 	storyRepository        conversation.StoryRepository
 }
 
-// NewConversationHandler is the constructor method for conversationHandler
-func NewConversationHandler(conversationRepository conversation.Repository, storyRepository conversation.StoryRepository) *conversationHandler {
+// newConversationHandler is the constructor method for conversationHandler
+func newConversationHandler(conversationRepository conversation.Repository, storyRepository conversation.StoryRepository) *conversationHandler {
 	return &conversationHandler{
-		stepHandler:            &stepHandler{},
+		stepHandler:            newStepHandler(),
 		conversationRepository: conversationRepository,
 		storyRepository:        storyRepository,
 	}
@@ -90,8 +90,8 @@ func (h *conversationHandler) ProcessData(data *nlp.ParsedData, c *conversation.
 		log.Debug("Try starting a new story")
 		err = h.tryStartStory(data, c)
 	} else {
-		log.Debug("Try validating the current step")
-		err = h.tryValidateCurrentStep(data, c)
+		log.Debug("Try progressing in the current story")
+		err = h.tryProgressInStory(data, c)
 	}
 
 	if err != nil {
@@ -102,6 +102,8 @@ func (h *conversationHandler) ProcessData(data *nlp.ParsedData, c *conversation.
 	return nil
 }
 
+// tryStartStory will try to start a new story using the provided NLP data.
+// It will go through the available stories and see if any step can be initiated.
 func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversation.Conversation) error {
 	stories, err := h.storyRepository.FindAll()
 
@@ -113,11 +115,13 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 	var startingStep *conversation.Step
 
 	for _, story := range stories {
+		log.WithField("story", story).Debugf("Trying to validate story")
 		if startingStep != nil {
 			break
 		}
 
 		for _, step := range story.StartingSteps {
+			log.WithField("step", step).Debugf("Trying to validate starting step")
 			if h.stepHandler.CanValidate(step, data) {
 				startingStep = step
 				break
@@ -138,7 +142,7 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 	return nil
 }
 
-func (h *conversationHandler) tryValidateCurrentStep(data *nlp.ParsedData, c *conversation.Conversation) error {
+func (h *conversationHandler) tryProgressInStory(data *nlp.ParsedData, c *conversation.Conversation) error {
 	stories, err := h.storyRepository.FindAll()
 
 	if err != nil {
@@ -166,10 +170,19 @@ func (h *conversationHandler) tryValidateCurrentStep(data *nlp.ParsedData, c *co
 }
 
 // stepHandler is the struct responsible for handling steps for a Facebook bot
+// @todo: add mapping: step's name <=> handler func
 type stepHandler struct {
 }
 
+// newStepHandler is the constructor method for stepHandler
+func newStepHandler() *stepHandler {
+	return &stepHandler{}
+}
+
+// CanValidate tries to validate a step given the NLP data.
+// It will check for the expected intent / entities and return true or false accordingly.
 func (h *stepHandler) CanValidate(step *conversation.Step, data *nlp.ParsedData) bool {
+
 	return false
 }
 
