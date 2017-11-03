@@ -39,6 +39,8 @@ func Run(configFilePath string) {
 
 	defer db.Close()
 
+	// @todo: register all available implementations using a factory
+	// pattern, and fetch them directly from the config passed
 	b := facebook.NewBot(
 		&facebook.Config{
 			VerifyToken:            config.FbVerifyToken,
