@@ -187,6 +187,7 @@ func newStepHandler() *stepHandler {
 // CanStepIn tries to see if the NLP data meets the step's requirements in order to
 // process the step.
 // It will check for the expected intent / entities and return true or false accordingly.
+// @todo: needs testing
 func (h *stepHandler) CanStepIn(step *conversation.Step, data *nlp.ParsedData) bool {
 	// NLP data provides an intent but it's not the same name
 	if data.Intent != nil && step.ExpectedIntent != data.Intent.Name {
