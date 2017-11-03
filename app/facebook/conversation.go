@@ -167,6 +167,13 @@ func (h *conversationHandler) tryProgressInStory(data *nlp.ParsedData, c *conver
 		}
 	}
 
+	if currentStep == nil {
+		// @todo: return a correct error message.
+		// @todo: handle this case and see how we can prevent
+		// a conversation from being blocked.
+		return errors.New("Could not find any step")
+	}
+
 	canStepIn := h.stepHandler.CanStepIn(currentStep, data)
 
 	log.Info("Stepping in: %s", canStepIn)
