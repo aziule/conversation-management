@@ -1,3 +1,4 @@
+// Package memory implements objects working with data stored in memory.
 package memory
 
 import (

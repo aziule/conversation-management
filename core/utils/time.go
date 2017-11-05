@@ -1,3 +1,4 @@
+// Package utils provides useful methods for data manipulation and parsing.
 package utils
 
 import (

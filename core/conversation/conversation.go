@@ -1,3 +1,5 @@
+// Package conversation provides conversation-related objects for handling
+// any conversation between a bot and its users.
 package conversation
 
 import (

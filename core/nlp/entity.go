@@ -1,3 +1,4 @@
+// Package nlp provides objects to store, handle and manipulate NLP data.
 package nlp
 
 import (

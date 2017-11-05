@@ -1,3 +1,4 @@
+// Package cli provides CLI methods to run or interact with bots.
 package cli
 
 import (

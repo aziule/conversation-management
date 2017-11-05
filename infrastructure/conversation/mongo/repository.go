@@ -1,4 +1,4 @@
-// mongo package provides all of the required methods to interact with
+// Package mongo provides all of the required methods to interact with
 // a mongodb database, using mgo as the driver.
 package mongo
 

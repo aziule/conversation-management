@@ -1,3 +1,4 @@
+// Package api provides a Facebook API to be used by bots running on Facebook.
 package api
 
 import (

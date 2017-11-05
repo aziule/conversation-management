@@ -1,3 +1,5 @@
+// Package app provides the main methods and config to initialise and run bots
+// on any available platform.
 package app
 
 import (

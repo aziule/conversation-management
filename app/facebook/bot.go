@@ -1,3 +1,4 @@
+// Package facebook defines Facebook-related bot methods and behaviour.
 package facebook
 
 import (
@@ -26,7 +27,6 @@ type facebookBot struct {
 	fbApi               *api.FacebookApi
 	nlpParser           nlp.Parser
 	conversationHandler conversation.Handler
-	stories             []*conversation.Story
 }
 
 // NewBot is the constructor method that creates a Facebook bot, using
@@ -37,11 +37,18 @@ type facebookBot struct {
 // - We load the list of stories.
 func NewBot(config *Config) *facebookBot {
 	bot := &facebookBot{
-		verifyToken:         config.VerifyToken,
-		fbApi:               api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
-		nlpParser:           config.NlpParser,
-		conversationHandler: newConversationHandler(config.ConversationRepository, config.StoryRepository),
+		verifyToken: config.VerifyToken,
+		fbApi:       api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
+		nlpParser:   config.NlpParser,
 	}
+
+	// @todo: we need to check if all of the stories's steps are being handled
+	// and if any are missing / deprecated.
+	bot.conversationHandler = newConversationHandler(
+		bot.getDefaultStepsMapping(),
+		config.ConversationRepository,
+		config.StoryRepository,
+	)
 
 	bot.bindDefaultWebhooks()
 
@@ -68,4 +75,16 @@ func (b *facebookBot) bindDefaultWebhooks() {
 		"/",
 		b.HandleMessageReceived,
 	))
+}
+
+// getDefaultStepsMapping returns the default steps mapping between
+// a step's name and its handling func.
+// @todo: find a better name and/or move somewhere else
+func (b *facebookBot) getDefaultStepsMapping() *conversation.StepsProcessMap {
+	pm := conversation.StepsProcessMap{}
+
+	pm["get_intent"] = b.ProcessStep1
+	pm["step2"] = b.ProcessStep2
+
+	return &pm
 }

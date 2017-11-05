@@ -2,6 +2,7 @@ package facebook
 
 import (
 	"errors"
+
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
 	log "github.com/sirupsen/logrus"
@@ -10,17 +11,17 @@ import (
 
 // conversationHandler is the struct responsible for handling Facebook conversations
 type conversationHandler struct {
-	stepHandler            conversation.StepHandler
+	stepHandler            *conversation.StepHandler
 	conversationRepository conversation.Repository
 	storyRepository        conversation.StoryRepository
 }
 
 // newConversationHandler is the constructor method for conversationHandler
-func newConversationHandler(conversationRepository conversation.Repository, storyRepository conversation.StoryRepository) *conversationHandler {
+func newConversationHandler(pm *conversation.StepsProcessMap, cr conversation.Repository, sr conversation.StoryRepository) *conversationHandler {
 	return &conversationHandler{
-		stepHandler:            newStepHandler(),
-		conversationRepository: conversationRepository,
-		storyRepository:        storyRepository,
+		stepHandler:            conversation.NewStepHandler(pm),
+		conversationRepository: cr,
+		storyRepository:        sr,
 	}
 }
 
@@ -121,8 +122,6 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 		}
 
 		for _, step := range story.StartingSteps {
-			log.WithField("step", step).Debugf("Seeing if we can step in")
-
 			if h.stepHandler.CanStepIn(step, data) {
 				log.WithField("step", step).Debugf("Stepping in")
 
@@ -142,6 +141,12 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 	}
 
 	// Process the step
+	err = h.stepHandler.Process(startingStep, data)
+
+	if err != nil {
+		// @todo: handle
+		return errors.New("nope")
+	}
 
 	// Update the conversation
 	return nil
@@ -178,37 +183,5 @@ func (h *conversationHandler) tryProgressInStory(data *nlp.ParsedData, c *conver
 
 	log.Info("Stepping in: %s", canStepIn)
 
-	return nil
-}
-
-// stepHandler is the struct responsible for handling steps for a Facebook bot
-// @todo: add mapping: step's name <=> handler func
-type stepHandler struct {
-}
-
-// newStepHandler is the constructor method for stepHandler
-func newStepHandler() *stepHandler {
-	return &stepHandler{}
-}
-
-// CanStepIn tries to see if the NLP data meets the step's requirements in order to
-// process the step.
-// It will check for the expected intent / entities and return true or false accordingly.
-// @todo: needs testing
-func (h *stepHandler) CanStepIn(step *conversation.Step, data *nlp.ParsedData) bool {
-	// NLP data provides an intent but it's not the same name
-	if data.Intent != nil && step.ExpectedIntent != data.Intent.Name {
-		return false
-	}
-
-	// NLP data does not provide an intent but we are expecting one
-	if data.Intent == nil && step.ExpectedIntent != "" {
-		return false
-	}
-
-	return true
-}
-
-func (h *stepHandler) Process(step *conversation.Step, data *nlp.ParsedData) error {
 	return nil
 }
