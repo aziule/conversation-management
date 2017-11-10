@@ -2,6 +2,7 @@ package conversation
 
 import (
 	"errors"
+
 	"github.com/aziule/conversation-management/core/nlp"
 )
 
@@ -58,11 +59,11 @@ type StepsProcessMap map[string]StepProcessFunc
 
 // StepHandler is the struct responsible for handling steps for a bot
 type StepHandler struct {
-	processMap *StepsProcessMap
+	processMap StepsProcessMap
 }
 
 // NewStepHandler is the constructor method for StepHandler
-func NewStepHandler(processMap *StepsProcessMap) *StepHandler {
+func NewStepHandler(processMap StepsProcessMap) *StepHandler {
 	return &StepHandler{
 		processMap: processMap,
 	}

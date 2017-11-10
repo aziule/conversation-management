@@ -19,8 +19,8 @@ var (
 	ErrNoMessage               = errors.New("No message to parse")
 )
 
-// ReceivedMessage is the base struct for received messages
-type ReceivedMessage struct {
+// receivedMessage is the base struct for received messages
+type receivedMessage struct {
 	Mid               string
 	SenderId          string
 	RecipientId       string
@@ -31,7 +31,7 @@ type ReceivedMessage struct {
 }
 
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
-func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedMessage, error) {
+func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*receivedMessage, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 
@@ -123,7 +123,7 @@ func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*ReceivedM
 		// @todo: log that no NLP was received
 	}
 
-	return &ReceivedMessage{
+	return &receivedMessage{
 		Mid:               mid,
 		SenderId:          senderId,
 		RecipientId:       recipientId,

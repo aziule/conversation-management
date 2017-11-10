@@ -45,7 +45,7 @@ func NewBot(config *Config) *facebookBot {
 	// @todo: we need to check if all of the stories's steps are being handled
 	// and if any are missing / deprecated.
 	bot.conversationHandler = newConversationHandler(
-		bot.getDefaultStepsMapping(),
+		bot.getDefaultStepsMapping(), // @todo: directly pass the step handler rather than the steps mapping
 		config.ConversationRepository,
 		config.StoryRepository,
 	)
@@ -80,11 +80,11 @@ func (b *facebookBot) bindDefaultWebhooks() {
 // getDefaultStepsMapping returns the default steps mapping between
 // a step's name and its handling func.
 // @todo: find a better name and/or move somewhere else
-func (b *facebookBot) getDefaultStepsMapping() *conversation.StepsProcessMap {
+func (b *facebookBot) getDefaultStepsMapping() conversation.StepsProcessMap {
 	pm := conversation.StepsProcessMap{}
 
 	pm["get_intent"] = b.ProcessStep1
 	pm["step2"] = b.ProcessStep2
 
-	return &pm
+	return pm
 }

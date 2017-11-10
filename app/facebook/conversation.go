@@ -17,7 +17,7 @@ type conversationHandler struct {
 }
 
 // newConversationHandler is the constructor method for conversationHandler
-func newConversationHandler(pm *conversation.StepsProcessMap, cr conversation.Repository, sr conversation.StoryRepository) *conversationHandler {
+func newConversationHandler(pm conversation.StepsProcessMap, cr conversation.Repository, sr conversation.StoryRepository) *conversationHandler {
 	return &conversationHandler{
 		stepHandler:            conversation.NewStepHandler(pm),
 		conversationRepository: cr,
