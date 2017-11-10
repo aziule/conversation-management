@@ -29,7 +29,7 @@ func (r *inMemoryStoryRepository) FindAll() ([]*conversation.Story, error) {
 	step1 := conversation.NewStep(
 		"get_intent",
 		"book_table",
-		nil,
+		[]string{"nb_persons"},
 		nil,
 	)
 

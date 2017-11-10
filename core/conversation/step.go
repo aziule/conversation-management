@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/aziule/conversation-management/core/nlp"
+	log "github.com/sirupsen/logrus"
 )
 
 // Step is the main structure for the various steps taken within a single story.
@@ -69,19 +70,40 @@ func NewStepHandler(processMap StepsProcessMap) *StepHandler {
 	}
 }
 
-// CanStepIn tries to see if the NLP data meets the step's requirements in order to
-// process the step.
-// It will check for the expected intent / entities and return true or false accordingly.
+// CanStepIn tries to see if the NLP data meets the step's requirements
+// in order to process the step. It will check if the expected intent / entities
+// are present in the NLP data, and return true or false accordingly.
+//
+// However, this method does not check the data itself. It only checks
+// for its presence, not its validity.
 // @todo: needs testing
 func (h *StepHandler) CanStepIn(step *Step, data *nlp.ParsedData) bool {
-	// NLP data provides an intent but it's not the same name
+	// Case 1: NLP data provides an intent but it's not the same name
 	if data.Intent != nil && step.ExpectedIntent != data.Intent.Name {
 		return false
 	}
 
-	// NLP data does not provide an intent but we are expecting one
+	// Case 2: NLP data does not provide an intent but we are expecting one
 	if data.Intent == nil && step.ExpectedIntent != "" {
 		return false
+	}
+
+	if len(step.ExpectedEntities) > 0 {
+		for _, expectedEntity := range step.ExpectedEntities {
+			hasEntity := false
+
+			for _, providedEntity := range data.Entities {
+				if providedEntity.Entity.Name() == expectedEntity {
+					hasEntity = true
+					log.Debugf("Has entity: %s", expectedEntity)
+				}
+			}
+
+			if !hasEntity {
+				log.Debugf("Missing entity to step in: %s", expectedEntity)
+				return false
+			}
+		}
 	}
 
 	return true
