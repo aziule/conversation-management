@@ -83,8 +83,7 @@ func (b *facebookBot) bindDefaultWebhooks() {
 func (b *facebookBot) getDefaultStepsMapping() conversation.StepsProcessMap {
 	pm := conversation.StepsProcessMap{}
 
-	pm["get_intent"] = b.ProcessStep1
-	pm["step2"] = b.ProcessStep2
+	pm["get_intent"] = b.ProcessStepGetIntent
 
 	return pm
 }
