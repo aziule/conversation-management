@@ -96,7 +96,7 @@ func (h *conversationHandler) ProcessData(data *nlp.ParsedData, c *conversation.
 	}
 
 	if err != nil {
-		// @todo: handle
+		// @todo: handle: save the user message here?
 		return err
 	}
 

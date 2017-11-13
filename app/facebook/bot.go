@@ -4,10 +4,10 @@ package facebook
 import (
 	"net/http"
 
-	"github.com/aziule/conversation-management/app/facebook/api"
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
+	"github.com/aziule/conversation-management/infrastructure/facebook/api"
 )
 
 // Config is the config required in order to instantiate a new FacebookBot
@@ -23,6 +23,7 @@ type Config struct {
 // facebookBot is the main structure
 type facebookBot struct {
 	webhooks            []*bot.Webhook
+	apiEndpoints        []*bot.ApiEndpoint
 	verifyToken         string
 	fbApi               *api.FacebookApi
 	nlpParser           nlp.Parser
@@ -51,6 +52,7 @@ func NewBot(config *Config) *facebookBot {
 	)
 
 	bot.bindDefaultWebhooks()
+	bot.bindDefaultApiEndpoints()
 
 	return bot
 }
@@ -61,19 +63,34 @@ func (b *facebookBot) Webhooks() []*bot.Webhook {
 	return b.webhooks
 }
 
+// ApiEndpoints returns the bot's available API endpoints.
+// This method is required in order to inherit from the Bot interface.
+func (b *facebookBot) ApiEndpoints() []*bot.ApiEndpoint {
+	return b.apiEndpoints
+}
+
 // bindDefaultWebhooks initialises the default Facebook-related webhooks.
 // Use this method to create and bind the default Facebook webhooks to the bot.
 func (b *facebookBot) bindDefaultWebhooks() {
 	b.webhooks = append(b.webhooks, bot.NewWebHook(
-		bot.HttpMethodGet,
+		"GET",
 		"/",
 		b.handleValidateWebhook,
 	))
 
 	b.webhooks = append(b.webhooks, bot.NewWebHook(
-		bot.HttpMethodPost,
+		"POST",
 		"/",
 		b.handleMessageReceived,
+	))
+}
+
+// bindDefaultApiEndpoints initialises the default API endpoints.
+func (b *facebookBot) bindDefaultApiEndpoints() {
+	b.apiEndpoints = append(b.apiEndpoints, bot.NewApiEndpoint(
+		"GET",
+		"/",
+		b.test,
 	))
 }
 

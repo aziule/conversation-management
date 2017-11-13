@@ -3,6 +3,7 @@ package facebook
 import (
 	"net/http"
 
+	"fmt"
 	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -69,6 +70,10 @@ func (bot *facebookBot) handleMessageReceived(w http.ResponseWriter, r *http.Req
 			"conversation": conversation,
 		}).Errorf("Could not process the data: %s", err)
 	}
+}
+
+func (bot *facebookBot) test(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("test")
 }
 
 // handleValidateWebhook tries to validate the Facebook webhook
