@@ -30,7 +30,15 @@ func (bot *facebookBot) handleMessageReceived(w http.ResponseWriter, r *http.Req
 	parsedData, err := bot.nlpParser.ParseNlpData(receivedMessage.Nlp)
 
 	if err != nil {
-		// @todo: handle this case and return something to the user
+		// @todo: handle this case and return something to the user. Make sure the
+		// conversation is saved with the message. For example, we could think
+		// about adding a flag to the message, like:
+		// - could_not_parse_nlp
+		// - could_not_process
+		// - something_else
+		// - ...
+		// => gives more context and allows us to save data & understand it even
+		// though errors occur.
 		log.WithField("nlp", receivedMessage.Nlp).Errorf("Could not parse NLP data: %s", err)
 		return
 	}

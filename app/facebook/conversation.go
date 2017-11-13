@@ -137,14 +137,14 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 			"conversation": c,
 		}).Info("Cannot start a story")
 
-		return errors.New("Handle this")
+		return errors.New("Handle this. Don't forget to save the conversation with the message")
 	}
 
 	// Process the step
 	err = h.stepHandler.Process(startingStep, data)
 
 	if err != nil {
-		// @todo: handle
+		// @todo: handle this, and save the conversation's message otherwise it's lost
 		return errors.New("nope")
 	}
 
@@ -152,11 +152,13 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 	return nil
 }
 
+// tryProgressInStory is the method being called when a conversation is ongoing and we try to progress
+// within the current story.
 func (h *conversationHandler) tryProgressInStory(data *nlp.ParsedData, c *conversation.Conversation) error {
 	stories, err := h.storyRepository.FindAll()
 
 	if err != nil {
-		// @todo: log
+		// @todo: log, and save conversation
 		return errors.New("Cannot load stories")
 	}
 
