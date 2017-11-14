@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/aziule/conversation-management/core/bot"
+	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,12 +19,40 @@ func (bot *facebookBot) handleMessageReceived(w http.ResponseWriter, r *http.Req
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.Errorf("Could not parse the received message: %s", err)
+		log.WithField("message", receivedMessage).Errorf("Could not parse the received message: %s", err)
 		return
 	}
 
+	user, err := bot.conversationHandler.GetUser(receivedMessage.SenderId)
+
+	if err != nil {
+		// @todo: handle this case and return something to the user
+		log.WithField("user", receivedMessage.SenderId).Errorf("Could not find the user: %s", err)
+		return
+	}
+
+	c, err := bot.conversationHandler.GetConversation(user)
+
+	if err != nil {
+		// @todo: handle this case and return something to the user
+		log.WithField("user", user).Infof("Could not get the conversation: %s", err)
+		return
+	}
+
+	log.WithField("conversation", c).Debug("Conversation fetched")
+
+	userMessage := conversation.NewUserMessage(
+		receivedMessage.Text,
+		receivedMessage.SentAt,
+		user,
+		nil,
+	)
+
+	// @todo: use the conversation handler instead
+	c.AddMessage(userMessage)
+
 	if receivedMessage.Nlp == nil {
-		// @todo: handle this case
+		// @todo: handle this case: parse the text using the NLP parser
 		log.Errorf("No data to parse")
 		return
 	}
@@ -40,34 +69,23 @@ func (bot *facebookBot) handleMessageReceived(w http.ResponseWriter, r *http.Req
 		// - ...
 		// => gives more context and allows us to save data & understand it even
 		// though errors occur.
+		// @todo: save the conversation
 		log.WithField("nlp", receivedMessage.Nlp).Errorf("Could not parse NLP data: %s", err)
 		return
 	}
 
+	userMessage.ParsedData = parsedData
+
 	log.WithField("data", parsedData).Debug("Data parsed from message")
 
-	user, err := bot.conversationHandler.GetUser(receivedMessage.SenderId)
+	// @todo: save the conversation
 
-	if err != nil {
-		// @todo: handle this case and return something to the user
-		log.WithField("user", receivedMessage.SenderId).Errorf("Could not find the user: %s", err)
-		return
-	}
-
-	conversation, err := bot.conversationHandler.GetConversation(user)
-
-	if err != nil {
-		log.WithField("user", user).Infof("Could not get the conversation: %s", err)
-	}
-
-	log.WithField("conversation", conversation).Debug("Conversation fetched")
-
-	err = bot.conversationHandler.ProcessData(parsedData, conversation)
+	err = bot.conversationHandler.ProcessData(parsedData, c)
 
 	if err != nil {
 		log.WithFields(log.Fields{
 			"data":         parsedData,
-			"conversation": conversation,
+			"conversation": c,
 		}).Errorf("Could not process the data: %s", err)
 	}
 }
