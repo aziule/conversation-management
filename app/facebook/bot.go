@@ -69,31 +69,6 @@ func (b *facebookBot) ApiEndpoints() []*bot.ApiEndpoint {
 	return b.apiEndpoints
 }
 
-// bindDefaultWebhooks initialises the default Facebook-related webhooks.
-// Use this method to create and bind the default Facebook webhooks to the bot.
-func (b *facebookBot) bindDefaultWebhooks() {
-	b.webhooks = append(b.webhooks, bot.NewWebHook(
-		"GET",
-		"/",
-		b.handleValidateWebhook,
-	))
-
-	b.webhooks = append(b.webhooks, bot.NewWebHook(
-		"POST",
-		"/",
-		b.handleMessageReceived,
-	))
-}
-
-// bindDefaultApiEndpoints initialises the default API endpoints.
-func (b *facebookBot) bindDefaultApiEndpoints() {
-	b.apiEndpoints = append(b.apiEndpoints, bot.NewApiEndpoint(
-		"GET",
-		"/",
-		b.test,
-	))
-}
-
 // getDefaultStepsMapping returns the default steps mapping between
 // a step's name and its handling func.
 // @todo: find a better name and/or move somewhere else

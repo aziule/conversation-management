@@ -3,7 +3,7 @@ package facebook
 import (
 	"net/http"
 
-	"fmt"
+	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -72,10 +72,6 @@ func (bot *facebookBot) handleMessageReceived(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (bot *facebookBot) test(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("test")
-}
-
 // handleValidateWebhook tries to validate the Facebook webhook
 // More information here: https://developers.facebook.com/docs/messenger-platform/getting-started/quick-start
 func (bot *facebookBot) handleValidateWebhook(w http.ResponseWriter, r *http.Request) {
@@ -122,4 +118,20 @@ func (bot *facebookBot) handleValidateWebhook(w http.ResponseWriter, r *http.Req
 
 	// Validate the webhook by writing back the "hub.challenge" query param
 	w.Write([]byte(challenge))
+}
+
+// bindDefaultWebhooks initialises the default Facebook-related webhooks.
+// Use this method to create and bind the default Facebook webhooks to the bot.
+func (b *facebookBot) bindDefaultWebhooks() {
+	b.webhooks = append(b.webhooks, bot.NewWebHook(
+		"GET",
+		"/",
+		b.handleValidateWebhook,
+	))
+
+	b.webhooks = append(b.webhooks, bot.NewWebHook(
+		"POST",
+		"/",
+		b.handleMessageReceived,
+	))
 }
