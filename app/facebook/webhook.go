@@ -125,13 +125,13 @@ func (bot *facebookBot) handleValidateWebhook(w http.ResponseWriter, r *http.Req
 func (b *facebookBot) bindDefaultWebhooks() {
 	b.webhooks = append(b.webhooks, bot.NewWebHook(
 		"GET",
-		"/",
+		"/fb",
 		b.handleValidateWebhook,
 	))
 
 	b.webhooks = append(b.webhooks, bot.NewWebHook(
 		"POST",
-		"/",
+		"/fb",
 		b.handleMessageReceived,
 	))
 }

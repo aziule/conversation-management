@@ -69,23 +69,44 @@ func Run(configFilePath string) {
 	app.Bots = append(app.Bots, b)
 
 	for _, curr := range app.Bots {
-		app.Api.RegisterApiEndpoints(curr.ApiEndpoints()...)
+		app.Api.RegisterEndpoints(curr.ApiEndpoints()...)
 	}
+
+	app.Api.RegisterEndpoint(bot.NewApiEndpoint(
+		"GET",
+		"/bots",
+		app.handleListBots,
+	))
 
 	r := chi.NewRouter()
 
-	// Automatically set the bot's webhooks routes
+	// Automatically listen to the bot's webhooks routes
 	for _, webhook := range b.Webhooks() {
-		log.Debugf("%s %s", string(webhook.Method), webhook.Path)
+		bindRoute(r, webhook.Method, webhook.Path, webhook.Handler)
+	}
 
-		switch webhook.Method {
-		case "GET":
-			r.Get(webhook.Path, webhook.Handler)
-		case "POST":
-			r.Post(webhook.Path, webhook.Handler)
-		}
+	// Same for the API
+	for _, endpoint := range app.Api.Endpoints {
+		bindRoute(r, endpoint.Method, endpoint.Path, endpoint.Handler)
 	}
 
 	log.Debugf("Listening on port %d", config.ListeningPort)
 	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), r)
+}
+
+// bindRoute binds a new route to the router given its method, path and handler func
+func bindRoute(r *chi.Mux, method, path string, handler http.HandlerFunc) {
+	log.Debugf("%s %s", string(method), path)
+
+	switch method {
+	case "GET":
+		r.Get(path, handler)
+	case "POST":
+		r.Post(path, handler)
+	}
+}
+
+// handleListBots is the handler func for listing the available bots
+func (app *App) handleListBots(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Hello"))
 }
