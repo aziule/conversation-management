@@ -2,8 +2,6 @@
 package facebook
 
 import (
-	"net/http"
-
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
@@ -13,8 +11,7 @@ import (
 // Config is the config required in order to instantiate a new FacebookBot
 type Config struct {
 	VerifyToken            string
-	ApiVersion             string
-	PageAccessToken        string
+	FbApi                  api.FacebookApi
 	NlpParser              nlp.Parser
 	ConversationRepository conversation.Repository
 	StoryRepository        conversation.StoryRepository
@@ -22,11 +19,9 @@ type Config struct {
 
 // facebookBot is the main structure
 type facebookBot struct {
+	verifyToken         string
 	webhooks            []*bot.Webhook
 	apiEndpoints        []*bot.ApiEndpoint
-	verifyToken         string
-	fbApi               *api.FacebookApi
-	nlpParser           nlp.Parser
 	conversationHandler conversation.Handler
 }
 
@@ -39,8 +34,6 @@ type facebookBot struct {
 func NewBot(config *Config) *facebookBot {
 	bot := &facebookBot{
 		verifyToken: config.VerifyToken,
-		fbApi:       api.NewFacebookApi(config.ApiVersion, config.PageAccessToken, http.DefaultClient),
-		nlpParser:   config.NlpParser,
 	}
 
 	// @todo: we need to check if all of the stories's steps are being handled
@@ -49,6 +42,8 @@ func NewBot(config *Config) *facebookBot {
 		bot.getDefaultStepsMapping(), // @todo: directly pass the step handler rather than the steps mapping
 		config.ConversationRepository,
 		config.StoryRepository,
+		config.NlpParser,
+		config.FbApi,
 	)
 
 	bot.bindDefaultWebhooks()

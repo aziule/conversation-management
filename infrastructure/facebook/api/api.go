@@ -8,20 +8,26 @@ import (
 	"os"
 )
 
-// FacebookApi is the real-world implementation of the API
-type FacebookApi struct {
+// FacebookApi is the interface representing a Facebook API
+type FacebookApi interface {
+	ParseRequestMessageReceived(r *http.Request) (*receivedMessage, error)
+	SendTextToUser(recipientId, text string) error
+}
+
+// facebookApi is the real-world implementation of the API
+type facebookApi struct {
 	pageAccessToken string
 	client          *http.Client
 	baseUrl         *url.URL
 }
 
-// NewFacebookApi is the constructor that creates a new Facebook API, using
+// NewfacebookApi is the constructor that creates a new Facebook API, using
 // user-defined variables such as the FB API version or the pageAccessToken.
-func NewFacebookApi(version, pageAccessToken string, client *http.Client) *FacebookApi {
+func NewfacebookApi(version, pageAccessToken string, client *http.Client) *facebookApi {
 	rawBaseUrl := "https://graph.facebook.com/v" + version
 	baseUrl, _ := url.Parse(rawBaseUrl)
 
-	return &FacebookApi{
+	return &facebookApi{
 		pageAccessToken: pageAccessToken,
 		client:          client,
 		baseUrl:         baseUrl,
@@ -30,7 +36,7 @@ func NewFacebookApi(version, pageAccessToken string, client *http.Client) *Faceb
 
 // @todo: store it and avoid recreating it every time
 // getSendTextUrl returns the url to ping to send text messages to a user
-func (api *FacebookApi) getSendTextUrl() *url.URL {
+func (api *facebookApi) getSendTextUrl() *url.URL {
 	baseUrl := api.baseUrl
 
 	u, _ := url.Parse(baseUrl.String() + "/me/messages")

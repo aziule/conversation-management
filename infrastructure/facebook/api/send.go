@@ -16,7 +16,7 @@ var (
 )
 
 // SendTextToUser is the FacebookApi's interface method responsible for sending a 1-to-1 message to a user
-func (api *FacebookApi) SendTextToUser(recipientId, text string) error {
+func (api *facebookApi) SendTextToUser(recipientId, text string) error {
 	url := api.getSendTextUrl()
 
 	object := newTextToUserEnvelope(recipientId, text)

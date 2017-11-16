@@ -4,9 +4,9 @@ package conversation
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
-	"github.com/aziule/conversation-management/core/nlp"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -24,19 +24,15 @@ var (
 // Handler is here to handle generic, conversation-related tasks.
 // It is the object that will contain the conversation logic for
 // each platform.
+//
 // It makes the link between the application and the underlying
 // data access layers.
 type Handler interface {
-	// GetUser returns a generic User object, looking using a given id.
-	GetUser(id string) (*User, error)
-
-	// GetConversation returns the conversation for a given user.
-	// It can be a new or an existing conversation.
-	GetConversation(user *User) (*Conversation, error)
-
-	// ProcessData handles the given ParsedData and tries
-	// to make the conversation progress from there.
-	ProcessData(data *nlp.ParsedData, c *Conversation) error
+	// MessageReceived is the main entry point when a new message is
+	// received from any given user / channel / whatsoever.
+	//
+	// It handles the whole conversation logic for a given platform.
+	MessageReceived(r *http.Request) error
 }
 
 // Repository is the main interface for accessing conversation-related objects

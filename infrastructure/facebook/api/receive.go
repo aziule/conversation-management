@@ -31,7 +31,7 @@ type receivedMessage struct {
 }
 
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
-func (api *FacebookApi) ParseRequestMessageReceived(r *http.Request) (*receivedMessage, error) {
+func (api *facebookApi) ParseRequestMessageReceived(r *http.Request) (*receivedMessage, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 

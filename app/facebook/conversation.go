@@ -2,9 +2,11 @@ package facebook
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
+	"github.com/aziule/conversation-management/infrastructure/facebook/api"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -14,21 +16,113 @@ type conversationHandler struct {
 	stepHandler            *conversation.StepHandler
 	conversationRepository conversation.Repository
 	storyRepository        conversation.StoryRepository
+	nlpParser              nlp.Parser
+	fbApi                  api.FacebookApi
 }
 
 // newConversationHandler is the constructor method for conversationHandler
-func newConversationHandler(pm conversation.StepsProcessMap, cr conversation.Repository, sr conversation.StoryRepository) *conversationHandler {
+func newConversationHandler(pm conversation.StepsProcessMap, cr conversation.Repository, sr conversation.StoryRepository, p nlp.Parser, a api.FacebookApi) *conversationHandler {
 	return &conversationHandler{
 		stepHandler:            conversation.NewStepHandler(pm),
 		conversationRepository: cr,
 		storyRepository:        sr,
+		nlpParser:              p,
+		fbApi:                  a,
 	}
 }
 
-// GetConversation tries to return a Facebook conversation between a given user and the bot.
+// MessageReceived is the implementation of ConversationHandler.MessageReceived method.
+// It handles the whole conversation processing logic for Facebook bots.
+//
+// - Parsing the request
+// - Validating the message
+// - Parsing NLP
+// - Managing the conversation flow
+// - Answering the user
+// - Modifying the conversation's status
+func (h *conversationHandler) MessageReceived(r *http.Request) error {
+	receivedMessage, err := h.fbApi.ParseRequestMessageReceived(r)
+
+	if err != nil {
+		// @todo: handle this case and return something to the user
+		log.WithField("message", receivedMessage).Errorf("Could not parse the received message: %s", err)
+		return err
+	}
+
+	user, err := h.getUser(receivedMessage.SenderId)
+
+	if err != nil {
+		// @todo: handle this case and return something to the user
+		log.WithField("user", receivedMessage.SenderId).Errorf("Could not find the user: %s", err)
+		return err
+	}
+
+	c, err := h.getConversation(user)
+
+	if err != nil {
+		// @todo: handle this case and return something to the user
+		log.WithField("user", user).Infof("Could not get the conversation: %s", err)
+		return err
+	}
+
+	log.WithField("conversation", c).Debug("Conversation fetched")
+
+	userMessage := conversation.NewUserMessage(
+		receivedMessage.Text,
+		receivedMessage.SentAt,
+		user,
+		nil,
+	)
+
+	c.AddMessage(userMessage)
+
+	h.conversationRepository.SaveConversation(c)
+
+	if receivedMessage.Nlp == nil {
+		// @todo: handle this case: parse the text using the NLP parser
+		log.Errorf("No data to parse")
+		return err
+	}
+
+	parsedData, err := h.nlpParser.ParseNlpData(receivedMessage.Nlp)
+
+	if err != nil {
+		// @todo: handle this case and return something to the user. Make sure the
+		// conversation is saved with the message. For example, we could think
+		// about adding a flag to the message, like:
+		// - could_not_parse_nlp
+		// - could_not_process
+		// - something_else
+		// - ...
+		// => gives more context and allows us to save data & understand it even
+		// though errors occur.
+		// @todo: save the conversation
+		log.WithField("nlp", receivedMessage.Nlp).Errorf("Could not parse NLP data: %s", err)
+		return err
+	}
+
+	userMessage.ParsedData = parsedData
+
+	log.WithField("data", parsedData).Debug("Data parsed from message")
+
+	h.conversationRepository.SaveConversation(c)
+
+	err = h.processData(parsedData, c)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"data":         parsedData,
+			"conversation": c,
+		}).Errorf("Could not process the data: %s", err)
+	}
+
+	return nil
+}
+
+// getConversation tries to return a Facebook conversation between a given user and the bot.
 // If there is an ongoing conversation, then it will return it.
 // If this is the first conversation or the previous one is marked as done, then it will create a new one.
-func (h *conversationHandler) GetConversation(user *conversation.User) (*conversation.Conversation, error) {
+func (h *conversationHandler) getConversation(user *conversation.User) (*conversation.Conversation, error) {
 	// => this will help with consolidated users (fb + slack + anything)
 	c, err := h.conversationRepository.FindLatestConversation(user)
 
@@ -53,9 +147,9 @@ func (h *conversationHandler) GetConversation(user *conversation.User) (*convers
 	return c, nil
 }
 
-// GetUser tries to find an existing user using the id provided as the facebook id.
+// getUser tries to find an existing user using the id provided as the facebook id.
 // If it does not find any user then it will create a new one using the facebook id.
-func (h *conversationHandler) GetUser(id string) (*conversation.User, error) {
+func (h *conversationHandler) getUser(id string) (*conversation.User, error) {
 	user, err := h.conversationRepository.FindUserByFbId(id)
 
 	if err != nil && err != conversation.ErrNotFound {
@@ -83,8 +177,8 @@ func (h *conversationHandler) GetUser(id string) (*conversation.User, error) {
 	return user, nil
 }
 
-// ProcessData is the method responsible for taking actions on a conversation using the provided NLP data
-func (h *conversationHandler) ProcessData(data *nlp.ParsedData, c *conversation.Conversation) error {
+// processData is the method responsible for taking actions on a conversation using the provided NLP data
+func (h *conversationHandler) processData(data *nlp.ParsedData, c *conversation.Conversation) error {
 	var err error
 
 	if c.CurrentStep == "" {

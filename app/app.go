@@ -10,6 +10,7 @@ import (
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/infrastructure/conversation/memory"
 	"github.com/aziule/conversation-management/infrastructure/conversation/mongo"
+	fbApi "github.com/aziule/conversation-management/infrastructure/facebook/api"
 	db "github.com/aziule/conversation-management/infrastructure/mongo"
 	"github.com/aziule/conversation-management/infrastructure/nlp/wit"
 	"github.com/go-chi/chi"
@@ -58,8 +59,7 @@ func Run(configFilePath string) {
 	b := facebook.NewBot(
 		&facebook.Config{
 			VerifyToken:            config.FbVerifyToken,
-			ApiVersion:             config.FbApiVersion,
-			PageAccessToken:        config.FbPageAccessToken,
+			FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 			NlpParser:              wit.NewParser(),
 			ConversationRepository: mongo.NewMongodbRepository(db),
 			StoryRepository:        memory.NewStoryRepository(),
