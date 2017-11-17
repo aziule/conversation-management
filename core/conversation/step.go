@@ -34,6 +34,14 @@ func (s *Step) AddNextStep(step *Step) {
 	s.NextSteps = append(s.NextSteps, step)
 }
 
+// IsLastStep tells us if a step is the last one.
+//
+// Simply put, if a step does not have next steps, then it's
+// considered as being the last one.
+func (s *Step) IsLastStep() bool {
+	return len(s.NextSteps) == 0
+}
+
 // findSubStep looks for sub steps within a step, and returns the one matching the provided name.
 // Returns nil if no sub step is found.
 func (s *Step) findSubStep(name string) *Step {

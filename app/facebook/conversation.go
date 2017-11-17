@@ -258,6 +258,12 @@ func (h *conversationHandler) processStep(c *conversation.Conversation, s *conve
 
 	// Update the conversation's state
 	c.CurrentStep = s.Name
+
+	if s.IsLastStep() {
+		c.Status = conversation.StatusOver
+		log.WithField("conversation", c).Info("Terminating conversation")
+	}
+
 	h.conversationRepository.SaveConversation(c)
 
 	return nil
