@@ -233,7 +233,7 @@ func (h *conversationHandler) tryProgressInStory(data *nlp.ParsedData, c *conver
 		return errors.New("Handle this. Don't forget to save the conversation with the message")
 	}
 
-	return h.processStep(c, currentStep, data)
+	return h.processStep(c, nextStep, data)
 }
 
 // processStep processes a single step, according to the fact that we should
@@ -251,6 +251,7 @@ func (h *conversationHandler) processStep(c *conversation.Conversation, s *conve
 	err := h.stepHandler.Process(s, data)
 
 	if err != nil {
+		log.Errorf("Could not process the step: %s", err)
 		// @todo: handle this, and save the conversation's message otherwise it's lost
 		return errors.New("nope")
 	}

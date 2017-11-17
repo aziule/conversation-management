@@ -70,7 +70,9 @@ func (b *facebookBot) ApiEndpoints() []*bot.ApiEndpoint {
 func (b *facebookBot) getDefaultStepsMapping() conversation.StepsProcessMap {
 	pm := conversation.StepsProcessMap{}
 
-	pm["get_intent"] = b.processStepGetIntent
+	pm["book_table_entrypoint"] = b.processStepBookTable
+	pm["book_table_get_nb_persons"] = b.processStepBookTableGetNbPersons
+	pm["book_table_get_time"] = b.processStepBookTableGetTime
 
 	return pm
 }

@@ -16,16 +16,9 @@
           "message":{
             "mid":"mid.$cAADxdWx7P2ZlicUK51fWH_CuW1lN",
             "seq":351764,
-            "text":"Hi I would like to book a table for two people",
+            "text":"Hi I would like to book a table",
             "nlp":{
               "entities":{
-                "nb_persons":[
-                  {
-                    "confidence":0.9646496351271,
-                    "value":2,
-                    "type":"value"
-                  }
-                ],
                 "intent":[
                   {
                     "confidence":0.9963491990718,

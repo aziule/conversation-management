@@ -27,11 +27,28 @@ func (r *inMemoryStoryRepository) FindAll() ([]*conversation.Story, error) {
 
 	story := conversation.NewStory("Book a table", nil)
 	step1 := conversation.NewStep(
-		"get_intent",
+		"book_table_entrypoint",
 		"book_table",
+		nil,
+		nil,
+	)
+
+	step11 := conversation.NewStep(
+		"book_table_get_nb_persons",
+		"",
 		[]string{"nb_persons"},
 		nil,
 	)
+
+	step12 := conversation.NewStep(
+		"book_table_get_time",
+		"",
+		[]string{"booking_date"},
+		nil,
+	)
+
+	step1.AddNextStep(step11)
+	step1.AddNextStep(step12)
 
 	story.AddStartingStep(step1)
 

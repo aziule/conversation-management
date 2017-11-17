@@ -16,7 +16,9 @@
           "message":{
             "mid":"mid.$cAADxdWx7P2ZlicUK51fWH_CuW1lN",
             "seq":351764,
-            "text":"Something without any intent or any entity"
+            "text":"Tonight at 5pm",
+            "nlp":{
+            }
           }
         }
       ]
