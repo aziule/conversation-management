@@ -235,6 +235,10 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 	}
 
 	// Process the step
+	log.WithFields(log.Fields{
+		"step": startingStep,
+		"data": data,
+	}).Info("Processing step")
 	err = h.stepHandler.Process(startingStep, data)
 
 	if err != nil {
@@ -242,7 +246,10 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 		return errors.New("nope")
 	}
 
-	// Update the conversation
+	// Update the conversation's state
+	c.CurrentStep = startingStep.Name
+	h.conversationRepository.SaveConversation(c)
+
 	return nil
 }
 
