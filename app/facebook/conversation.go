@@ -119,6 +119,149 @@ func (h *conversationHandler) MessageReceived(r *http.Request) error {
 	return nil
 }
 
+// processData is the method responsible for taking actions on a conversation using the provided NLP data
+func (h *conversationHandler) processData(data *nlp.ParsedData, c *conversation.Conversation) error {
+	var err error
+
+	if c.CurrentStep == "" {
+		log.WithField("c", c).Info("Try starting a new story")
+		err = h.tryStartStory(data, c)
+	} else {
+		log.WithField("c", c).Info("Try progressing in the current story")
+		err = h.tryProgressInStory(data, c)
+	}
+
+	if err != nil {
+		// @todo: handle: save the user message here?
+		return err
+	}
+
+	return nil
+}
+
+// tryStartStory will try to start a new story using the provided NLP data.
+// It will go through the available stories and see if any step can be initiated.
+func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversation.Conversation) error {
+	stories, err := h.storyRepository.FindAll()
+
+	if err != nil {
+		// @todo: log
+		return errors.New("Cannot load stories")
+	}
+
+	var startingStep *conversation.Step
+
+	for _, story := range stories {
+		log.WithField("story", story).Debugf("Trying to step in story")
+		if startingStep != nil {
+			break
+		}
+
+		for _, step := range story.StartingSteps {
+			if h.stepHandler.CanStepIn(step, data) {
+				log.WithField("step", step).Debugf("Stepping in")
+
+				startingStep = step
+				break
+			}
+		}
+	}
+
+	if startingStep == nil {
+		log.WithFields(log.Fields{
+			"data":         data,
+			"conversation": c,
+		}).Info("Cannot start a story")
+
+		return errors.New("Handle this. Don't forget to save the conversation with the message")
+	}
+
+	return h.processStep(c, startingStep, data)
+}
+
+// tryProgressInStory is the method being called when a conversation is ongoing and we try to progress
+// within the current story.
+func (h *conversationHandler) tryProgressInStory(data *nlp.ParsedData, c *conversation.Conversation) error {
+	stories, err := h.storyRepository.FindAll()
+
+	if err != nil {
+		// @todo: log, and save conversation
+		return errors.New("Cannot load stories")
+	}
+
+	var currentStep *conversation.Step
+
+	// Find the current step of the conversation
+	for _, story := range stories {
+		step := story.FindStep(c.CurrentStep)
+
+		if step != nil {
+			currentStep = step
+			break
+		}
+	}
+
+	if currentStep == nil {
+		log.WithFields(log.Fields{
+			"data":         data,
+			"conversation": c,
+		}).Error("The conversation's current step does not exist in the stories")
+
+		// @todo: return a correct error message.
+		// @todo: handle this case and see how we can prevent
+		// a conversation from being blocked.
+		return errors.New("Could not find any step")
+	}
+
+	var nextStep *conversation.Step
+
+	for _, step := range currentStep.NextSteps {
+		if h.stepHandler.CanStepIn(step, data) {
+			log.WithField("step", step).Debugf("Stepping in")
+
+			nextStep = step
+			break
+		}
+	}
+
+	if nextStep == nil {
+		log.WithFields(log.Fields{
+			"data":         data,
+			"conversation": c,
+		}).Info("Cannot progress in story")
+
+		return errors.New("Handle this. Don't forget to save the conversation with the message")
+	}
+
+	return h.processStep(c, currentStep, data)
+}
+
+// processStep processes a single step, according to the fact that we should
+// be able, at that stage, to step in the step.
+//
+// So make sure to call step.CanStepIn and that the result is true
+// before calling this method.
+func (h *conversationHandler) processStep(c *conversation.Conversation, s *conversation.Step, data *nlp.ParsedData) error {
+	// Process the step
+	log.WithFields(log.Fields{
+		"step": s,
+		"data": data,
+	}).Info("Processing step")
+
+	err := h.stepHandler.Process(s, data)
+
+	if err != nil {
+		// @todo: handle this, and save the conversation's message otherwise it's lost
+		return errors.New("nope")
+	}
+
+	// Update the conversation's state
+	c.CurrentStep = s.Name
+	h.conversationRepository.SaveConversation(c)
+
+	return nil
+}
+
 // getConversation tries to return a Facebook conversation between a given user and the bot.
 // If there is an ongoing conversation, then it will return it.
 // If this is the first conversation or the previous one is marked as done, then it will create a new one.
@@ -175,116 +318,4 @@ func (h *conversationHandler) getUser(id string) (*conversation.User, error) {
 	}
 
 	return user, nil
-}
-
-// processData is the method responsible for taking actions on a conversation using the provided NLP data
-func (h *conversationHandler) processData(data *nlp.ParsedData, c *conversation.Conversation) error {
-	var err error
-
-	if c.CurrentStep == "" {
-		log.Debug("Try starting a new story")
-		err = h.tryStartStory(data, c)
-	} else {
-		log.Debug("Try progressing in the current story")
-		err = h.tryProgressInStory(data, c)
-	}
-
-	if err != nil {
-		// @todo: handle: save the user message here?
-		return err
-	}
-
-	return nil
-}
-
-// tryStartStory will try to start a new story using the provided NLP data.
-// It will go through the available stories and see if any step can be initiated.
-func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversation.Conversation) error {
-	stories, err := h.storyRepository.FindAll()
-
-	if err != nil {
-		// @todo: log
-		return errors.New("Cannot load stories")
-	}
-
-	var startingStep *conversation.Step
-
-	for _, story := range stories {
-		log.WithField("story", story).Debugf("Trying to step in story")
-		if startingStep != nil {
-			break
-		}
-
-		for _, step := range story.StartingSteps {
-			if h.stepHandler.CanStepIn(step, data) {
-				log.WithField("step", step).Debugf("Stepping in")
-
-				startingStep = step
-				break
-			}
-		}
-	}
-
-	if startingStep == nil {
-		log.WithFields(log.Fields{
-			"data":         data,
-			"conversation": c,
-		}).Info("Cannot start a story")
-
-		return errors.New("Handle this. Don't forget to save the conversation with the message")
-	}
-
-	// Process the step
-	log.WithFields(log.Fields{
-		"step": startingStep,
-		"data": data,
-	}).Info("Processing step")
-	err = h.stepHandler.Process(startingStep, data)
-
-	if err != nil {
-		// @todo: handle this, and save the conversation's message otherwise it's lost
-		return errors.New("nope")
-	}
-
-	// Update the conversation's state
-	c.CurrentStep = startingStep.Name
-	h.conversationRepository.SaveConversation(c)
-
-	return nil
-}
-
-// tryProgressInStory is the method being called when a conversation is ongoing and we try to progress
-// within the current story.
-func (h *conversationHandler) tryProgressInStory(data *nlp.ParsedData, c *conversation.Conversation) error {
-	stories, err := h.storyRepository.FindAll()
-
-	if err != nil {
-		// @todo: log, and save conversation
-		return errors.New("Cannot load stories")
-	}
-
-	var currentStep *conversation.Step
-
-	// Find the current step of the conversation
-	for _, story := range stories {
-		step := story.FindStep(c.CurrentStep)
-
-		if step != nil {
-			currentStep = step
-			break
-		}
-	}
-
-	if currentStep == nil {
-		// @todo: return a correct error message.
-		// @todo: handle this case and see how we can prevent
-		// a conversation from being blocked.
-		return errors.New("Could not find any step")
-	}
-
-	canStepIn := h.stepHandler.CanStepIn(currentStep, data)
-
-	log.Info("Stepping in: %s", canStepIn)
-
-	return nil
 }
