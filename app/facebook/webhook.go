@@ -8,19 +8,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// handleMessageReceived is called when a new message is sent by the user to the page
-// We parse the message, extract relevant NLP data, check the context, validate
-// the data, and return a response.
+// handleMessageReceived is called when a new message is sent by the user to the page.
+// We delegate the handling to the Conversation Handler, responsible for most of the logic.
 func (bot *facebookBot) handleMessageReceived(w http.ResponseWriter, r *http.Request) {
 	log.Debug("New Facebook message received")
 
-	err := bot.conversationHandler.MessageReceived(r)
-
-	if err != nil {
-		log.Error(err)
-	}
-
-	log.Info("All good")
+	bot.conversationHandler.MessageReceived(r)
 }
 
 // handleValidateWebhook tries to validate the Facebook webhook

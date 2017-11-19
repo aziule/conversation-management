@@ -30,9 +30,8 @@ var (
 type Handler interface {
 	// MessageReceived is the main entry point when a new message is
 	// received from any given user / channel / whatsoever.
-	//
 	// It handles the whole conversation logic for a given platform.
-	MessageReceived(r *http.Request) error
+	MessageReceived(r *http.Request)
 }
 
 // Repository is the main interface for accessing conversation-related objects

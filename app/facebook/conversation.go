@@ -40,13 +40,13 @@ func newConversationHandler(pm conversation.StepsProcessMap, cr conversation.Rep
 // - Managing the conversation flow
 // - Answering the user
 // - Modifying the conversation's status
-func (h *conversationHandler) MessageReceived(r *http.Request) error {
+func (h *conversationHandler) MessageReceived(r *http.Request) {
 	receivedMessage, err := h.fbApi.ParseRequestMessageReceived(r)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
 		log.WithField("message", receivedMessage).Errorf("Could not parse the received message: %s", err)
-		return err
+		return
 	}
 
 	user, err := h.getUser(receivedMessage.SenderId)
@@ -54,15 +54,15 @@ func (h *conversationHandler) MessageReceived(r *http.Request) error {
 	if err != nil {
 		// @todo: handle this case and return something to the user
 		log.WithField("user", receivedMessage.SenderId).Errorf("Could not find the user: %s", err)
-		return err
+		return
 	}
 
 	c, err := h.getConversation(user)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.WithField("user", user).Infof("Could not get the conversation: %s", err)
-		return err
+		log.WithField("user", user).Infof("Could not get / create conversation: %s", err)
+		return
 	}
 
 	log.WithField("conversation", c).Debug("Conversation fetched")
@@ -81,7 +81,7 @@ func (h *conversationHandler) MessageReceived(r *http.Request) error {
 	if receivedMessage.Nlp == nil {
 		// @todo: handle this case: parse the text using the NLP parser
 		log.Errorf("No data to parse")
-		return err
+		return
 	}
 
 	parsedData, err := h.nlpParser.ParseNlpData(receivedMessage.Nlp)
@@ -96,9 +96,8 @@ func (h *conversationHandler) MessageReceived(r *http.Request) error {
 		// - ...
 		// => gives more context and allows us to save data & understand it even
 		// though errors occur.
-		// @todo: save the conversation
 		log.WithField("nlp", receivedMessage.Nlp).Errorf("Could not parse NLP data: %s", err)
-		return err
+		return
 	}
 
 	userMessage.ParsedData = parsedData
@@ -116,7 +115,7 @@ func (h *conversationHandler) MessageReceived(r *http.Request) error {
 		}).Errorf("Could not process the data: %s", err)
 	}
 
-	return nil
+	return
 }
 
 // processData is the method responsible for taking actions on a conversation using the provided NLP data
@@ -145,14 +144,15 @@ func (h *conversationHandler) tryStartStory(data *nlp.ParsedData, c *conversatio
 	stories, err := h.storyRepository.FindAll()
 
 	if err != nil {
-		// @todo: log
-		return errors.New("Cannot load stories")
+		log.Error("Could not load stories")
+		return err
 	}
 
 	var startingStep *conversation.Step
 
 	for _, story := range stories {
 		log.WithField("story", story).Debugf("Trying to step in story")
+
 		if startingStep != nil {
 			break
 		}
