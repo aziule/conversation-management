@@ -69,10 +69,10 @@ func Run(configFilePath string) {
 	app.Bots = append(app.Bots, b)
 
 	for _, curr := range app.Bots {
-		app.Api.RegisterEndpoints(curr.ApiEndpoints()...)
+		api.RegisterEndpoints(curr.ApiEndpoints()...)
 	}
 
-	app.Api.RegisterEndpoint(bot.NewApiEndpoint(
+	api.RegisterEndpoint(bot.NewApiEndpoint(
 		"GET",
 		"/bots",
 		app.handleListBots,
@@ -86,7 +86,7 @@ func Run(configFilePath string) {
 	}
 
 	// Same for the API
-	for _, endpoint := range app.Api.Endpoints {
+	for _, endpoint := range api.Endpoints {
 		bindRoute(r, endpoint.Method, endpoint.Path, endpoint.Handler)
 	}
 
