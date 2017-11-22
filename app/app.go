@@ -31,7 +31,10 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when loading the config: %s", err)
 	}
 
-	api := &Api{}
+	router := chi.NewRouter()
+
+	api := NewApi(router)
+
 	app := &App{
 		Api: api,
 	}
@@ -79,47 +82,26 @@ func Run(configFilePath string) {
 			)
 		default:
 			log.Errorf("Unhandled platform: %s", metadata.Platform)
+			continue
 		}
 
 		app.Bots = append(app.Bots, b)
 	}
 
-	api.RegisterEndpoint(bot.NewApiEndpoint(
+	api.RegisterApiEndpoints(bot.NewApiEndpoint(
 		"GET",
 		"/bots",
 		app.handleListBots,
 	))
 
-	r := chi.NewRouter()
-
 	// Listen to each of the bot's webhooks and API endpoints
 	for _, b := range app.Bots {
-		api.RegisterEndpoints(b.ApiEndpoints()...)
-
-		for _, webhook := range b.Webhooks() {
-			bindRoute(r, webhook.Method, webhook.Path, webhook.Handler)
-		}
-	}
-
-	// Listen to the app's API endpoints
-	for _, endpoint := range api.Endpoints {
-		bindRoute(r, endpoint.Method, endpoint.Path, endpoint.Handler)
+		api.RegisterApiEndpoints(b.ApiEndpoints()...)
+		api.RegisterWebhooks(b.Webhooks()...)
 	}
 
 	log.Debugf("Listening on port %d", config.ListeningPort)
-	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), r)
-}
-
-// bindRoute binds a new route to the router given its method, path and handler func
-func bindRoute(r *chi.Mux, method, path string, handler http.HandlerFunc) {
-	log.Debugf("%s %s", string(method), path)
-
-	switch method {
-	case "GET":
-		r.Get(path, handler)
-	case "POST":
-		r.Post(path, handler)
-	}
+	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), router)
 }
 
 // handleListBots is the handler func for listing the available bots

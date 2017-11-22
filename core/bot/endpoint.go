@@ -18,7 +18,7 @@ type Webhook Endpoint
 type ApiEndpoint Endpoint
 
 // NewWebhook is the constructor method for Webhook
-func NewWebHook(method, path string, handler http.HandlerFunc) *Webhook {
+func NewWebhook(method, path string, handler http.HandlerFunc) *Webhook {
 	return &Webhook{
 		Method:  method,
 		Path:    path,

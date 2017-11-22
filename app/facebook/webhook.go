@@ -67,13 +67,13 @@ func (bot *facebookBot) handleValidateWebhook(w http.ResponseWriter, r *http.Req
 // bindDefaultWebhooks initialises the default Facebook-related webhooks.
 // Use this method to create and bind the default Facebook webhooks to the bot.
 func (b *facebookBot) bindDefaultWebhooks() {
-	b.webhooks = append(b.webhooks, bot.NewWebHook(
+	b.webhooks = append(b.webhooks, bot.NewWebhook(
 		"GET",
 		"/fb",
 		b.handleValidateWebhook,
 	))
 
-	b.webhooks = append(b.webhooks, bot.NewWebHook(
+	b.webhooks = append(b.webhooks, bot.NewWebhook(
 		"POST",
 		"/fb",
 		b.handleMessageReceived,
