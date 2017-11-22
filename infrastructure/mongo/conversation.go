@@ -11,6 +11,11 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const (
+	ConversationCollection = "conversation"
+	UserCollection         = "user"
+)
+
 // conversationRepository is the unexported struct that implements the Repository interface
 type conversationRepository struct {
 	db *Db
@@ -31,7 +36,7 @@ func (repository *conversationRepository) SaveConversation(c *conversation.Conve
 	defer session.Close()
 
 	var err error
-	collection := session.DB(repository.db.Params.DbName).C("conversation")
+	collection := session.DB(repository.db.Params.DbName).C(ConversationCollection)
 
 	c.UpdatedAt = time.Now()
 
@@ -67,7 +72,7 @@ func (repository *conversationRepository) FindLatestConversation(user *conversat
 
 	log.WithField("fbid", user.FbId).Debug("Finding latest conversation for user")
 
-	err := session.DB(repository.db.Params.DbName).C("conversation").Find(bson.M{
+	err := session.DB(repository.db.Params.DbName).C(ConversationCollection).Find(bson.M{
 		"messages": bson.M{
 			"$elemMatch": bson.M{
 				"message.sender_id": user.Id,
@@ -99,7 +104,7 @@ func (repository *conversationRepository) FindUserByFbId(fbId string) (*conversa
 
 	user := &conversation.User{}
 
-	err := session.DB(repository.db.Params.DbName).C("user").Find(bson.M{
+	err := session.DB(repository.db.Params.DbName).C(UserCollection).Find(bson.M{
 		"fbid": fbId,
 	}).One(user)
 
@@ -123,7 +128,7 @@ func (repository *conversationRepository) InsertUser(user *conversation.User) er
 	session := repository.db.NewSession()
 	defer session.Close()
 
-	err := session.DB(repository.db.Params.DbName).C("user").Insert(user)
+	err := session.DB(repository.db.Params.DbName).C(UserCollection).Insert(user)
 
 	if err != nil {
 		log.WithField("user", user).Infof("Could not insert the user: %s", err)

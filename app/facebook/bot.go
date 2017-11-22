@@ -8,9 +8,11 @@ import (
 	"github.com/aziule/conversation-management/infrastructure/facebook/api"
 )
 
+const VerifyToken bot.ParamName = "verify_token"
+
 // Config is the config required in order to instantiate a new FacebookBot
 type Config struct {
-	VerifyToken            string
+	Metadata               *bot.Metadata
 	FbApi                  api.FacebookApi
 	NlpParser              nlp.Parser
 	ConversationRepository conversation.Repository
@@ -19,9 +21,9 @@ type Config struct {
 
 // facebookBot is the main structure
 type facebookBot struct {
-	verifyToken         string
 	webhooks            []*bot.Webhook
 	apiEndpoints        []*bot.ApiEndpoint
+	metadata            *bot.Metadata
 	conversationHandler conversation.Handler
 }
 
@@ -33,7 +35,7 @@ type facebookBot struct {
 // - We load the list of stories.
 func NewBot(config *Config) *facebookBot {
 	bot := &facebookBot{
-		verifyToken: config.VerifyToken,
+		metadata: config.Metadata,
 	}
 
 	// @todo: we need to check if all of the stories's steps are being handled
@@ -53,15 +55,21 @@ func NewBot(config *Config) *facebookBot {
 }
 
 // Webhooks returns the bot's webhooks.
-// This method is required in order to inherit from the Bot interface.
+// This method is required in order to implement the Bot interface.
 func (b *facebookBot) Webhooks() []*bot.Webhook {
 	return b.webhooks
 }
 
 // ApiEndpoints returns the bot's available API endpoints.
-// This method is required in order to inherit from the Bot interface.
+// This method is required in order to implement the Bot interface.
 func (b *facebookBot) ApiEndpoints() []*bot.ApiEndpoint {
 	return b.apiEndpoints
+}
+
+// Metadata returns the bot's metadata.
+// This method is required in order to implement the Bot interface.
+func (b *facebookBot) Metadata() *bot.Metadata {
+	return b.metadata
 }
 
 // getDefaultStepsMapping returns the default steps mapping between

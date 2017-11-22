@@ -53,22 +53,35 @@ func Run(configFilePath string) {
 
 	defer db.Close()
 
-	// @todo: register all available implementations using a factory
-	// pattern, and fetch them directly from the config passed
-	b := facebook.NewBot(
-		&facebook.Config{
-			VerifyToken:            config.FbVerifyToken,
-			FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
-			NlpParser:              wit.NewParser(),
-			ConversationRepository: mongo.NewConversationRepository(db),
-			StoryRepository:        memory.NewStoryRepository(),
-		},
-	)
+	botRepository := mongo.NewBotRepository(db)
 
-	app.Bots = append(app.Bots, b)
+	metadatas, err := botRepository.FindAll()
 
-	for _, curr := range app.Bots {
-		api.RegisterEndpoints(curr.ApiEndpoints()...)
+	if err != nil {
+		log.Fatalf("An error occurred when finding the bots list: %s", err)
+	}
+
+	for _, metadata := range metadatas {
+		var b bot.Bot
+
+		switch metadata.Platform {
+		case bot.PlatformFacebook:
+			// @todo: register all available implementations using a factory
+			// pattern, and fetch them directly from the config passed
+			b = facebook.NewBot(
+				&facebook.Config{
+					Metadata:               metadata,
+					FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
+					NlpParser:              wit.NewParser(),
+					ConversationRepository: mongo.NewConversationRepository(db),
+					StoryRepository:        memory.NewStoryRepository(),
+				},
+			)
+		default:
+			log.Errorf("Unhandled platform: %s", metadata.Platform)
+		}
+
+		app.Bots = append(app.Bots, b)
 	}
 
 	api.RegisterEndpoint(bot.NewApiEndpoint(
@@ -79,12 +92,16 @@ func Run(configFilePath string) {
 
 	r := chi.NewRouter()
 
-	// Automatically listen to the bot's webhooks routes
-	for _, webhook := range b.Webhooks() {
-		bindRoute(r, webhook.Method, webhook.Path, webhook.Handler)
+	// Listen to each of the bot's webhooks and API endpoints
+	for _, b := range app.Bots {
+		api.RegisterEndpoints(b.ApiEndpoints()...)
+
+		for _, webhook := range b.Webhooks() {
+			bindRoute(r, webhook.Method, webhook.Path, webhook.Handler)
+		}
 	}
 
-	// Same for the API
+	// Listen to the app's API endpoints
 	for _, endpoint := range api.Endpoints {
 		bindRoute(r, endpoint.Method, endpoint.Path, endpoint.Handler)
 	}
