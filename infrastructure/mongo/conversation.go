@@ -6,28 +6,27 @@ import (
 	"time"
 
 	"github.com/aziule/conversation-management/core/conversation"
-	db "github.com/aziule/conversation-management/infrastructure/mongo"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
-// mongoDbRepository is the unexported struct that implements the Repository interface
-type mongoDbRepository struct {
-	db *db.Db
+// conversationRepository is the unexported struct that implements the Repository interface
+type conversationRepository struct {
+	db *Db
 }
 
 // @todo: give it a variable for the mapping between messages <=> facebook messages (implementation)
-// NewMongodbRepository creates a new conversation repository using MongoDb as the data source
-func NewMongodbRepository(db *db.Db) conversation.Repository {
-	return &mongoDbRepository{
+// NewConversationRepository creates a new conversation repository using MongoDb as the data source
+func NewConversationRepository(db *Db) conversation.Repository {
+	return &conversationRepository{
 		db: db,
 	}
 }
 
 // SaveConversation saves a conversation to the database.
 // The conversation can be an existing one or a new one
-func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversation) error {
+func (repository *conversationRepository) SaveConversation(c *conversation.Conversation) error {
 	session := repository.db.NewSession()
 	defer session.Close()
 
@@ -59,7 +58,7 @@ func (repository *mongoDbRepository) SaveConversation(c *conversation.Conversati
 // In case this is a new user, then no conversation is returned. Otherwise the latest one,
 // which can be the current one, is returned.
 // Returns a conversation.ErrNotFound error when the user is not found.
-func (repository *mongoDbRepository) FindLatestConversation(user *conversation.User) (*conversation.Conversation, error) {
+func (repository *conversationRepository) FindLatestConversation(user *conversation.User) (*conversation.Conversation, error) {
 	session := repository.db.NewSession()
 	defer session.Close()
 
@@ -94,7 +93,7 @@ func (repository *mongoDbRepository) FindLatestConversation(user *conversation.U
 // FindUserByFbId tries to find a user based on its fbId
 // Returns a conversation.ErrNotFound error when the user is not found
 // @todo: we should use a specification pattern
-func (repository *mongoDbRepository) FindUserByFbId(fbId string) (*conversation.User, error) {
+func (repository *conversationRepository) FindUserByFbId(fbId string) (*conversation.User, error) {
 	session := repository.db.NewSession()
 	defer session.Close()
 
@@ -117,7 +116,7 @@ func (repository *mongoDbRepository) FindUserByFbId(fbId string) (*conversation.
 }
 
 // InsertUser creates a new user in the DB
-func (repository *mongoDbRepository) InsertUser(user *conversation.User) error {
+func (repository *conversationRepository) InsertUser(user *conversation.User) error {
 	// @todo: if the user has an ID, return an error
 	// @todo: check that the user does not exist yet
 

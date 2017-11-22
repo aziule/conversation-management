@@ -8,11 +8,10 @@ import (
 
 	"github.com/aziule/conversation-management/app/facebook"
 	"github.com/aziule/conversation-management/core/bot"
-	"github.com/aziule/conversation-management/infrastructure/conversation/memory"
-	"github.com/aziule/conversation-management/infrastructure/conversation/mongo"
 	fbApi "github.com/aziule/conversation-management/infrastructure/facebook/api"
-	db "github.com/aziule/conversation-management/infrastructure/mongo"
-	"github.com/aziule/conversation-management/infrastructure/nlp/wit"
+	"github.com/aziule/conversation-management/infrastructure/memory"
+	"github.com/aziule/conversation-management/infrastructure/mongo"
+	"github.com/aziule/conversation-management/infrastructure/wit"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
 )
@@ -41,7 +40,7 @@ func Run(configFilePath string) {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	db, err := db.CreateSession(db.DbParams{
+	db, err := mongo.CreateSession(mongo.DbParams{
 		DbHost: config.DbHost,
 		DbName: config.DbName,
 		DbUser: config.DbUser,
@@ -61,7 +60,7 @@ func Run(configFilePath string) {
 			VerifyToken:            config.FbVerifyToken,
 			FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 			NlpParser:              wit.NewParser(),
-			ConversationRepository: mongo.NewMongodbRepository(db),
+			ConversationRepository: mongo.NewConversationRepository(db),
 			StoryRepository:        memory.NewStoryRepository(),
 		},
 	)

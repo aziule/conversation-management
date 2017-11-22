@@ -1,6 +1,6 @@
 // Package mongo provides the base session objects to interact with a mongo db.
 // @todo: init indexes (unique, etc.)
-package db
+package mongo
 
 import (
 	"gopkg.in/mgo.v2"
