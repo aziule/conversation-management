@@ -3,6 +3,7 @@
 package app
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -104,7 +105,16 @@ func Run(configFilePath string) {
 	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), router)
 }
 
-// handleListBots is the handler func for listing the available bots
+// handleListBots is the handler func that lists the available bots
 func (app *App) handleListBots(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Hello"))
+	var metadatas []*bot.Metadata
+
+	for _, b := range app.Bots {
+		metadatas = append(metadatas, b.Metadata())
+	}
+
+	j, _ := json.Marshal(metadatas)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(j)
 }

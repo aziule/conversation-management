@@ -27,11 +27,11 @@ const PlatformFacebook Platform = "facebook"
 // Metadata is the struct describing the bot: what is its Id, what platform
 // is it using, and some platform-specific parameters
 type Metadata struct {
-	Id         bson.ObjectId             `bson:"_id"`
-	Platform   Platform                  `bson:"platform"`
-	Parameters map[ParamName]interface{} `bson:"parameters"`
-	CreatedAt  time.Time                 `bson:"created_at"`
-	UpdatedAt  time.Time                 `bson:"updated_at"`
+	Id         bson.ObjectId             `json:"id" bson:"_id"`
+	Platform   Platform                  `json:"platform" bson:"platform"`
+	Parameters map[ParamName]interface{} `json:"parameters" bson:"parameters"`
+	CreatedAt  time.Time                 `json:"created_at" bson:"created_at"`
+	UpdatedAt  time.Time                 `json:"updated_at" bson:"updated_at"`
 }
 
 // Repository is the interface responsible for fetching / saving bots

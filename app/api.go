@@ -34,7 +34,7 @@ func NewApi(router *chi.Mux) *Api {
 func (api *Api) RegisterApiEndpoints(endpoints ...*bot.ApiEndpoint) {
 	for _, endpoint := range endpoints {
 		api.ApiEndpoints = append(api.ApiEndpoints, endpoint)
-		api.bind(endpoint.Method, endpoint.Path, endpoint.Handler)
+		api.bind(endpoint.Method, "/api"+endpoint.Path, endpoint.Handler)
 	}
 }
 
@@ -43,7 +43,7 @@ func (api *Api) RegisterApiEndpoints(endpoints ...*bot.ApiEndpoint) {
 func (api *Api) RegisterWebhooks(endpoints ...*bot.Webhook) {
 	for _, endpoint := range endpoints {
 		api.Webhooks = append(api.Webhooks, endpoint)
-		api.bind(endpoint.Method, endpoint.Path, endpoint.Handler)
+		api.bind(endpoint.Method, "/webhooks"+endpoint.Path, endpoint.Handler)
 	}
 }
 
