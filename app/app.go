@@ -3,7 +3,6 @@
 package app
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -14,14 +13,16 @@ import (
 	"github.com/aziule/conversation-management/infrastructure/mongo"
 	"github.com/aziule/conversation-management/infrastructure/wit"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/render"
 	log "github.com/sirupsen/logrus"
 )
 
 // App defines the main structure, holding information about
 // what bot is running, public-facing API endpoints, etc.
 type App struct {
-	Api  *Api
-	Bots []bot.Bot
+	Api           *Api
+	Bots          []bot.Bot
+	botRepository bot.Repository
 }
 
 // Run starts the server and waits for interactions
@@ -30,14 +31,6 @@ func Run(configFilePath string) {
 
 	if err != nil {
 		log.Fatalf("An error occurred when loading the config: %s", err)
-	}
-
-	router := chi.NewRouter()
-
-	api := NewApi(router)
-
-	app := &App{
-		Api: api,
 	}
 
 	if config.Debug {
@@ -65,6 +58,16 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when finding the bots list: %s", err)
 	}
 
+	router := chi.NewRouter()
+	router.Use(render.SetContentType(render.ContentTypeJSON))
+
+	api := NewApi(router)
+
+	app := &App{
+		Api:           api,
+		botRepository: botRepository,
+	}
+
 	for _, metadata := range metadatas {
 		var b bot.Bot
 
@@ -89,29 +92,22 @@ func Run(configFilePath string) {
 		app.Bots = append(app.Bots, b)
 	}
 
-	api.RegisterApiEndpoints(bot.NewApiEndpoint(
-		"GET",
-		"/bots",
-		app.handleListBots,
-	))
+	api.RegisterApiEndpoints(
+		bot.NewApiEndpoint(
+			"GET",
+			"/bots",
+			app.handleListBots,
+		),
+		bot.NewApiEndpoint(
+			"POST",
+			"/bots",
+			app.handleCreateBot,
+		),
+	)
 
 	// Listen to each of the bot's webhooks and API endpoints
 	api.RegisterBotsEndpoints(app.Bots...)
 
 	log.Debugf("Listening on port %d", config.ListeningPort)
 	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), router)
-}
-
-// handleListBots is the handler func that lists the available bots
-func (app *App) handleListBots(w http.ResponseWriter, r *http.Request) {
-	var metadatas []*bot.Metadata
-
-	for _, b := range app.Bots {
-		metadatas = append(metadatas, b.Metadata())
-	}
-
-	j, _ := json.Marshal(metadatas)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(j)
 }

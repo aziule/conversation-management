@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"encoding/json"
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
@@ -77,4 +78,44 @@ func (api *Api) bind(method, path string, handler http.HandlerFunc) {
 	case "POST":
 		api.router.Post(path, handler)
 	}
+}
+
+// handleListBots is the handler func that lists the available bots
+func (app *App) handleListBots(w http.ResponseWriter, r *http.Request) {
+	var metadatas []*bot.Metadata
+
+	for _, b := range app.Bots {
+		metadatas = append(metadatas, b.Metadata())
+	}
+
+	j, _ := json.Marshal(metadatas)
+
+	w.Write(j)
+}
+
+// handleCreateBot creates a new bot
+func (app *App) handleCreateBot(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+
+	var metadata bot.Metadata
+	err := decoder.Decode(&metadata)
+
+	if err != nil {
+		log.Errorf("Could not decode the request body: %s", err)
+		// @todo: return an error to the user
+		return
+	}
+
+	err = app.botRepository.Save(&metadata)
+
+	if err != nil {
+		log.Errorf("Could not save the bot: %s", err)
+		// @todo: return an error to the user
+		return
+	}
+
+	j, _ := json.Marshal(metadata)
+
+	// @todo: return an proper response
+	w.Write(j)
 }

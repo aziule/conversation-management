@@ -27,7 +27,7 @@ const PlatformFacebook Platform = "facebook"
 // Metadata is the struct describing the bot: what is its Id, what platform
 // is it using, and some platform-specific parameters
 type Metadata struct {
-	Id         bson.ObjectId             `json:"id" bson:"_id"`
+	Id         bson.ObjectId             `json:"-" bson:"_id"`
 	Slug       string                    `json:"slug" bson:"slug"`
 	Platform   Platform                  `json:"platform" bson:"platform"`
 	Parameters map[ParamName]interface{} `json:"parameters" bson:"parameters"`

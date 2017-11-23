@@ -1,6 +1,7 @@
 package facebook
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/aziule/conversation-management/core/bot"
@@ -17,5 +18,7 @@ func (b *facebookBot) bindDefaultApiEndpoints() {
 
 // handleViewBot shows details about the bot
 func (b *facebookBot) handleViewBot(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("hello"))
+	j, _ := json.Marshal(b.metadata)
+
+	w.Write(j)
 }
