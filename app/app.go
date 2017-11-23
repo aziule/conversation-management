@@ -96,10 +96,7 @@ func Run(configFilePath string) {
 	))
 
 	// Listen to each of the bot's webhooks and API endpoints
-	for _, b := range app.Bots {
-		api.RegisterApiEndpoints(b.ApiEndpoints()...)
-		api.RegisterWebhooks(b.Webhooks()...)
-	}
+	api.RegisterBotsEndpoints(app.Bots...)
 
 	log.Debugf("Listening on port %d", config.ListeningPort)
 	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), router)

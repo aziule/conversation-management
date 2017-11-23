@@ -28,6 +28,7 @@ const PlatformFacebook Platform = "facebook"
 // is it using, and some platform-specific parameters
 type Metadata struct {
 	Id         bson.ObjectId             `json:"id" bson:"_id"`
+	Slug       string                    `json:"slug" bson:"slug"`
 	Platform   Platform                  `json:"platform" bson:"platform"`
 	Parameters map[ParamName]interface{} `json:"parameters" bson:"parameters"`
 	CreatedAt  time.Time                 `json:"created_at" bson:"created_at"`

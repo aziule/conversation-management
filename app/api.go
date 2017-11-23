@@ -1,10 +1,12 @@
 package app
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
 // Api is the struct containing API endpoints and responsible for
@@ -33,17 +35,35 @@ func NewApi(router *chi.Mux) *Api {
 // and binds them to the router.
 func (api *Api) RegisterApiEndpoints(endpoints ...*bot.ApiEndpoint) {
 	for _, endpoint := range endpoints {
+		path := "/api" + endpoint.BasePath
+		path = strings.TrimRight(path, "/")
+		endpoint.MountedPath = path
+		api.bind(endpoint.Method, path, endpoint.Handler)
+
 		api.ApiEndpoints = append(api.ApiEndpoints, endpoint)
-		api.bind(endpoint.Method, "/api"+endpoint.Path, endpoint.Handler)
 	}
 }
 
 // RegisterWebhooks registers a set of new Webhooks
 // and binds them to the router.
-func (api *Api) RegisterWebhooks(endpoints ...*bot.Webhook) {
-	for _, endpoint := range endpoints {
-		api.Webhooks = append(api.Webhooks, endpoint)
-		api.bind(endpoint.Method, "/webhooks"+endpoint.Path, endpoint.Handler)
+func (api *Api) RegisterBotsEndpoints(bots ...bot.Bot) {
+	for _, b := range bots {
+		for _, endpoint := range b.ApiEndpoints() {
+			path := "/api/bots/" + b.Metadata().Slug + endpoint.BasePath
+			path = strings.TrimRight(path, "/")
+			endpoint.MountedPath = path
+			api.bind(endpoint.Method, path, endpoint.Handler)
+
+			api.ApiEndpoints = append(api.ApiEndpoints, endpoint)
+		}
+		for _, endpoint := range b.Webhooks() {
+			path := "/bots/" + b.Metadata().Slug + "/webhooks" + endpoint.BasePath
+			path = strings.TrimRight(path, "/")
+			endpoint.MountedPath = path
+			api.bind(endpoint.Method, path, endpoint.Handler)
+
+			api.Webhooks = append(api.Webhooks, endpoint)
+		}
 	}
 }
 
