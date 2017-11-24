@@ -3,12 +3,12 @@
 package mongo
 
 import (
-	"time"
-
-	"github.com/aziule/conversation-management/core/conversation"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"time"
+
+	"github.com/aziule/conversation-management/core/conversation"
 )
 
 const (
@@ -23,10 +23,22 @@ type conversationRepository struct {
 
 // @todo: give it a variable for the mapping between messages <=> facebook messages (implementation)
 // NewConversationRepository creates a new conversation repository using MongoDb as the data source
-func NewConversationRepository(db *Db) conversation.Repository {
+func newConversationRepository(conf map[string]interface{}) (conversation.Repository, error) {
+	dbParam, ok := conf["db"]
+
+	if !ok {
+		return nil, ErrUndefinedParam("db")
+	}
+
+	db, ok := dbParam.(*Db)
+
+	if !ok {
+		return nil, ErrInvalidParam("db")
+	}
+
 	return &conversationRepository{
 		db: db,
-	}
+	}, nil
 }
 
 // SaveConversation saves a conversation to the database.
@@ -136,4 +148,8 @@ func (repository *conversationRepository) InsertUser(user *conversation.User) er
 	}
 
 	return nil
+}
+
+func init() {
+	conversation.RegisterRepositoryBuilder("mongo", newConversationRepository)
 }

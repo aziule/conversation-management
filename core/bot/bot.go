@@ -10,10 +10,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var ErrRepositoryNotFound = errors.New("Repository not found")
+// ParamName represents a bot's parameter name. It is used to identify
+// the parameters easily, when put within the Definition.Parameters map.
+type ParamName string
 
-// repositoryBuilders stores the available Repository builders
-var repositoryBuilders = make(map[string]RepositoryBuilder)
+// Platform represents a platform where a bot is operating on
+type Platform string
+
+const PlatformFacebook Platform = "facebook"
+
+var (
+	ErrRepositoryNotFound = errors.New("Repository not found")
+
+	// repositoryBuilders stores the available Repository builders
+	repositoryBuilders = make(map[string]RepositoryBuilder)
+)
 
 // RepositoryBuilder is the interface describing a builder for Repository
 type RepositoryBuilder func(conf map[string]interface{}) (Repository, error)
@@ -54,15 +65,6 @@ type Bot interface {
 	ApiEndpoints() []*ApiEndpoint
 	Definition() *Definition
 }
-
-// ParamName represents a bot's parameter name. It is used to identify
-// the parameters easily, when put within the Definition.Parameters map.
-type ParamName string
-
-// Platform represents a platform where a bot is operating on
-type Platform string
-
-const PlatformFacebook Platform = "facebook"
 
 // @todo: add slug
 // Definition is the struct describing the bot: what is its Id, what platform

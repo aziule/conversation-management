@@ -19,6 +19,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	// Required for initialisation
+	"github.com/aziule/conversation-management/core/conversation"
 	_ "github.com/aziule/conversation-management/infrastructure/wit"
 )
 
@@ -64,6 +65,14 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when creating the bot repository: %s", err)
 	}
 
+	conversationRepository, err := conversation.NewRepository("mongo", map[string]interface{}{
+		"db": db,
+	})
+
+	if err != nil {
+		log.Fatalf("An error occurred when creating the conversation repository: %s", err)
+	}
+
 	definitions, err := botRepository.FindAll()
 
 	if err != nil {
@@ -95,7 +104,7 @@ func Run(configFilePath string) {
 					Definition:             definition,
 					FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 					NlpParser:              nlpParser,
-					ConversationRepository: mongo.NewConversationRepository(db),
+					ConversationRepository: conversationRepository,
 					StoryRepository:        memory.NewStoryRepository(),
 				},
 			)

@@ -6,10 +6,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var ErrParserNotFound = errors.New("Parser not found")
+var (
+	ErrParserNotFound = errors.New("Parser not found")
 
-// parserBuilders stores the available Parser builders
-var parserBuilders = make(map[string]ParserBuilder)
+	// parserBuilders stores the available Parser builders
+	parserBuilders = make(map[string]ParserBuilder)
+)
 
 // ParserBuilder is the interface describing a builder for Parser
 type ParserBuilder func() Parser

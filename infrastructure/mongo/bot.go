@@ -14,7 +14,7 @@ import (
 const BotDefinitionCollection = "bot"
 
 var (
-	ErrUndefinedParam = func(param string) error { return errors.New("Undefined param: " + param) }
+	ErrUndefinedParam = func(param string) error { return errors.New("Missing param: " + param) }
 	ErrInvalidParam   = func(param string) error { return errors.New("Invalid param type: " + param) }
 )
 
