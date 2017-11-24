@@ -3,25 +3,43 @@
 package mongo
 
 import (
+	"errors"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 
 	"github.com/aziule/conversation-management/core/bot"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2/bson"
 )
 
 const BotDefinitionCollection = "bot"
+
+var (
+	ErrUndefinedParam = func(param string) error { return errors.New("Undefined param: " + param) }
+	ErrInvalidParam   = func(param string) error { return errors.New("Invalid param type: " + param) }
+)
 
 // botRepository is the unexported struct that implements the Repository interface
 type botRepository struct {
 	db *Db
 }
 
-// NewBotRepository creates a new bot repository using MongoDb as the data source
-func NewBotRepository(db *Db) bot.Repository {
+// newBotRepository creates a new bot repository using MongoDb as the data source
+func newBotRepository(conf map[string]interface{}) (bot.Repository, error) {
+	dbParam, ok := conf["db"]
+
+	if !ok {
+		return nil, ErrUndefinedParam("db")
+	}
+
+	db, ok := dbParam.(*Db)
+
+	if !ok {
+		return nil, ErrInvalidParam("db")
+	}
+
 	return &botRepository{
 		db: db,
-	}
+	}, nil
 }
 
 // FindAll returns all of the definition available for each bot
@@ -68,4 +86,8 @@ func (repository *botRepository) Save(definition *bot.Definition) error {
 	}
 
 	return nil
+}
+
+func init() {
+	bot.RegisterRepositoryBuilder("mongo", newBotRepository)
 }

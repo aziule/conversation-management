@@ -17,17 +17,17 @@ type ParserBuilder func() Parser
 // RegisterParserBuilder adds a new ParserBuilder to the list of available builders
 func RegisterParserBuilder(name string, builder ParserBuilder) {
 	_, registered := parserBuilders[name]
-	log.Info("Registering parser")
+
 	if registered {
-		log.WithField("name", name).Warning("NLP Parser already registered, ignoring")
+		log.WithField("name", name).Warning("ParserBuilder already registered, ignoring")
 	}
 
 	parserBuilders[name] = builder
 }
 
-// CreateParser tries to create a Parser using the available builders.
+// NewParser tries to create a Parser using the available builders.
 // Returns ErrParserNotFound if the parser builder isn't found.
-func CreateParser(name string) (Parser, error) {
+func NewParser(name string) (Parser, error) {
 	parserBuilder, ok := parserBuilders[name]
 
 	if !ok {

@@ -56,7 +56,13 @@ func Run(configFilePath string) {
 
 	defer db.Close()
 
-	botRepository := mongo.NewBotRepository(db)
+	botRepository, err := bot.NewRepository("mongo", map[string]interface{}{
+		"db": db,
+	})
+
+	if err != nil {
+		log.Fatalf("An error occurred when creating the bot repository: %s", err)
+	}
 
 	definitions, err := botRepository.FindAll()
 
@@ -71,7 +77,7 @@ func Run(configFilePath string) {
 		botRepository: botRepository,
 	}
 
-	nlpParser, err := nlp.CreateParser("wit")
+	nlpParser, err := nlp.NewParser("wit")
 
 	if err != nil {
 		log.Fatalf("An error occurred when creating the parser: %s", err)
