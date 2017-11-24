@@ -28,13 +28,13 @@ func newConversationRepository(conf utils.BuilderConf) (conversation.Repository,
 	dbParam, ok := conf["db"]
 
 	if !ok {
-		return nil, ErrUndefinedParam("db")
+		return nil, utils.ErrUndefinedParam("db")
 	}
 
 	db, ok := dbParam.(*Db)
 
 	if !ok {
-		return nil, ErrInvalidParam("db")
+		return nil, utils.ErrInvalidParam("db")
 	}
 
 	return &conversationRepository{

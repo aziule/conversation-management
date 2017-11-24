@@ -2,18 +2,11 @@
 package facebook
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 
 	"github.com/aziule/conversation-management/core/api"
 	"github.com/aziule/conversation-management/core/utils"
-)
-
-var (
-	// @todo: move these errors to core
-	ErrUndefinedParam = func(param string) error { return errors.New("Missing param: " + param) }
-	ErrInvalidParam   = func(param string) error { return errors.New("Invalid param type: " + param) }
 )
 
 // facebookApi is the real-world implementation of the API
@@ -31,37 +24,37 @@ func newFacebookApi(conf utils.BuilderConf) (api.FacebookApi, error) {
 	pageAccessTokenParam, ok := conf["page_access_token"]
 
 	if !ok {
-		return nil, ErrUndefinedParam("page_access_token")
+		return nil, utils.ErrUndefinedParam("page_access_token")
 	}
 
 	pageAccessToken, ok := pageAccessTokenParam.(string)
 
 	if !ok {
-		return nil, ErrInvalidParam("page_access_token")
+		return nil, utils.ErrInvalidParam("page_access_token")
 	}
 
 	clientParam, ok := conf["client"]
 
 	if !ok {
-		return nil, ErrUndefinedParam("client")
+		return nil, utils.ErrUndefinedParam("client")
 	}
 
 	client, ok := clientParam.(*http.Client)
 
 	if !ok {
-		return nil, ErrInvalidParam("client")
+		return nil, utils.ErrInvalidParam("client")
 	}
 
 	versionParam, ok := conf["version"]
 
 	if !ok {
-		return nil, ErrUndefinedParam("version")
+		return nil, utils.ErrUndefinedParam("version")
 	}
 
 	version, ok := versionParam.(string)
 
 	if !ok {
-		return nil, ErrInvalidParam("version")
+		return nil, utils.ErrInvalidParam("version")
 	}
 
 	rawBaseUrl := "https://graph.facebook.com/v" + version

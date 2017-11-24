@@ -3,7 +3,6 @@
 package mongo
 
 import (
-	"errors"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 
@@ -13,11 +12,6 @@ import (
 )
 
 const BotDefinitionCollection = "bot"
-
-var (
-	ErrUndefinedParam = func(param string) error { return errors.New("Missing param: " + param) }
-	ErrInvalidParam   = func(param string) error { return errors.New("Invalid param type: " + param) }
-)
 
 // botRepository is the unexported struct that implements the Repository interface
 type botRepository struct {
@@ -29,13 +23,13 @@ func newBotRepository(conf utils.BuilderConf) (bot.Repository, error) {
 	dbParam, ok := conf["db"]
 
 	if !ok {
-		return nil, ErrUndefinedParam("db")
+		return nil, utils.ErrUndefinedParam("db")
 	}
 
 	db, ok := dbParam.(*Db)
 
 	if !ok {
-		return nil, ErrInvalidParam("db")
+		return nil, utils.ErrInvalidParam("db")
 	}
 
 	return &botRepository{
