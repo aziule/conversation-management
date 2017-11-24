@@ -26,7 +26,7 @@ func RegisterParserBuilder(name string, builder ParserBuilder) {
 }
 
 // CreateParser tries to create a Parser using the available builders.
-// Returns an error if the parser builder isn't found.
+// Returns ErrParserNotFound if the parser builder isn't found.
 func CreateParser(name string) (Parser, error) {
 	parserBuilder, ok := parserBuilders[name]
 
