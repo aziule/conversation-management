@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/aziule/conversation-management/core/api"
+	"github.com/aziule/conversation-management/core/utils"
 )
 
 var (
@@ -25,7 +26,7 @@ type facebookApi struct {
 // @todo: move the conf to utils
 // newFacebookApi is the constructor that creates a new Facebook API, using
 // user-defined variables such as the FB API version or the pageAccessToken.
-func newFacebookApi(conf map[string]interface{}) (api.FacebookApi, error) {
+func newFacebookApi(conf utils.BuilderConf) (api.FacebookApi, error) {
 	// @todo: move this conf parsing to utils
 	pageAccessTokenParam, ok := conf["page_access_token"]
 

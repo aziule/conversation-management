@@ -3,12 +3,13 @@
 package mongo
 
 import (
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 	"time"
 
 	"github.com/aziule/conversation-management/core/conversation"
+	"github.com/aziule/conversation-management/core/utils"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -23,7 +24,7 @@ type conversationRepository struct {
 
 // @todo: give it a variable for the mapping between messages <=> facebook messages (implementation)
 // NewConversationRepository creates a new conversation repository using MongoDb as the data source
-func newConversationRepository(conf map[string]interface{}) (conversation.Repository, error) {
+func newConversationRepository(conf utils.BuilderConf) (conversation.Repository, error) {
 	dbParam, ok := conf["db"]
 
 	if !ok {

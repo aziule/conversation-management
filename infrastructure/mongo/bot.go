@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aziule/conversation-management/core/bot"
+	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,7 +25,7 @@ type botRepository struct {
 }
 
 // newBotRepository creates a new bot repository using MongoDb as the data source
-func newBotRepository(conf map[string]interface{}) (bot.Repository, error) {
+func newBotRepository(conf utils.BuilderConf) (bot.Repository, error) {
 	dbParam, ok := conf["db"]
 
 	if !ok {

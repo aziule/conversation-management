@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -16,7 +17,7 @@ var (
 )
 
 // FacebookApiBuilder is the interface describing a builder for FacebookApi
-type FacebookApiBuilder func(conf map[string]interface{}) (FacebookApi, error)
+type FacebookApiBuilder func(conf utils.BuilderConf) (FacebookApi, error)
 
 // RegisterFacebookApiBuilder adds a new FacebookApiBuilder to the list of available builders
 func RegisterFacebookApiBuilder(name string, builder FacebookApiBuilder) {
@@ -32,7 +33,7 @@ func RegisterFacebookApiBuilder(name string, builder FacebookApiBuilder) {
 // NewFacebookApi tries to create a FacebookApi using the available builders.
 // Returns ErrFacebookApiNotFound if the facebookApi builder isn't found.
 // Returns an error in case of any error during the build process.
-func NewFacebookApi(name string, conf map[string]interface{}) (FacebookApi, error) {
+func NewFacebookApi(name string, conf utils.BuilderConf) (FacebookApi, error) {
 	facebookApiBuilder, ok := facebookApiBuilders[name]
 
 	if !ok {
@@ -49,16 +50,15 @@ func NewFacebookApi(name string, conf map[string]interface{}) (FacebookApi, erro
 }
 
 // FacebookApi is the interface representing a Facebook API
-// @todo: rename to Api
 type FacebookApi interface {
-	ParseRequestMessageReceived(r *http.Request) (*ReceivedMessage, error)
+	ParseRequestMessageReceived(r *http.Request) (*FacebookReceivedMessage, error)
 	SendTextToUser(recipientId, text string) error
 }
 
-// ReceivedMessage is the base struct for received messages
-// @todo: see how to rename to FacebookReceivedMessage if facebook.go
+// FacebookReceivedMessage is the base struct for received messages
+// @todo: see how to rename to FacebookFacebookReceivedMessage if facebook.go
 // is the only file in the api package
-type ReceivedMessage struct {
+type FacebookReceivedMessage struct {
 	Mid               string
 	SenderId          string
 	RecipientId       string

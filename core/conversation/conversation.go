@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -27,7 +28,7 @@ var (
 )
 
 // RepositoryBuilder is the interface describing a builder for Repository
-type RepositoryBuilder func(conf map[string]interface{}) (Repository, error)
+type RepositoryBuilder func(conf utils.BuilderConf) (Repository, error)
 
 // RegisterRepositoryBuilder adds a new RepositoryBuilder to the list of available builders
 func RegisterRepositoryBuilder(name string, builder RepositoryBuilder) {
@@ -43,7 +44,7 @@ func RegisterRepositoryBuilder(name string, builder RepositoryBuilder) {
 // NewRepository tries to create a Repository using the available builders.
 // Returns ErrRepositoryNotFound if the repository builder isn't found.
 // Returns an error in case of any error during the build process.
-func NewRepository(name string, conf map[string]interface{}) (Repository, error) {
+func NewRepository(name string, conf utils.BuilderConf) (Repository, error) {
 	repositoryBuilder, ok := repositoryBuilders[name]
 
 	if !ok {

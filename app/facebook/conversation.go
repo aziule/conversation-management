@@ -41,19 +41,19 @@ func newConversationHandler(pm conversation.StepsProcessMap, cr conversation.Rep
 // - Answering the user
 // - Modifying the conversation's status
 func (h *conversationHandler) MessageReceived(r *http.Request) {
-	receivedMessage, err := h.fbApi.ParseRequestMessageReceived(r)
+	facebookReceivedMessage, err := h.fbApi.ParseRequestMessageReceived(r)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.WithField("message", receivedMessage).Errorf("Could not parse the received message: %s", err)
+		log.WithField("message", facebookReceivedMessage).Errorf("Could not parse the received message: %s", err)
 		return
 	}
 
-	user, err := h.getUser(receivedMessage.SenderId)
+	user, err := h.getUser(facebookReceivedMessage.SenderId)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user
-		log.WithField("user", receivedMessage.SenderId).Errorf("Could not find the user: %s", err)
+		log.WithField("user", facebookReceivedMessage.SenderId).Errorf("Could not find the user: %s", err)
 		return
 	}
 
@@ -68,8 +68,8 @@ func (h *conversationHandler) MessageReceived(r *http.Request) {
 	log.WithField("conversation", c).Debug("Conversation fetched")
 
 	userMessage := conversation.NewUserMessage(
-		receivedMessage.Text,
-		receivedMessage.SentAt,
+		facebookReceivedMessage.Text,
+		facebookReceivedMessage.SentAt,
 		user,
 		nil,
 	)
@@ -78,13 +78,13 @@ func (h *conversationHandler) MessageReceived(r *http.Request) {
 
 	h.conversationRepository.SaveConversation(c)
 
-	if receivedMessage.Nlp == nil {
+	if facebookReceivedMessage.Nlp == nil {
 		// @todo: handle this case: parse the text using the NLP parser
 		log.Errorf("No data to parse")
 		return
 	}
 
-	parsedData, err := h.nlpParser.ParseNlpData(receivedMessage.Nlp)
+	parsedData, err := h.nlpParser.ParseNlpData(facebookReceivedMessage.Nlp)
 
 	if err != nil {
 		// @todo: handle this case and return something to the user. Make sure the
@@ -96,7 +96,7 @@ func (h *conversationHandler) MessageReceived(r *http.Request) {
 		// - ...
 		// => gives more context and allows us to save data & understand it even
 		// though errors occur.
-		log.WithField("nlp", receivedMessage.Nlp).Errorf("Could not parse NLP data: %s", err)
+		log.WithField("nlp", facebookReceivedMessage.Nlp).Errorf("Could not parse NLP data: %s", err)
 		return
 	}
 

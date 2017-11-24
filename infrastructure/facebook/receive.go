@@ -21,7 +21,7 @@ var (
 )
 
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
-func (fbApi *facebookApi) ParseRequestMessageReceived(r *http.Request) (*api.ReceivedMessage, error) {
+func (fbApi *facebookApi) ParseRequestMessageReceived(r *http.Request) (*api.FacebookReceivedMessage, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 
@@ -113,7 +113,7 @@ func (fbApi *facebookApi) ParseRequestMessageReceived(r *http.Request) (*api.Rec
 		// @todo: log that no NLP was received
 	}
 
-	return &api.ReceivedMessage{
+	return &api.FacebookReceivedMessage{
 		Mid:               mid,
 		SenderId:          senderId,
 		RecipientId:       recipientId,
