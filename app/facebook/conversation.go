@@ -4,9 +4,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/aziule/conversation-management/core/api"
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
-	"github.com/aziule/conversation-management/infrastructure/facebook/api"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2/bson"
 )

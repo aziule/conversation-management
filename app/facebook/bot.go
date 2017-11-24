@@ -2,10 +2,10 @@
 package facebook
 
 import (
+	"github.com/aziule/conversation-management/core/api"
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
-	"github.com/aziule/conversation-management/infrastructure/facebook/api"
 )
 
 const VerifyToken bot.ParamName = "verify_token"

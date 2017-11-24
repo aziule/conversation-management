@@ -9,16 +9,17 @@ import (
 	"time"
 
 	"github.com/aziule/conversation-management/app/facebook"
+	"github.com/aziule/conversation-management/core/api"
 	"github.com/aziule/conversation-management/core/bot"
 	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
-	fbApi "github.com/aziule/conversation-management/infrastructure/facebook/api"
 	"github.com/aziule/conversation-management/infrastructure/mongo"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	log "github.com/sirupsen/logrus"
 
 	// Required for initialisation
+	_ "github.com/aziule/conversation-management/infrastructure/facebook"
 	_ "github.com/aziule/conversation-management/infrastructure/memory"
 	_ "github.com/aziule/conversation-management/infrastructure/wit"
 )
@@ -79,6 +80,16 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when creating the story repository: %s", err)
 	}
 
+	fbApi, err := api.NewFacebookApi("facebook", map[string]interface{}{
+		"page_access_token": config.FbPageAccessToken,
+		"version":           config.FbApiVersion,
+		"client":            http.DefaultClient,
+	})
+
+	if err != nil {
+		log.Fatalf("An error occurred when creating the Facebook API: %s", err)
+	}
+
 	definitions, err := botRepository.FindAll()
 
 	if err != nil {
@@ -108,7 +119,7 @@ func Run(configFilePath string) {
 			b = facebook.NewBot(
 				&facebook.Config{
 					Definition:             definition,
-					FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
+					FbApi:                  fbApi,
 					NlpParser:              nlpParser,
 					ConversationRepository: conversationRepository,
 					StoryRepository:        storyRepository,
@@ -123,8 +134,8 @@ func Run(configFilePath string) {
 	}
 
 	// Mount the API
-	api := NewApi(router, app)
-	api.Mount()
+	appApi := NewAppApi(router, app)
+	appApi.Mount()
 
 	log.Debugf("Listening on port %d", config.ListeningPort)
 	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), router)

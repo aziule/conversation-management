@@ -1,4 +1,4 @@
-package api
+package facebook
 
 import (
 	"errors"
@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/antonholmquist/jason"
+	"github.com/aziule/conversation-management/core/api"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,19 +20,8 @@ var (
 	ErrNoMessage               = errors.New("No message to parse")
 )
 
-// receivedMessage is the base struct for received messages
-type receivedMessage struct {
-	Mid               string
-	SenderId          string
-	RecipientId       string
-	SentAt            time.Time
-	Text              string
-	QuickReplyPayload string
-	Nlp               []byte
-}
-
 // ParseJsonBody creates a Message from json bytes and returns an error if a parsing issue occurred
-func (api *facebookApi) ParseRequestMessageReceived(r *http.Request) (*receivedMessage, error) {
+func (fbApi *facebookApi) ParseRequestMessageReceived(r *http.Request) (*api.ReceivedMessage, error) {
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 
@@ -123,7 +113,7 @@ func (api *facebookApi) ParseRequestMessageReceived(r *http.Request) (*receivedM
 		// @todo: log that no NLP was received
 	}
 
-	return &receivedMessage{
+	return &api.ReceivedMessage{
 		Mid:               mid,
 		SenderId:          senderId,
 		RecipientId:       recipientId,
