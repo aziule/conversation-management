@@ -10,37 +10,38 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Api is the struct containing API endpoints and responsible for
+// api is the struct containing API endpoints and responsible for
 // setting up their routes.
 //
 // The API represents both:
 // - The public-facing API: Facebook webhooks, etc.
 // - The private-facing API: bots management, metrics, etc.
-type Api struct {
+type api struct {
 	router       *chi.Mux
-	App          *App
+	app          *app
 	ApiEndpoints []*bot.ApiEndpoint
 	Webhooks     []*bot.Webhook
 }
 
 // NewApi is the constructor method for Api. The API endpoints
-// are set by default, but the bot's API endpoints are not
-func MountApi(router *chi.Mux, app *App) *Api {
-	api := &Api{
-		App:          app,
+// are not mounted by default. They can be mounted using Mount()
+func NewApi(router *chi.Mux, app *app) *api {
+	return &api{
+		app:          app,
 		router:       router,
 		ApiEndpoints: nil,
 		Webhooks:     nil,
 	}
-
-	api.bindDefaultEndpoints()
-	api.RegisterBotsEndpoints(api.App.Bots...)
-
-	return api
 }
 
-// bindDefaultEndpoints binds the default API endpoints to the Api object
-func (api *Api) bindDefaultEndpoints() {
+// Mount mounts all of the Api endpoints (management API, bots APIs, bots webhooks)
+func (api *api) Mount() {
+	api.bindDefaultEndpoints()
+	api.RegisterBotsEndpoints(api.app.Bots...)
+}
+
+// bindDefaultEndpoints binds the default API endpoints to the api object
+func (api *api) bindDefaultEndpoints() {
 	api.RegisterApiEndpoints(
 		bot.NewApiEndpoint(
 			"GET",
@@ -57,7 +58,7 @@ func (api *Api) bindDefaultEndpoints() {
 
 // RegisterApiEndpoints registers a set of new API endpoints
 // and binds them to the router.
-func (api *Api) RegisterApiEndpoints(endpoints ...*bot.ApiEndpoint) {
+func (api *api) RegisterApiEndpoints(endpoints ...*bot.ApiEndpoint) {
 	for _, endpoint := range endpoints {
 		path := "/api" + endpoint.BasePath
 		path = strings.TrimRight(path, "/")
@@ -70,7 +71,7 @@ func (api *Api) RegisterApiEndpoints(endpoints ...*bot.ApiEndpoint) {
 
 // RegisterWebhooks registers a set of new Webhooks
 // and binds them to the router.
-func (api *Api) RegisterBotsEndpoints(bots ...bot.Bot) {
+func (api *api) RegisterBotsEndpoints(bots ...bot.Bot) {
 	for _, b := range bots {
 		for _, endpoint := range b.ApiEndpoints() {
 			path := "/api/bots/" + b.Metadata().Slug + endpoint.BasePath
@@ -92,7 +93,7 @@ func (api *Api) RegisterBotsEndpoints(bots ...bot.Bot) {
 }
 
 // bindRoute binds a new route to the router given its method, path and handler func
-func (api *Api) bind(method, path string, handler http.HandlerFunc) {
+func (api *api) bind(method, path string, handler http.HandlerFunc) {
 	log.Debugf("%s %s", string(method), path)
 
 	switch method {
@@ -104,10 +105,10 @@ func (api *Api) bind(method, path string, handler http.HandlerFunc) {
 }
 
 // handleListBots is the handler func that lists the available bots
-func (api *Api) handleListBots(w http.ResponseWriter, r *http.Request) {
+func (api *api) handleListBots(w http.ResponseWriter, r *http.Request) {
 	var metadatas []*bot.Metadata
 
-	for _, b := range api.App.Bots {
+	for _, b := range api.app.Bots {
 		metadatas = append(metadatas, b.Metadata())
 	}
 
@@ -117,7 +118,7 @@ func (api *Api) handleListBots(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleCreateBot creates a new bot
-func (api *Api) handleCreateBot(w http.ResponseWriter, r *http.Request) {
+func (api *api) handleCreateBot(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	var metadata bot.Metadata
@@ -129,7 +130,7 @@ func (api *Api) handleCreateBot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = api.App.botRepository.Save(&metadata)
+	err = api.app.botRepository.Save(&metadata)
 
 	if err != nil {
 		log.Errorf("Could not save the bot: %s", err)

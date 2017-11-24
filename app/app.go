@@ -19,9 +19,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// App defines the main structure, holding information about
+// app defines the main structure, holding information about
 // what bot is running, public-facing API endpoints, etc.
-type App struct {
+type app struct {
 	Bots          []bot.Bot
 	botRepository bot.Repository
 }
@@ -64,7 +64,7 @@ func Run(configFilePath string) {
 	router := chi.NewRouter()
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 
-	app := &App{
+	app := &app{
 		botRepository: botRepository,
 	}
 
@@ -93,7 +93,8 @@ func Run(configFilePath string) {
 	}
 
 	// Mount the API
-	MountApi(router, app)
+	api := NewApi(router, app)
+	api.Mount()
 
 	log.Debugf("Listening on port %d", config.ListeningPort)
 	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), router)
