@@ -13,7 +13,7 @@ var stories []*conversation.Story
 type inMemoryStoryRepository struct{}
 
 // NewStoryRepository instanciates a new in memory step repository
-func NewStoryRepository() *inMemoryStoryRepository {
+func newStoryRepository() conversation.StoryRepository {
 	return &inMemoryStoryRepository{}
 }
 
@@ -57,4 +57,8 @@ func (r *inMemoryStoryRepository) FindAll() ([]*conversation.Story, error) {
 	log.WithField("stories", stories).Debug("Returning stories for the first time")
 
 	return stories, nil
+}
+
+func init() {
+	conversation.RegisterStoryRepositoryBuilder("memory", newStoryRepository)
 }

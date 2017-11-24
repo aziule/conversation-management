@@ -10,16 +10,16 @@ import (
 
 	"github.com/aziule/conversation-management/app/facebook"
 	"github.com/aziule/conversation-management/core/bot"
+	"github.com/aziule/conversation-management/core/conversation"
 	"github.com/aziule/conversation-management/core/nlp"
 	fbApi "github.com/aziule/conversation-management/infrastructure/facebook/api"
-	"github.com/aziule/conversation-management/infrastructure/memory"
 	"github.com/aziule/conversation-management/infrastructure/mongo"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	log "github.com/sirupsen/logrus"
 
 	// Required for initialisation
-	"github.com/aziule/conversation-management/core/conversation"
+	_ "github.com/aziule/conversation-management/infrastructure/memory"
 	_ "github.com/aziule/conversation-management/infrastructure/wit"
 )
 
@@ -73,6 +73,12 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when creating the conversation repository: %s", err)
 	}
 
+	storyRepository, err := conversation.NewStoryRepository("memory")
+
+	if err != nil {
+		log.Fatalf("An error occurred when creating the story repository: %s", err)
+	}
+
 	definitions, err := botRepository.FindAll()
 
 	if err != nil {
@@ -105,7 +111,7 @@ func Run(configFilePath string) {
 					FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 					NlpParser:              nlpParser,
 					ConversationRepository: conversationRepository,
-					StoryRepository:        memory.NewStoryRepository(),
+					StoryRepository:        storyRepository,
 				},
 			)
 		default:

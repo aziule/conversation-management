@@ -17,12 +17,10 @@ var (
 	StatusOngoing           Status = "ongoing"
 	StatusHumanIntervention Status = "human"
 	StatusOver              Status = "over"
-	ErrNotFound                    = errors.New("Not found")
-	ErrCannotUnmarshalBson         = errors.New("Can't unmarshal BSON")
-)
 
-var (
-	ErrRepositoryNotFound = errors.New("Repository not found")
+	ErrNotFound            = errors.New("Not found")
+	ErrCannotUnmarshalBson = errors.New("Can't unmarshal BSON")
+	ErrRepositoryNotFound  = errors.New("Repository not found")
 
 	// repositoryBuilders stores the available Repository builders
 	repositoryBuilders = make(map[string]RepositoryBuilder)
