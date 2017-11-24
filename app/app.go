@@ -3,8 +3,10 @@
 package app
 
 import (
+	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/aziule/conversation-management/app/facebook"
 	"github.com/aziule/conversation-management/core/bot"
@@ -36,6 +38,8 @@ func Run(configFilePath string) {
 	if config.Debug {
 		log.SetLevel(log.DebugLevel)
 	}
+
+	rand.Seed(time.Now().UnixNano())
 
 	db, err := mongo.CreateSession(mongo.DbParams{
 		DbHost: config.DbHost,
