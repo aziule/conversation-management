@@ -55,7 +55,7 @@ func Run(configFilePath string) {
 
 	botRepository := mongo.NewBotRepository(db)
 
-	metadatas, err := botRepository.FindAll()
+	definitions, err := botRepository.FindAll()
 
 	if err != nil {
 		log.Fatalf("An error occurred when finding the bots list: %s", err)
@@ -68,16 +68,16 @@ func Run(configFilePath string) {
 		botRepository: botRepository,
 	}
 
-	for _, metadata := range metadatas {
+	for _, definition := range definitions {
 		var b bot.Bot
 
-		switch metadata.Platform {
+		switch definition.Platform {
 		case bot.PlatformFacebook:
 			// @todo: register all available implementations using a factory
 			// pattern, and fetch them directly from the config passed
 			b = facebook.NewBot(
 				&facebook.Config{
-					Metadata:               metadata,
+					Definition:             definition,
 					FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
 					NlpParser:              wit.NewParser(),
 					ConversationRepository: mongo.NewConversationRepository(db),
@@ -85,7 +85,7 @@ func Run(configFilePath string) {
 				},
 			)
 		default:
-			log.Errorf("Unhandled platform: %s", metadata.Platform)
+			log.Errorf("Unhandled platform: %s", definition.Platform)
 			continue
 		}
 

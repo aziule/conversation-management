@@ -11,11 +11,11 @@ import (
 type Bot interface {
 	Webhooks() []*Webhook
 	ApiEndpoints() []*ApiEndpoint
-	Metadata() *Metadata
+	Definition() *Definition
 }
 
 // ParamName represents a bot's parameter name. It is used to identify
-// the parameters easily, when put within the Metadata.Parameters map.
+// the parameters easily, when put within the Definition.Parameters map.
 type ParamName string
 
 // Platform represents a platform where a bot is operating on
@@ -24,9 +24,9 @@ type Platform string
 const PlatformFacebook Platform = "facebook"
 
 // @todo: add slug
-// Metadata is the struct describing the bot: what is its Id, what platform
+// Definition is the struct describing the bot: what is its Id, what platform
 // is it using, and some platform-specific parameters
-type Metadata struct {
+type Definition struct {
 	Id         bson.ObjectId             `json:"-" bson:"_id"`
 	Slug       string                    `json:"slug" bson:"slug"`
 	Platform   Platform                  `json:"platform" bson:"platform"`
@@ -37,6 +37,6 @@ type Metadata struct {
 
 // Repository is the interface responsible for fetching / saving bots
 type Repository interface {
-	FindAll() ([]*Metadata, error)
-	Save(metadata *Metadata) error
+	FindAll() ([]*Definition, error)
+	Save(definition *Definition) error
 }

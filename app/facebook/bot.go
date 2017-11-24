@@ -12,7 +12,7 @@ const VerifyToken bot.ParamName = "verify_token"
 
 // Config is the config required in order to instantiate a new FacebookBot
 type Config struct {
-	Metadata               *bot.Metadata
+	Definition             *bot.Definition
 	FbApi                  api.FacebookApi
 	NlpParser              nlp.Parser
 	ConversationRepository conversation.Repository
@@ -23,7 +23,7 @@ type Config struct {
 type facebookBot struct {
 	webhooks            []*bot.Webhook
 	apiEndpoints        []*bot.ApiEndpoint
-	metadata            *bot.Metadata
+	definition          *bot.Definition
 	conversationHandler conversation.Handler
 }
 
@@ -35,7 +35,7 @@ type facebookBot struct {
 // - We load the list of stories.
 func NewBot(config *Config) *facebookBot {
 	bot := &facebookBot{
-		metadata: config.Metadata,
+		definition: config.Definition,
 	}
 
 	// @todo: we need to check if all of the stories's steps are being handled
@@ -66,10 +66,10 @@ func (b *facebookBot) ApiEndpoints() []*bot.ApiEndpoint {
 	return b.apiEndpoints
 }
 
-// Metadata returns the bot's metadata.
+// Definition returns the bot's definition.
 // This method is required in order to implement the Bot interface.
-func (b *facebookBot) Metadata() *bot.Metadata {
-	return b.metadata
+func (b *facebookBot) Definition() *bot.Definition {
+	return b.definition
 }
 
 // getDefaultStepsMapping returns the default steps mapping between

@@ -10,7 +10,7 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-const BotMetadataCollection = "bot"
+const BotDefinitionCollection = "bot"
 
 // botRepository is the unexported struct that implements the Repository interface
 type botRepository struct {
@@ -24,46 +24,46 @@ func NewBotRepository(db *Db) bot.Repository {
 	}
 }
 
-// FindAll returns all of the metadata available for each bot
-func (repository *botRepository) FindAll() ([]*bot.Metadata, error) {
+// FindAll returns all of the definition available for each bot
+func (repository *botRepository) FindAll() ([]*bot.Definition, error) {
 	session := repository.db.NewSession()
 	defer session.Close()
 
-	var metadatas []*bot.Metadata
+	var definitions []*bot.Definition
 
-	err := session.DB(repository.db.Params.DbName).C(BotMetadataCollection).Find(nil).All(&metadatas)
+	err := session.DB(repository.db.Params.DbName).C(BotDefinitionCollection).Find(nil).All(&definitions)
 
 	if err != nil {
-		log.Infof("Could not find the bots metadatas: %s", err)
+		log.Infof("Could not find the bots definitions: %s", err)
 		return nil, err
 	}
 
-	return metadatas, nil
+	return definitions, nil
 }
 
-// Save inserts / updates a bot's metadata
-func (repository *botRepository) Save(metadata *bot.Metadata) error {
+// Save inserts / updates a bot's definition
+func (repository *botRepository) Save(definition *bot.Definition) error {
 	session := repository.db.NewSession()
 	defer session.Close()
 
 	var err error
-	collection := session.DB(repository.db.Params.DbName).C(BotMetadataCollection)
+	collection := session.DB(repository.db.Params.DbName).C(BotDefinitionCollection)
 
-	metadata.UpdatedAt = time.Now()
+	definition.UpdatedAt = time.Now()
 
-	if metadata.Id == "" {
-		metadata.Id = bson.NewObjectId()
-		metadata.CreatedAt = time.Now()
+	if definition.Id == "" {
+		definition.Id = bson.NewObjectId()
+		definition.CreatedAt = time.Now()
 
-		log.WithField("metadata", metadata).Debugf("Inserting metadata")
-		err = collection.Insert(metadata)
+		log.WithField("definition", definition).Debugf("Inserting definition")
+		err = collection.Insert(definition)
 	} else {
-		log.WithField("metadata", metadata).Debugf("Updating metadata")
-		err = collection.UpdateId(metadata.Id, metadata)
+		log.WithField("definition", definition).Debugf("Updating definition")
+		err = collection.UpdateId(definition.Id, definition)
 	}
 
 	if err != nil {
-		log.WithField("metadata", metadata).Infof("Could not save the metadata: %s", err)
+		log.WithField("definition", definition).Infof("Could not save the definition: %s", err)
 		return err
 	}
 

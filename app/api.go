@@ -74,7 +74,7 @@ func (api *api) RegisterApiEndpoints(endpoints ...*bot.ApiEndpoint) {
 func (api *api) RegisterBotsEndpoints(bots ...bot.Bot) {
 	for _, b := range bots {
 		for _, endpoint := range b.ApiEndpoints() {
-			path := "/api/bots/" + b.Metadata().Slug + endpoint.BasePath
+			path := "/api/bots/" + b.Definition().Slug + endpoint.BasePath
 			path = strings.TrimRight(path, "/")
 			endpoint.MountedPath = path
 			api.bind(endpoint.Method, path, endpoint.Handler)
@@ -82,7 +82,7 @@ func (api *api) RegisterBotsEndpoints(bots ...bot.Bot) {
 			api.ApiEndpoints = append(api.ApiEndpoints, endpoint)
 		}
 		for _, endpoint := range b.Webhooks() {
-			path := "/bots/" + b.Metadata().Slug + "/webhooks" + endpoint.BasePath
+			path := "/bots/" + b.Definition().Slug + "/webhooks" + endpoint.BasePath
 			path = strings.TrimRight(path, "/")
 			endpoint.MountedPath = path
 			api.bind(endpoint.Method, path, endpoint.Handler)
@@ -106,13 +106,13 @@ func (api *api) bind(method, path string, handler http.HandlerFunc) {
 
 // handleListBots is the handler func that lists the available bots
 func (api *api) handleListBots(w http.ResponseWriter, r *http.Request) {
-	var metadatas []*bot.Metadata
+	var definitions []*bot.Definition
 
 	for _, b := range api.app.Bots {
-		metadatas = append(metadatas, b.Metadata())
+		definitions = append(definitions, b.Definition())
 	}
 
-	j, _ := json.Marshal(metadatas)
+	j, _ := json.Marshal(definitions)
 
 	w.Write(j)
 }
@@ -121,8 +121,8 @@ func (api *api) handleListBots(w http.ResponseWriter, r *http.Request) {
 func (api *api) handleCreateBot(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
-	var metadata bot.Metadata
-	err := decoder.Decode(&metadata)
+	var definition bot.Definition
+	err := decoder.Decode(&definition)
 
 	if err != nil {
 		log.Errorf("Could not decode the request body: %s", err)
@@ -130,7 +130,7 @@ func (api *api) handleCreateBot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = api.app.botRepository.Save(&metadata)
+	err = api.app.botRepository.Save(&definition)
 
 	if err != nil {
 		log.Errorf("Could not save the bot: %s", err)
@@ -138,7 +138,7 @@ func (api *api) handleCreateBot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	j, _ := json.Marshal(metadata)
+	j, _ := json.Marshal(definition)
 
 	// @todo: return an proper response
 	w.Write(j)

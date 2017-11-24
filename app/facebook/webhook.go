@@ -45,9 +45,9 @@ func (bot *facebookBot) handleValidateWebhook(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if verifyToken != bot.metadata.Parameters[VerifyToken] {
+	if verifyToken != bot.definition.Parameters[VerifyToken] {
 		log.WithFields(log.Fields{
-			"expected": bot.metadata.Parameters[VerifyToken],
+			"expected": bot.definition.Parameters[VerifyToken],
 			"token":    verifyToken,
 		}).Info("Invalid verify token")
 		return

@@ -18,7 +18,7 @@ func (b *facebookBot) bindDefaultApiEndpoints() {
 
 // handleViewBot shows details about the bot
 func (b *facebookBot) handleViewBot(w http.ResponseWriter, r *http.Request) {
-	j, _ := json.Marshal(b.metadata)
+	j, _ := json.Marshal(b.definition)
 
 	w.Write(j)
 }
