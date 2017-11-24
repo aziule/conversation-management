@@ -10,13 +10,16 @@ import (
 
 	"github.com/aziule/conversation-management/app/facebook"
 	"github.com/aziule/conversation-management/core/bot"
+	"github.com/aziule/conversation-management/core/nlp"
 	fbApi "github.com/aziule/conversation-management/infrastructure/facebook/api"
 	"github.com/aziule/conversation-management/infrastructure/memory"
 	"github.com/aziule/conversation-management/infrastructure/mongo"
-	"github.com/aziule/conversation-management/infrastructure/wit"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 	log "github.com/sirupsen/logrus"
+
+	// Required for initialisation
+	_ "github.com/aziule/conversation-management/infrastructure/wit"
 )
 
 // app defines the main structure, holding information about
@@ -68,6 +71,12 @@ func Run(configFilePath string) {
 		botRepository: botRepository,
 	}
 
+	nlpParser, err := nlp.CreateParser("wit")
+
+	if err != nil {
+		log.Fatalf("An error occurred when creating the parser: %s", err)
+	}
+
 	for _, definition := range definitions {
 		var b bot.Bot
 
@@ -79,7 +88,7 @@ func Run(configFilePath string) {
 				&facebook.Config{
 					Definition:             definition,
 					FbApi:                  fbApi.NewfacebookApi(config.FbApiVersion, config.FbPageAccessToken, http.DefaultClient),
-					NlpParser:              wit.NewParser(),
+					NlpParser:              nlpParser,
 					ConversationRepository: mongo.NewConversationRepository(db),
 					StoryRepository:        memory.NewStoryRepository(),
 				},

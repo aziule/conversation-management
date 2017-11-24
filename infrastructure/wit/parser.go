@@ -35,6 +35,8 @@ func init() {
 	defaultDataTypeMap["nb_persons"] = nlp.DataTypeInt
 	defaultDataTypeMap["intent"] = nlp.DataTypeIntent
 	defaultDataTypeMap["datetime"] = nlp.DataTypeDateTime
+
+	nlp.RegisterParserBuilder("wit", NewParser)
 }
 
 // witParser is the NLP parser for Wit.
