@@ -36,17 +36,17 @@ func init() {
 	defaultDataTypeMap["intent"] = nlp.DataTypeIntent
 	defaultDataTypeMap["datetime"] = nlp.DataTypeDateTime
 
-	nlp.RegisterParserBuilder("wit", NewParser)
+	nlp.RegisterParserBuilder("wit", newParser)
 }
 
 // witParser is the NLP parser for Wit.
-// It implements the nlp.Parser interface
+// It implements the nlp.Parser interface.
 type witParser struct {
 	dataTypeMap nlp.DataTypeMap
 }
 
-// NewParser is the constructor method for witParser
-func NewParser() nlp.Parser {
+// newParser is the constructor method for witParser
+func newParser() nlp.Parser {
 	return &witParser{
 		dataTypeMap: defaultDataTypeMap,
 	}
