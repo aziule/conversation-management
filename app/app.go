@@ -22,7 +22,6 @@ import (
 // App defines the main structure, holding information about
 // what bot is running, public-facing API endpoints, etc.
 type App struct {
-	Api           *Api
 	Bots          []bot.Bot
 	botRepository bot.Repository
 }
@@ -65,10 +64,7 @@ func Run(configFilePath string) {
 	router := chi.NewRouter()
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 
-	api := NewApi(router)
-
 	app := &App{
-		Api:           api,
 		botRepository: botRepository,
 	}
 
@@ -96,21 +92,8 @@ func Run(configFilePath string) {
 		app.Bots = append(app.Bots, b)
 	}
 
-	api.RegisterApiEndpoints(
-		bot.NewApiEndpoint(
-			"GET",
-			"/bots",
-			app.handleListBots,
-		),
-		bot.NewApiEndpoint(
-			"POST",
-			"/bots",
-			app.handleCreateBot,
-		),
-	)
-
-	// Listen to each of the bot's webhooks and API endpoints
-	api.RegisterBotsEndpoints(app.Bots...)
+	// Mount the API
+	MountApi(router, app)
 
 	log.Debugf("Listening on port %d", config.ListeningPort)
 	http.ListenAndServe(":"+strconv.Itoa(config.ListeningPort), router)

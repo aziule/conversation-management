@@ -18,18 +18,41 @@ import (
 // - The private-facing API: bots management, metrics, etc.
 type Api struct {
 	router       *chi.Mux
+	App          *App
 	ApiEndpoints []*bot.ApiEndpoint
 	Webhooks     []*bot.Webhook
 }
 
-// NewApi is the constructor method for Api. The endpoints are not set
-// by default and must be registered using RegisterEndpoints
-func NewApi(router *chi.Mux) *Api {
-	return &Api{
+// NewApi is the constructor method for Api. The API endpoints
+// are set by default, but the bot's API endpoints are not
+func MountApi(router *chi.Mux, app *App) *Api {
+	api := &Api{
+		App:          app,
 		router:       router,
 		ApiEndpoints: nil,
 		Webhooks:     nil,
 	}
+
+	api.bindDefaultEndpoints()
+	api.RegisterBotsEndpoints(api.App.Bots...)
+
+	return api
+}
+
+// bindDefaultEndpoints binds the default API endpoints to the Api object
+func (api *Api) bindDefaultEndpoints() {
+	api.RegisterApiEndpoints(
+		bot.NewApiEndpoint(
+			"GET",
+			"/bots",
+			api.handleListBots,
+		),
+		bot.NewApiEndpoint(
+			"POST",
+			"/bots",
+			api.handleCreateBot,
+		),
+	)
 }
 
 // RegisterApiEndpoints registers a set of new API endpoints
@@ -81,10 +104,10 @@ func (api *Api) bind(method, path string, handler http.HandlerFunc) {
 }
 
 // handleListBots is the handler func that lists the available bots
-func (app *App) handleListBots(w http.ResponseWriter, r *http.Request) {
+func (api *Api) handleListBots(w http.ResponseWriter, r *http.Request) {
 	var metadatas []*bot.Metadata
 
-	for _, b := range app.Bots {
+	for _, b := range api.App.Bots {
 		metadatas = append(metadatas, b.Metadata())
 	}
 
@@ -94,7 +117,7 @@ func (app *App) handleListBots(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleCreateBot creates a new bot
-func (app *App) handleCreateBot(w http.ResponseWriter, r *http.Request) {
+func (api *Api) handleCreateBot(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
 	var metadata bot.Metadata
@@ -106,7 +129,7 @@ func (app *App) handleCreateBot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = app.botRepository.Save(&metadata)
+	err = api.App.botRepository.Save(&metadata)
 
 	if err != nil {
 		log.Errorf("Could not save the bot: %s", err)
