@@ -16,45 +16,25 @@ type facebookApi struct {
 	baseUrl         *url.URL
 }
 
-// @todo: move the conf to utils
 // newFacebookApi is the constructor that creates a new Facebook API, using
 // user-defined variables such as the FB API version or the pageAccessToken.
 func newFacebookApi(conf utils.BuilderConf) (api.FacebookApi, error) {
-	// @todo: move this conf parsing to utils
-	pageAccessTokenParam, ok := conf["page_access_token"]
+	pageAccessToken, ok := utils.GetParam(conf, "page_access_token").(string)
 
 	if !ok {
-		return nil, utils.ErrUndefinedParam("page_access_token")
+		return nil, utils.ErrInvalidOrMissingParam("page_access_token")
 	}
 
-	pageAccessToken, ok := pageAccessTokenParam.(string)
+	version, ok := utils.GetParam(conf, "version").(string)
 
 	if !ok {
-		return nil, utils.ErrInvalidParam("page_access_token")
+		return nil, utils.ErrInvalidOrMissingParam("version")
 	}
 
-	clientParam, ok := conf["client"]
+	client, ok := utils.GetParam(conf, "client").(*http.Client)
 
 	if !ok {
-		return nil, utils.ErrUndefinedParam("client")
-	}
-
-	client, ok := clientParam.(*http.Client)
-
-	if !ok {
-		return nil, utils.ErrInvalidParam("client")
-	}
-
-	versionParam, ok := conf["version"]
-
-	if !ok {
-		return nil, utils.ErrUndefinedParam("version")
-	}
-
-	version, ok := versionParam.(string)
-
-	if !ok {
-		return nil, utils.ErrInvalidParam("version")
+		return nil, utils.ErrInvalidOrMissingParam("client")
 	}
 
 	rawBaseUrl := "https://graph.facebook.com/v" + version

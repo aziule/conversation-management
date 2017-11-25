@@ -60,7 +60,7 @@ func (appApi *appApi) bindDefaultEndpoints() {
 // and binds them to the router.
 func (appApi *appApi) RegisterAppApiEndpoints(endpoints ...*bot.ApiEndpoint) {
 	for _, endpoint := range endpoints {
-		path := "/appApi" + endpoint.BasePath
+		path := "/api" + endpoint.BasePath
 		path = strings.TrimRight(path, "/")
 		endpoint.MountedPath = path
 		appApi.bind(endpoint.Method, path, endpoint.Handler)
@@ -74,7 +74,7 @@ func (appApi *appApi) RegisterAppApiEndpoints(endpoints ...*bot.ApiEndpoint) {
 func (appApi *appApi) RegisterBotsEndpoints(bots ...bot.Bot) {
 	for _, b := range bots {
 		for _, endpoint := range b.ApiEndpoints() {
-			path := "/appApi/bots/" + b.Definition().Slug + endpoint.BasePath
+			path := "/api/bots/" + b.Definition().Slug + endpoint.BasePath
 			path = strings.TrimRight(path, "/")
 			endpoint.MountedPath = path
 			appApi.bind(endpoint.Method, path, endpoint.Handler)
