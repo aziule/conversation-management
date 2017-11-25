@@ -20,16 +20,10 @@ type botRepository struct {
 
 // newBotRepository creates a new bot repository using MongoDb as the data source
 func newBotRepository(conf utils.BuilderConf) (bot.Repository, error) {
-	dbParam, ok := conf["db"]
+	db, ok := utils.GetParam(conf, "db").(*Db)
 
 	if !ok {
-		return nil, utils.ErrUndefinedParam("db")
-	}
-
-	db, ok := dbParam.(*Db)
-
-	if !ok {
-		return nil, utils.ErrInvalidParam("db")
+		return nil, utils.ErrInvalidOrMissingParam("db")
 	}
 
 	return &botRepository{
@@ -68,10 +62,10 @@ func (repository *botRepository) Save(definition *bot.Definition) error {
 		definition.Id = bson.NewObjectId()
 		definition.CreatedAt = time.Now()
 
-		log.WithField("definition", definition).Debugf("Inserting definition")
+		log.WithField("definition", definition).Info("Inserting definition")
 		err = collection.Insert(definition)
 	} else {
-		log.WithField("definition", definition).Debugf("Updating definition")
+		log.WithField("definition", definition).Info("Updating definition")
 		err = collection.UpdateId(definition.Id, definition)
 	}
 

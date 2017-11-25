@@ -4,11 +4,7 @@ import (
 	"errors"
 )
 
-var (
-	ErrUndefinedParam        = func(param string) error { return errors.New("Missing param: " + param) }
-	ErrInvalidParam          = func(param string) error { return errors.New("Invalid param type: " + param) }
-	ErrInvalidOrMissingParam = func(param string) error { return errors.New("Missing param or invalid param type: " + param) }
-)
+var ErrInvalidOrMissingParam = func(param string) error { return errors.New("Missing param or invalid param type: " + param) }
 
 // BuilderConf represents the base conf variable that is passed to any builder
 type BuilderConf map[string]interface{}
