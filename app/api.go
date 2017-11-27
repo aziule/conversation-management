@@ -53,6 +53,11 @@ func (appApi *appApi) bindDefaultEndpoints() {
 			"/bots",
 			appApi.handleCreateBot,
 		),
+		bot.NewApiEndpoint(
+			"GET",
+			"/intents",
+			appApi.handleListIntents,
+		),
 	)
 }
 
@@ -114,6 +119,7 @@ func (appApi *appApi) handleListBots(w http.ResponseWriter, r *http.Request) {
 
 	j, _ := json.Marshal(definitions)
 
+	// @todo: return a proper response
 	w.Write(j)
 }
 
@@ -140,6 +146,22 @@ func (appApi *appApi) handleCreateBot(w http.ResponseWriter, r *http.Request) {
 
 	j, _ := json.Marshal(definition)
 
-	// @todo: return an proper response
+	// @todo: return a proper response
+	w.Write(j)
+}
+
+// handleListIntents is the handler func that lists the available intents
+func (appApi *appApi) handleListIntents(w http.ResponseWriter, r *http.Request) {
+	intents, err := appApi.app.nlpRepository.GetIntents()
+
+	if err != nil {
+		log.Errorf("Could not get the intents: %s", err)
+		// @todo: return an error to the user
+		return
+	}
+
+	j, _ := json.Marshal(intents)
+
+	// @todo: return a proper response
 	w.Write(j)
 }

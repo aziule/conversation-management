@@ -29,6 +29,7 @@ import (
 type app struct {
 	Bots          []bot.Bot
 	botRepository bot.Repository
+	nlpRepository nlp.Repository
 }
 
 // Run starts the server and waits for interactions
@@ -96,18 +97,25 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when finding the bots list: %s", err)
 	}
 
-	router := chi.NewRouter()
-	router.Use(render.SetContentType(render.ContentTypeJSON))
-
-	app := &app{
-		botRepository: botRepository,
-	}
-
 	nlpParser, err := nlp.NewParser("wit")
 
 	if err != nil {
 		log.Fatalf("An error occurred when creating the parser: %s", err)
 	}
+
+	nlpRepository, err := nlp.NewRepository("wit")
+
+	if err != nil {
+		log.Fatalf("An error occurred when creating the repository: %s", err)
+	}
+
+	app := &app{
+		botRepository: botRepository,
+		nlpRepository: nlpRepository,
+	}
+
+	router := chi.NewRouter()
+	router.Use(render.SetContentType(render.ContentTypeJSON))
 
 	for _, definition := range definitions {
 		var b bot.Bot
