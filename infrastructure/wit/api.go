@@ -1,17 +1,31 @@
 package wit
 
-import "github.com/aziule/conversation-management/core/nlp"
+import (
+	"net/http"
 
-// witApi is the struct used to access data from WIT
+	"github.com/aziule/conversation-management/core/nlp"
+	"github.com/aziule/conversation-management/core/utils"
+)
+
+// witApi is the struct used to make calls to WIT
 type witApi struct {
+	client *http.Client
 }
 
-func newWitApi() nlp.Repository {
-	return &witApi{}
+// newWitApi creates a new witApi using the given conf
+func newWitApi(conf utils.BuilderConf) (nlp.Api, error) {
+	client, ok := utils.GetParam(conf, "client").(*http.Client)
+
+	if !ok {
+		return nil, utils.ErrInvalidOrMissingParam("client")
+	}
+
+	return &witApi{
+		client: client,
+	}, nil
 }
 
-// GetIntents is the method returning all of the available intents.
-// It is required in order to implement the nlp.Repository interface.
+// GetIntents gets the list of intents from WIT
 func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 	return []*nlp.Intent{
 		nlp.NewIntent("test"),
@@ -20,5 +34,5 @@ func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 }
 
 func init() {
-	nlp.RegisterRepositoryBuilder("wit", newWitApi)
+	nlp.RegisterApiBuilder("wit", newWitApi)
 }

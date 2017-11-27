@@ -103,7 +103,17 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when creating the parser: %s", err)
 	}
 
-	nlpRepository, err := nlp.NewRepository("wit")
+	nlpApi, err := nlp.NewApi("wit", map[string]interface{}{
+		"client": http.DefaultClient,
+	})
+
+	if err != nil {
+		log.Fatalf("An error occurred when creating the NLP API: %s", err)
+	}
+
+	nlpRepository, err := nlp.NewRepository("wit", map[string]interface{}{
+		"api": nlpApi,
+	})
 
 	if err != nil {
 		log.Fatalf("An error occurred when creating the repository: %s", err)
