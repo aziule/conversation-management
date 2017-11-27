@@ -82,7 +82,7 @@ func (appApi *appApi) RegisterBotsEndpoints(bots ...bot.Bot) {
 			appApi.AppApiEndpoints = append(appApi.AppApiEndpoints, endpoint)
 		}
 		for _, endpoint := range b.Webhooks() {
-			path := "/bots/" + b.Definition().Slug + "/webhooks" + endpoint.BasePath
+			path := "/api/bots/" + b.Definition().Slug + "/webhooks" + endpoint.BasePath
 			path = strings.TrimRight(path, "/")
 			endpoint.MountedPath = path
 			appApi.bind(endpoint.Method, path, endpoint.Handler)

@@ -52,7 +52,7 @@ func (c *ReceiveCommand) Execute(f *flag.FlagSet) error {
 	}
 
 	// For now, only ping localhost
-	url := "http://localhost:" + strconv.Itoa(config.ListeningPort) + "/bots/test-bot/webhooks"
+	url := "http://localhost:" + strconv.Itoa(config.ListeningPort) + "/api/bots/test-bot/webhooks"
 	request, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	client := http.DefaultClient
 	_, err = client.Do(request)
