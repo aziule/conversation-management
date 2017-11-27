@@ -18,7 +18,7 @@ type facebookApi struct {
 
 // newFacebookApi is the constructor that creates a new Facebook API, using
 // user-defined variables such as the FB API version or the pageAccessToken.
-func newFacebookApi(conf utils.BuilderConf) (api.FacebookApi, error) {
+func newFacebookApi(conf utils.BuilderConf) (interface{}, error) {
 	pageAccessToken, ok := utils.GetParam(conf, "page_access_token").(string)
 
 	if !ok {

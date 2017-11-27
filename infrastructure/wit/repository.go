@@ -11,7 +11,7 @@ type witRepository struct {
 }
 
 // newWitRepository instantiates a new witRepository using the given conf
-func newWitRepository(conf utils.BuilderConf) (nlp.Repository, error) {
+func newWitRepository(conf utils.BuilderConf) (interface{}, error) {
 	api, ok := utils.GetParam(conf, "api").(nlp.Api)
 
 	if !ok {

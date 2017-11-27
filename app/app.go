@@ -75,7 +75,7 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when creating the conversation repository: %s", err)
 	}
 
-	storyRepository, err := conversation.NewStoryRepository("memory")
+	storyRepository, err := conversation.NewStoryRepository("memory", nil)
 
 	if err != nil {
 		log.Fatalf("An error occurred when creating the story repository: %s", err)
@@ -97,7 +97,7 @@ func Run(configFilePath string) {
 		log.Fatalf("An error occurred when finding the bots list: %s", err)
 	}
 
-	nlpParser, err := nlp.NewParser("wit")
+	nlpParser, err := nlp.NewParser("wit", nil)
 
 	if err != nil {
 		log.Fatalf("An error occurred when creating the parser: %s", err)

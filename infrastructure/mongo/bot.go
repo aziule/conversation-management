@@ -19,7 +19,7 @@ type botRepository struct {
 }
 
 // newBotRepository creates a new bot repository using MongoDb as the data source
-func newBotRepository(conf utils.BuilderConf) (bot.Repository, error) {
+func newBotRepository(conf utils.BuilderConf) (interface{}, error) {
 	db, ok := utils.GetParam(conf, "db").(*Db)
 
 	if !ok {

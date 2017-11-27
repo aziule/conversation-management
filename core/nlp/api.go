@@ -1,40 +1,23 @@
 package nlp
 
 import (
-	"errors"
-
 	"github.com/aziule/conversation-management/core/utils"
-	log "github.com/sirupsen/logrus"
 )
 
-var (
-	ErrApiNotFound = errors.New("Api not found")
+const nlpApiBuilderPrefix = "nlp_api_"
 
-	// apiBuilders stores the available Api builders
-	apiBuilders = make(map[string]ApiBuilder)
-)
-
-// ApiBuilder is the interface describing a builder for Api
-type ApiBuilder func(conf utils.BuilderConf) (Api, error)
-
-// RegisterApiBuilder adds a new ApiBuilder to the list of available builders
-func RegisterApiBuilder(name string, builder ApiBuilder) {
-	_, registered := apiBuilders[name]
-
-	if registered {
-		log.WithField("name", name).Warning("ApiBuilder already registered, ignoring")
-	}
-
-	apiBuilders[name] = builder
+// RegisterRepositoryBuilder registers a new service builder using a package-level prefix
+func RegisterApiBuilder(name string, builder utils.ServiceBuilder) {
+	utils.RegisterServiceBuilder(nlpApiBuilderPrefix+name, builder)
 }
 
 // NewApi tries to create a Api using the available builders.
 // Returns ErrApiNotFound if the api builder isn't found.
 func NewApi(name string, conf utils.BuilderConf) (Api, error) {
-	apiBuilder, ok := apiBuilders[name]
+	apiBuilder, err := utils.GetServiceBuilder(nlpApiBuilderPrefix + name)
 
-	if !ok {
-		return nil, ErrApiNotFound
+	if err != nil {
+		return nil, err
 	}
 
 	api, err := apiBuilder(conf)
@@ -43,7 +26,7 @@ func NewApi(name string, conf utils.BuilderConf) (Api, error) {
 		return nil, err
 	}
 
-	return api, nil
+	return api.(Api), nil
 }
 
 // Api is the main interface used to get / store NLP data

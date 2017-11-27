@@ -1,42 +1,32 @@
 package nlp
 
 import (
-	"errors"
-
-	log "github.com/sirupsen/logrus"
+	"github.com/aziule/conversation-management/core/utils"
 )
 
-var (
-	ErrParserNotFound = errors.New("Parser not found")
+const nlpParserBuilderPrefix = "nlp_parser_"
 
-	// parserBuilders stores the available Parser builders
-	parserBuilders = make(map[string]ParserBuilder)
-)
-
-// ParserBuilder is the interface describing a builder for Parser
-type ParserBuilder func() Parser
-
-// RegisterParserBuilder adds a new ParserBuilder to the list of available builders
-func RegisterParserBuilder(name string, builder ParserBuilder) {
-	_, registered := parserBuilders[name]
-
-	if registered {
-		log.WithField("name", name).Warning("ParserBuilder already registered, ignoring")
-	}
-
-	parserBuilders[name] = builder
+// RegisterRepositoryBuilder registers a new service builder using a package-level prefix
+func RegisterParserBuilder(name string, builder utils.ServiceBuilder) {
+	utils.RegisterServiceBuilder(nlpParserBuilderPrefix+name, builder)
 }
 
 // NewParser tries to create a Parser using the available builders.
 // Returns ErrParserNotFound if the parser builder isn't found.
-func NewParser(name string) (Parser, error) {
-	parserBuilder, ok := parserBuilders[name]
+func NewParser(name string, conf utils.BuilderConf) (Parser, error) {
+	parserBuilder, err := utils.GetServiceBuilder(nlpParserBuilderPrefix + name)
 
-	if !ok {
-		return nil, ErrParserNotFound
+	if err != nil {
+		return nil, err
 	}
 
-	return parserBuilder(), nil
+	parser, err := parserBuilder(conf)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return parser.(Parser), nil
 }
 
 // Parser is the main interface for parsing raw data and returning parsed data

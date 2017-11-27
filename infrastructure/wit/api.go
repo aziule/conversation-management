@@ -13,7 +13,7 @@ type witApi struct {
 }
 
 // newWitApi creates a new witApi using the given conf
-func newWitApi(conf utils.BuilderConf) (nlp.Api, error) {
+func newWitApi(conf utils.BuilderConf) (interface{}, error) {
 	client, ok := utils.GetParam(conf, "client").(*http.Client)
 
 	if !ok {

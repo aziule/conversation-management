@@ -21,34 +21,23 @@ var (
 
 	ErrNotFound            = errors.New("Not found")
 	ErrCannotUnmarshalBson = errors.New("Can't unmarshal BSON")
-	ErrRepositoryNotFound  = errors.New("Repository not found")
-
-	// repositoryBuilders stores the available Repository builders
-	repositoryBuilders = make(map[string]RepositoryBuilder)
 )
 
-// RepositoryBuilder is the interface describing a builder for Repository
-type RepositoryBuilder func(conf utils.BuilderConf) (Repository, error)
+const conversationRepositoryBuilderPrefix = "conversation_repository_"
 
-// RegisterRepositoryBuilder adds a new RepositoryBuilder to the list of available builders
-func RegisterRepositoryBuilder(name string, builder RepositoryBuilder) {
-	_, registered := repositoryBuilders[name]
-
-	if registered {
-		log.WithField("name", name).Warning("RepositoryBuilder already registered, ignoring")
-	}
-
-	repositoryBuilders[name] = builder
+// RegisterRepositoryBuilder registers a new service builder using a package-level prefix
+func RegisterRepositoryBuilder(name string, builder utils.ServiceBuilder) {
+	utils.RegisterServiceBuilder(conversationRepositoryBuilderPrefix+name, builder)
 }
 
 // NewRepository tries to create a Repository using the available builders.
 // Returns ErrRepositoryNotFound if the repository builder isn't found.
 // Returns an error in case of any error during the build process.
 func NewRepository(name string, conf utils.BuilderConf) (Repository, error) {
-	repositoryBuilder, ok := repositoryBuilders[name]
+	repositoryBuilder, err := utils.GetServiceBuilder(conversationRepositoryBuilderPrefix + name)
 
-	if !ok {
-		return nil, ErrRepositoryNotFound
+	if err != nil {
+		return nil, err
 	}
 
 	repository, err := repositoryBuilder(conf)
@@ -57,7 +46,7 @@ func NewRepository(name string, conf utils.BuilderConf) (Repository, error) {
 		return nil, err
 	}
 
-	return repository, nil
+	return repository.(Repository), nil
 }
 
 // Handler is here to handle generic, conversation-related tasks.

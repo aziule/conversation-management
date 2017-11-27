@@ -3,6 +3,7 @@ package memory
 
 import (
 	"github.com/aziule/conversation-management/core/conversation"
+	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -13,8 +14,8 @@ var stories []*conversation.Story
 type inMemoryStoryRepository struct{}
 
 // NewStoryRepository instanciates a new in memory step repository
-func newStoryRepository() conversation.StoryRepository {
-	return &inMemoryStoryRepository{}
+func newStoryRepository(conf utils.BuilderConf) (interface{}, error) {
+	return &inMemoryStoryRepository{}, nil
 }
 
 // FindAll returns the full list of stories with the populated steps.

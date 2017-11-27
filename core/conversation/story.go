@@ -1,42 +1,32 @@
 package conversation
 
 import (
-	"errors"
-
-	log "github.com/sirupsen/logrus"
+	"github.com/aziule/conversation-management/core/utils"
 )
 
-var (
-	ErrStoryRepositoryNotFound = errors.New("StoryRepository not found")
+const storyRepositoryBuilderPrefix = "story_repository"
 
-	// storyRepositoryBuilders stores the available StoryRepository builders
-	storyRepositoryBuilders = make(map[string]StoryRepositoryBuilder)
-)
-
-// StoryRepositoryBuilder is the interface describing a builder for StoryRepository
-type StoryRepositoryBuilder func() StoryRepository
-
-// RegisterStoryRepositoryBuilder adds a new StoryRepositoryBuilder to the list of available builders
-func RegisterStoryRepositoryBuilder(name string, builder StoryRepositoryBuilder) {
-	_, registered := storyRepositoryBuilders[name]
-
-	if registered {
-		log.WithField("name", name).Warning("StoryRepositoryBuilder already registered, ignoring")
-	}
-
-	storyRepositoryBuilders[name] = builder
+// RegisterStoryRepositoryBuilder registers a new service builder using a package-level prefix
+func RegisterStoryRepositoryBuilder(name string, builder utils.ServiceBuilder) {
+	utils.RegisterServiceBuilder(storyRepositoryBuilderPrefix+name, builder)
 }
 
 // NewStoryRepository tries to create a StoryRepository using the available builders.
 // Returns ErrStoryRepositoryNotFound if the repository builder isn't found.
-func NewStoryRepository(name string) (StoryRepository, error) {
-	storyRepositoryBuilder, ok := storyRepositoryBuilders[name]
+func NewStoryRepository(name string, conf utils.BuilderConf) (StoryRepository, error) {
+	storyRepositoryBuilder, err := utils.GetServiceBuilder(storyRepositoryBuilderPrefix + name)
 
-	if !ok {
-		return nil, ErrStoryRepositoryNotFound
+	if err != nil {
+		return nil, err
 	}
 
-	return storyRepositoryBuilder(), nil
+	repository, err := storyRepositoryBuilder(conf)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return repository.(StoryRepository), nil
 }
 
 // StoryRepository is the repository responsible for fetching our stories

@@ -24,7 +24,7 @@ type conversationRepository struct {
 
 // @todo: give it a variable for the mapping between messages <=> facebook messages (implementation)
 // NewConversationRepository creates a new conversation repository using MongoDb as the data source
-func newConversationRepository(conf utils.BuilderConf) (conversation.Repository, error) {
+func newConversationRepository(conf utils.BuilderConf) (interface{}, error) {
 	db, ok := utils.GetParam(conf, "db").(*Db)
 
 	if !ok {

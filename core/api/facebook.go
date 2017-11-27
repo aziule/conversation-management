@@ -1,43 +1,27 @@
 package api
 
 import (
-	"errors"
 	"net/http"
 	"time"
 
 	"github.com/aziule/conversation-management/core/utils"
-	log "github.com/sirupsen/logrus"
 )
 
-var (
-	ErrFacebookApiNotFound = errors.New("Facebook API not found")
+const builderPrefix = "api_"
 
-	// facebookApiBuilders stores the available FacebookApi builders
-	facebookApiBuilders = make(map[string]FacebookApiBuilder)
-)
-
-// FacebookApiBuilder is the interface describing a builder for FacebookApi
-type FacebookApiBuilder func(conf utils.BuilderConf) (FacebookApi, error)
-
-// RegisterFacebookApiBuilder adds a new FacebookApiBuilder to the list of available builders
-func RegisterFacebookApiBuilder(name string, builder FacebookApiBuilder) {
-	_, registered := facebookApiBuilders[name]
-
-	if registered {
-		log.WithField("name", name).Warning("FacebookApiBuilder already registered, ignoring")
-	}
-
-	facebookApiBuilders[name] = builder
+// RegisterFacebookApiBuilder registers a new service builder
+func RegisterFacebookApiBuilder(name string, builder utils.ServiceBuilder) {
+	utils.RegisterServiceBuilder(builderPrefix+name, builder)
 }
 
 // NewFacebookApi tries to create a FacebookApi using the available builders.
 // Returns ErrFacebookApiNotFound if the facebookApi builder isn't found.
 // Returns an error in case of any error during the build process.
 func NewFacebookApi(name string, conf utils.BuilderConf) (FacebookApi, error) {
-	facebookApiBuilder, ok := facebookApiBuilders[name]
+	facebookApiBuilder, err := utils.GetServiceBuilder(builderPrefix + name)
 
-	if !ok {
-		return nil, ErrFacebookApiNotFound
+	if err != nil {
+		return nil, err
 	}
 
 	facebookApi, err := facebookApiBuilder(conf)
@@ -46,7 +30,7 @@ func NewFacebookApi(name string, conf utils.BuilderConf) (FacebookApi, error) {
 		return nil, err
 	}
 
-	return facebookApi, nil
+	return facebookApi.(FacebookApi), nil
 }
 
 // FacebookApi is the interface representing a Facebook API

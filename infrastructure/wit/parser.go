@@ -46,10 +46,10 @@ type witParser struct {
 }
 
 // newParser is the constructor method for witParser
-func newParser() nlp.Parser {
+func newParser(conf utils.BuilderConf) (interface{}, error) {
 	return &witParser{
 		dataTypeMap: defaultDataTypeMap,
-	}
+	}, nil
 }
 
 // ParseNlpData parses raw data and returns parsed data
