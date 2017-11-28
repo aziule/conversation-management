@@ -7,7 +7,9 @@ import (
 	"github.com/aziule/conversation-management/core/utils"
 )
 
-// witApi is the struct used to make calls to WIT
+const baseUrl = "http://api.wit.ai"
+
+// witApi is the struct used to make calls to Wit
 type witApi struct {
 	client *http.Client
 }
@@ -25,11 +27,10 @@ func newWitApi(conf utils.BuilderConf) (interface{}, error) {
 	}, nil
 }
 
-// GetIntents gets the list of intents from WIT
-func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
-	return []*nlp.Intent{
-		nlp.NewIntent("test"),
-		nlp.NewIntent("test2"),
+// GetEntities gets the list of entities from Wit
+func (api *witApi) GetEntities() ([]nlp.Entity, error) {
+	return []nlp.Entity{
+		nlp.NewIntEntity("test", 0, 123),
 	}, nil
 }
 

@@ -1,4 +1,4 @@
-// Package wit implements NLP objects using WIT as the datasource.
+// Package wit implements NLP objects using Wit as the datasource.
 package wit
 
 import (

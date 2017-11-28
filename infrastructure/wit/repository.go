@@ -5,7 +5,7 @@ import (
 	"github.com/aziule/conversation-management/core/utils"
 )
 
-// witRepository is the struct used to access data from WIT
+// witRepository is the struct used to access data from Wit
 type witRepository struct {
 	api nlp.Api
 }
@@ -26,7 +26,14 @@ func newWitRepository(conf utils.BuilderConf) (interface{}, error) {
 // GetIntents is the method returning all of the available intents.
 // It is required in order to implement the nlp.Repository interface.
 func (repository *witRepository) GetIntents() ([]*nlp.Intent, error) {
-	return repository.api.GetIntents()
+	entities, err := repository.api.GetEntities()
+
+	if err != nil {
+		// @todo: log
+		return nil, err
+	}
+
+	return entities, nil
 }
 
 func init() {
