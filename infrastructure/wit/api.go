@@ -28,9 +28,12 @@ func newWitApi(conf utils.BuilderConf) (interface{}, error) {
 }
 
 // GetEntities gets the list of entities from Wit
-func (api *witApi) GetEntities() ([]nlp.Entity, error) {
-	return []nlp.Entity{
-		nlp.NewIntEntity("test", 0, 123),
+func (api *witApi) GetEntities() ([]*nlp.Entity, error) {
+	return []*nlp.Entity{
+		&nlp.Entity{
+			Name: "test",
+			Type: nlp.IntEntity,
+		},
 	}, nil
 }
 

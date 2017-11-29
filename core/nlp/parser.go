@@ -6,6 +6,16 @@ import (
 
 const nlpParserBuilderPrefix = "nlp_parser_"
 
+type ParsedIntent struct {
+	Intent     *Intent
+	Confidence float32
+}
+
+type ParsedIntEntity struct {
+	Entity     *Entity
+	Confidence float32
+}
+
 // RegisterRepositoryBuilder registers a new service builder using a package-level prefix
 func RegisterParserBuilder(name string, builder utils.ServiceBuilder) {
 	utils.RegisterServiceBuilder(nlpParserBuilderPrefix+name, builder)
@@ -36,23 +46,24 @@ type Parser interface {
 
 // ParsedData represents intents and entities as understood after using NLP services
 type ParsedData struct {
-	Intent   *Intent           `bson:"intent"`
-	Entities []*EntityWithType `bson:"entities"`
+	Intent   *ParsedIntent   `bson:"intent"`
+	Entities []*ParsedEntity `bson:"entities"`
 }
 
 // NewParsedData is the constructor method for ParsedData
-func NewParsedData(intent *Intent, entities []Entity) *ParsedData {
-	var entitiesWithType []*EntityWithType
-
-	for _, e := range entities {
-		entitiesWithType = append(entitiesWithType, &EntityWithType{
-			Type:   e.Type(),
-			Entity: e,
-		})
-	}
-
-	return &ParsedData{
-		Intent:   intent,
-		Entities: entitiesWithType,
-	}
+func NewParsedData(intent *ParsedIntent, entities []*ParsedEntity) *ParsedData {
+	return nil
+	//var entitiesWithType []*EntityWithType
+	//
+	//for _, e := range entities {
+	//	entitiesWithType = append(entitiesWithType, &EntityWithType{
+	//		Type:   e.Type(),
+	//		Entity: e,
+	//	})
+	//}
+	//
+	//return &ParsedData{
+	//	Intent:   intent,
+	//	Entities: entitiesWithType,
+	//}
 }
