@@ -2,18 +2,38 @@ package nlp
 
 import (
 	"github.com/aziule/conversation-management/core/utils"
+	"time"
 )
 
 const nlpParserBuilderPrefix = "nlp_parser_"
 
+// DateTimeGranularity represents the available date time granularity
+// for a given time value.
+type DateTimeGranularity string
+
+// ParsedIntent represents an intent parsed from any given sentence
 type ParsedIntent struct {
-	Intent     *Intent
-	Confidence float32
+	Intent     *Intent `json:",inline"`
+	Confidence float32 `json:"confidence"`
 }
 
-type ParsedIntEntity struct {
-	Entity     *Entity
-	Confidence float32
+// ParsedEntity represents an entity parsed from any given sentence.
+// As there may be any kind of entities, we use an interface to store the
+// entities' formatted data.
+type ParsedEntity struct {
+	Entity     *Entity     `json:",inline"`
+	Confidence float32     `json:"confidence"`
+	Data       interface{} `json:"data"`
+}
+
+type parsedSingleDateTime struct {
+	Date        time.Time
+	Granularity DateTimeGranularity
+}
+
+type parsedDateTimeInterval struct {
+	From *parsedSingleDateTime
+	To   *parsedSingleDateTime
 }
 
 // RegisterRepositoryBuilder registers a new service builder using a package-level prefix
@@ -48,6 +68,48 @@ type Parser interface {
 type ParsedData struct {
 	Intent   *ParsedIntent   `bson:"intent"`
 	Entities []*ParsedEntity `bson:"entities"`
+}
+
+func NewParsedIntent(name string) *ParsedIntent {
+	return &ParsedIntent{
+		Intent: NewIntent(name),
+	}
+}
+
+func NewParsedIntEntity(name string, confidence float32, value int) *ParsedEntity {
+	return &ParsedEntity{
+		Entity:     NewIntEntity(name),
+		Confidence: confidence,
+		Data:       value,
+	}
+}
+
+func NewParsedSingleDateTimeEntity(name string, confidence float32, date time.Time, granularity DateTimeGranularity) *ParsedEntity {
+	return &ParsedEntity{
+		Entity:     NewSingleDateTimeEntity(name),
+		Confidence: confidence,
+		Data: &parsedSingleDateTime{
+			Date:        date,
+			Granularity: granularity,
+		},
+	}
+}
+
+func NewParsedDateTimeIntervalEntity(name string, confidence float32, fromDate, toDate time.Time, fromGran, toGran DateTimeGranularity) *ParsedEntity {
+	return &ParsedEntity{
+		Entity:     NewDateTimeIntervalEntity(name),
+		Confidence: confidence,
+		Data: &parsedDateTimeInterval{
+			From: &parsedSingleDateTime{
+				Date:        fromDate,
+				Granularity: fromGran,
+			},
+			To: &parsedSingleDateTime{
+				Date:        toDate,
+				Granularity: toGran,
+			},
+		},
+	}
 }
 
 // NewParsedData is the constructor method for ParsedData

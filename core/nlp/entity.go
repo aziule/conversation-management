@@ -1,10 +1,6 @@
 // Package nlp provides objects to store, handle and manipulate NLP data.
 package nlp
 
-// DateTimeGranularity represents the available date time granularity
-// for a given time value.
-type DateTimeGranularity string
-
 // DataTypeMap maps a data type from the entity name to its data type
 type DataTypeMap map[string]EntityType
 
@@ -16,14 +12,37 @@ const (
 	GranularityHour DateTimeGranularity = "hour"
 	GranularityDay  DateTimeGranularity = "day"
 
-	IntEntity      EntityType = "int"
-	DateTimeEntity EntityType = "datetime"
+	IntentEntity           EntityType = "intent"
+	IntEntity              EntityType = "int"
+	SingleDateTimeEntity   EntityType = "datetime"
+	DateTimeIntervalEntity EntityType = "datetime"
 )
 
 // Entity is the struct that represents a base entity
 type Entity struct {
 	Name string     `bson:"name"`
 	Type EntityType `bson:"type"`
+}
+
+func NewIntEntity(name string) *Entity {
+	return &Entity{
+		Name: name,
+		Type: IntEntity,
+	}
+}
+
+func NewDateTimeIntervalEntity(name string) *Entity {
+	return &Entity{
+		Name: name,
+		Type: DateTimeIntervalEntity,
+	}
+}
+
+func NewSingleDateTimeEntity(name string) *Entity {
+	return &Entity{
+		Name: name,
+		Type: SingleDateTimeEntity,
+	}
 }
 
 //// SetBSON converts the EntityWithType's entity, of type interface, to the corresponding Entity struct.

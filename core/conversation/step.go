@@ -87,7 +87,7 @@ func NewStepHandler(processMap StepsProcessMap) *StepHandler {
 // @todo: needs testing
 func (h *StepHandler) CanStepIn(step *Step, data *nlp.ParsedData) bool {
 	// Case 1: NLP data provides an intent but it's not the same name
-	if data.Intent != nil && step.ExpectedIntent != data.Intent.Name {
+	if data.Intent != nil && step.ExpectedIntent != data.Intent.Intent.Name {
 		return false
 	}
 
@@ -101,7 +101,7 @@ func (h *StepHandler) CanStepIn(step *Step, data *nlp.ParsedData) bool {
 			hasEntity := false
 
 			for _, providedEntity := range data.Entities {
-				if providedEntity.Entity.Name() == expectedEntity {
+				if providedEntity.Entity.Name == expectedEntity {
 					hasEntity = true
 					log.Debugf("Has entity: %s", expectedEntity)
 				}

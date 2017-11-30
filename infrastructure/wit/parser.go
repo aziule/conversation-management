@@ -32,9 +32,9 @@ var (
 
 func init() {
 	defaultDataTypeMap = make(nlp.DataTypeMap)
-	defaultDataTypeMap["nb_persons"] = nlp.DataTypeInt
-	defaultDataTypeMap["intent"] = nlp.DataTypeIntent
-	defaultDataTypeMap["datetime"] = nlp.DataTypeDateTime
+	defaultDataTypeMap["nb_persons"] = nlp.IntEntity
+	defaultDataTypeMap["intent"] = nlp.IntentEntity
+	defaultDataTypeMap["datetime"] = nlp.DateTimeEntity
 
 	nlp.RegisterParserBuilder("wit", newParser)
 }
@@ -54,8 +54,8 @@ func newParser(conf utils.BuilderConf) (interface{}, error) {
 
 // ParseNlpData parses raw data and returns parsed data
 func (parser *witParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
-	var intent *nlp.Intent
-	var entities []nlp.Entity
+	var intent *nlp.ParsedIntent
+	var entities []*nlp.ParsedEntity
 
 	data, err := jason.NewObjectFromBytes(rawData)
 
@@ -73,7 +73,7 @@ func (parser *witParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
 		}
 
 		switch dataType {
-		case nlp.DataTypeIntent:
+		case nlp.IntentEntity:
 			i, err := toIntent(value)
 
 			if err != nil {
@@ -104,7 +104,7 @@ func (parser *witParser) ParseNlpData(rawData []byte) (*nlp.ParsedData, error) {
 
 // toIntent converts a jason intent to a built-in NLP representation of an intent
 // Returns an error if the JSON is malformed
-func toIntent(value *jason.Value) (*nlp.Intent, error) {
+func toIntent(value *jason.Value) (*nlp.ParsedIntent, error) {
 	object, err := value.ObjectArray()
 
 	if err != nil {
@@ -118,12 +118,12 @@ func toIntent(value *jason.Value) (*nlp.Intent, error) {
 		return nil, ErrMissingKey("value")
 	}
 
-	return nlp.NewIntent(intentName), nil
+	return nlp.NewParsedIntent(intentName), nil
 }
 
 // toEntity converts a jason entity to a built-in NLP representation of an entity
 // Returns an error if the JSON is malformed or if we do not handle the data type correctly
-func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entity, error) {
+func toEntity(value *jason.Value, name string, dataType nlp.EntityType) (*nlp.ParsedEntity, error) {
 	object, err := value.ObjectArray()
 
 	if err != nil {
@@ -138,15 +138,15 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 		}
 
 		switch dataType {
-		case nlp.DataTypeInt:
+		case nlp.IntEntity:
 			value, err := e.GetInt64("value")
 
 			if err != nil {
 				return nil, ErrCouldNotCastValue("value", "int64")
 			}
 
-			return nlp.NewIntEntity(name, float32(confidence), int(value)), nil
-		case nlp.DataTypeDateTime:
+			return nlp.NewParsedIntEntity(name, float32(confidence), int(value)), nil
+		case nlp.DateTimeEntity:
 			_, err := e.GetString("value")
 
 			if err != nil {
@@ -175,7 +175,7 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 					return nil, err
 				}
 
-				return nlp.NewIntervalDateTimeEntity(
+				return nlp.NewParsedDateTimeIntervalEntity(
 					name,
 					float32(confidence),
 					fromTime,
@@ -191,7 +191,7 @@ func toEntity(value *jason.Value, name string, dataType nlp.DataType) (nlp.Entit
 				return nil, err
 			}
 
-			return nlp.NewSingleDateTimeEntity(name, float32(confidence), t, granularity), nil
+			return nlp.NewParsedSingleDateTimeEntity(name, float32(confidence), t, granularity), nil
 		}
 	}
 
