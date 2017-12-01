@@ -1,12 +1,12 @@
 package wit
 
 import (
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 
-	"encoding/json"
 	"github.com/aziule/conversation-management/core/nlp"
 	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
@@ -47,13 +47,15 @@ func newWitApi(conf utils.BuilderConf) (interface{}, error) {
 
 // GetIntents gets the list of intents from Wit
 func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
-	u := api.getIntentsUrl()
-
-	request, err := http.NewRequest("GET", u.String(), nil)
+	specs := utils.NewRequestSpecifications()
+	specs.WithMethod("GET")
+	specs.WithUrl(api.getIntentsUrl())
+	specs.WithAuthorisationHeader("Bearer " + api.bearerToken)
+	request, err := utils.NewRequest(specs)
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"url": u.String(),
+			"url": request.URL.String(),
 		}).Infof("Could not create a new request: %s", err)
 		// @todo: return a proper error
 		return nil, err
