@@ -1,6 +1,7 @@
 package wit
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -10,6 +11,8 @@ import (
 	"github.com/aziule/conversation-management/core/utils"
 	log "github.com/sirupsen/logrus"
 )
+
+var ErrApiErr = errors.New("API error")
 
 // witApi is the struct used to make calls to Wit
 type witApi struct {
@@ -52,6 +55,7 @@ func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 		log.WithFields(log.Fields{
 			"url": u.String(),
 		}).Infof("Could not create a new request: %s", err)
+		// @todo: return a proper error
 		return nil, err
 	}
 
@@ -72,6 +76,11 @@ func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 	if err != nil {
 		log.Infof("Failed to read the response's body: %s", err)
 		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		log.WithField("code", response.StatusCode).Info("API returned a non-200 code")
+		return nil, ErrApiErr
 	}
 
 	type intentsEnvelope struct {
