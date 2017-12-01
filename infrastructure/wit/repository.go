@@ -33,7 +33,15 @@ func (repository *witRepository) GetIntents() ([]*nlp.Intent, error) {
 		return nil, err
 	}
 
-	return entities, nil
+	intents := []*nlp.Intent{}
+
+	for _, entity := range entities {
+		if entity.Type == nlp.IntentEntity {
+			intents = append(intents, nlp.NewIntent(entity.Name))
+		}
+	}
+
+	return intents, nil
 }
 
 func init() {

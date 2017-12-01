@@ -14,6 +14,7 @@ const (
 
 	IntentEntity           EntityType = "intent"
 	IntEntity              EntityType = "int"
+	DateTimeEntity         EntityType = "datetime"
 	SingleDateTimeEntity   EntityType = "datetime"
 	DateTimeIntervalEntity EntityType = "datetime"
 )
