@@ -12,6 +12,7 @@ const (
 	GranularityHour DateTimeGranularity = "hour"
 	GranularityDay  DateTimeGranularity = "day"
 
+	// @todo: add an UnknownEntity type?
 	IntentEntity           EntityType = "intent"
 	IntEntity              EntityType = "int"
 	DateTimeEntity         EntityType = "datetime"
@@ -25,6 +26,7 @@ type Entity struct {
 	Type EntityType `bson:"type"`
 }
 
+// NewIntEntity creates a new entity of type Int
 func NewIntEntity(name string) *Entity {
 	return &Entity{
 		Name: name,
@@ -32,6 +34,7 @@ func NewIntEntity(name string) *Entity {
 	}
 }
 
+// NewDateTimeIntervalEntity creates a new entity of type DateTimeInterval
 func NewDateTimeIntervalEntity(name string) *Entity {
 	return &Entity{
 		Name: name,
@@ -39,6 +42,7 @@ func NewDateTimeIntervalEntity(name string) *Entity {
 	}
 }
 
+// NewSingleDateTimeEntity creates a new entity of type SingleDateTime
 func NewSingleDateTimeEntity(name string) *Entity {
 	return &Entity{
 		Name: name,

@@ -32,4 +32,5 @@ func NewRepository(name string, conf utils.BuilderConf) (Repository, error) {
 // Repository is the main interface used to get / store NLP data
 type Repository interface {
 	GetIntents() ([]*Intent, error)
+	GetEntities() ([]*Entity, error)
 }

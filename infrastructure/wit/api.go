@@ -76,7 +76,7 @@ func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
-		log.Infof("Failed to read the response's body: %s", err)
+		log.Infof("Failed to read the response body: %s", err)
 		return nil, err
 	}
 
@@ -96,7 +96,7 @@ func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 	err = json.Unmarshal(body, &witIntents)
 
 	if err != nil {
-		log.Infof("Failed to unmarshal the response's body: %s", err)
+		log.Infof("Failed to unmarshal the response body: %s", err)
 		return nil, err
 	}
 
@@ -107,6 +107,68 @@ func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 	}
 
 	return intents, nil
+}
+
+// GetEntities gets the list of entities from Wit
+func (api *witApi) GetEntities() ([]*nlp.Entity, error) {
+	specs := utils.NewRequestSpecifications()
+	specs.WithMethod("GET")
+	specs.WithUrl(api.getEntitiesUrl())
+	specs.WithAuthorisationHeader("Bearer " + api.bearerToken)
+	request, err := utils.NewRequest(specs)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"url": request.URL.String(),
+		}).Infof("Could not create a new request: %s", err)
+		// @todo: return a proper error
+		return nil, err
+	}
+
+	request.Header.Set("Authorization", "Bearer "+api.bearerToken)
+
+	client := http.DefaultClient
+	response, err := client.Do(request)
+
+	if err != nil {
+		log.Infof("Failed to send the request: %s", err)
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		log.Infof("Failed to read the response body: %s", err)
+		return nil, err
+	}
+
+	if response.StatusCode != 200 {
+		log.WithField("code", response.StatusCode).Info("API returned a non-200 code")
+		return nil, ErrApiErr
+	}
+
+	var witEntities []string
+	err = json.Unmarshal(body, &witEntities)
+
+	if err != nil {
+		log.Infof("Failed to unmarshal the response body: %s", err)
+		return nil, err
+	}
+
+	entities := []*nlp.Entity{}
+
+	for _, witEntity := range witEntities {
+		// @todo: find a better way to exclude the "intent" entity
+		if witEntity == "intent" {
+			continue
+		}
+
+		entities = append(entities, &nlp.Entity{Name: witEntity})
+	}
+
+	return entities, nil
 }
 
 // @todo: store it and avoid recreating it every time
@@ -120,6 +182,8 @@ func (api *witApi) getEntitiesUrl() *url.URL {
 // @todo: store it and avoid recreating it every time
 // getSendTextUrl returns the url to ping to send text messages to a user
 func (api *witApi) getIntentsUrl() *url.URL {
+	// @todo: find a better way to access the "intent" entity => use
+	// the default data type map?
 	u, _ := url.Parse(api.baseUrl.String() + "/entities/intent")
 
 	return u

@@ -58,6 +58,11 @@ func (appApi *appApi) bindDefaultEndpoints() {
 			"/intents",
 			appApi.handleListIntents,
 		),
+		bot.NewApiEndpoint(
+			"GET",
+			"/entities",
+			appApi.handleListEntities,
+		),
 	)
 }
 
@@ -161,6 +166,22 @@ func (appApi *appApi) handleListIntents(w http.ResponseWriter, r *http.Request) 
 	}
 
 	j, _ := json.Marshal(intents)
+
+	// @todo: return a proper response
+	w.Write(j)
+}
+
+// handleListEntities is the handler func that lists the available entities
+func (appApi *appApi) handleListEntities(w http.ResponseWriter, r *http.Request) {
+	entities, err := appApi.app.nlpRepository.GetEntities()
+
+	if err != nil {
+		log.Errorf("Could not get the entities: %s", err)
+		// @todo: return an error to the user
+		return
+	}
+
+	j, _ := json.Marshal(entities)
 
 	// @todo: return a proper response
 	w.Write(j)

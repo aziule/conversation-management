@@ -55,7 +55,7 @@ func (api *facebookApi) SendTextToUser(recipientId, text string) error {
 	body, err := ioutil.ReadAll(response.Body)
 
 	if err != nil {
-		log.Infof("Failed to read the response's body: %s", err)
+		log.Infof("Failed to read the response body: %s", err)
 		return err
 	}
 
