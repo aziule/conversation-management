@@ -46,6 +46,7 @@ func (specs *requestSpecifications) WithAuthorisationHeader(authorisation string
 }
 
 // NewRequest creates a new request based on a set of specifications
+// @todo: use this everywhere instead of http.NewRequest
 func NewRequest(specs *requestSpecifications) (*http.Request, error) {
 	request, err := http.NewRequest(specs.Method, specs.Url.String(), nil)
 

@@ -9,8 +9,6 @@ import (
 	"github.com/aziule/conversation-management/core/utils"
 )
 
-var ErrApiErr = errors.New("API error")
-
 // witApi is the struct used to make calls to Wit
 type witApi struct {
 	client      *http.Client

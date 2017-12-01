@@ -1,4 +1,5 @@
-// Package utils provides useful methods for data manipulation and parsing.
+// Package utils provides useful methods for data manipulation, services instantiation,
+// data parsing and HTTP requests manipulation.
 package utils
 
 import (
