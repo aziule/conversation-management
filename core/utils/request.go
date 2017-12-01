@@ -1,12 +1,19 @@
 package utils
 
 import (
+	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	log "github.com/sirupsen/logrus"
 )
 
-var ErrCouldNotCreateRequest = errors.New("Could not create the request")
+var (
+	ErrCouldNotCreateRequest = errors.New("Could not create the request")
+	ErrInvalidStatusCode     = errors.New("Invalid status code returned")
+)
 
 // requestSpecifications represents specifications that can be used to create an http.Request
 type requestSpecifications struct {
@@ -51,4 +58,49 @@ func NewRequest(specs *requestSpecifications) (*http.Request, error) {
 	}
 
 	return request, nil
+}
+
+// ParseJsonFromRequest parses a request, crafted using specifications, and stores
+// the result inside the provided envelope.
+func ParseJsonFromRequest(specs *requestSpecifications, envelope interface{}) error {
+	request, err := NewRequest(specs)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"url": request.URL.String(),
+		}).Infof("Could not create a new request: %s", err)
+		// @todo: return a proper error
+		return err
+	}
+
+	client := http.DefaultClient
+	response, err := client.Do(request)
+
+	if err != nil {
+		log.Infof("Failed to send the request: %s", err)
+		return err
+	}
+
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+
+	if err != nil {
+		log.Infof("Failed to read the response body: %s", err)
+		return err
+	}
+
+	if response.StatusCode != 200 {
+		log.WithField("code", response.StatusCode).Info("API returned a non-200 code")
+		return ErrInvalidStatusCode
+	}
+
+	err = json.Unmarshal(body, envelope)
+
+	if err != nil {
+		log.Infof("Failed to unmarshal the response body: %s", err)
+		return err
+	}
+
+	return nil
 }

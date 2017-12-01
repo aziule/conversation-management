@@ -1,15 +1,12 @@
 package wit
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/aziule/conversation-management/core/nlp"
 	"github.com/aziule/conversation-management/core/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 var ErrApiErr = errors.New("API error")
@@ -46,6 +43,8 @@ func newWitApi(conf utils.BuilderConf) (interface{}, error) {
 }
 
 // GetIntents gets the list of intents from Wit
+// @todo: make the API return api-specific objects instead of domain objects,
+// and put the logic inside the repository.
 func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 	type envelope struct {
 		Values []struct {
@@ -73,6 +72,8 @@ func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 }
 
 // GetEntities gets the list of entities from Wit
+// @todo: make the API return api-specific objects instead of domain objects,
+// and put the logic inside the repository.
 func (api *witApi) GetEntities() ([]*nlp.Entity, error) {
 	var envelope []string
 	err := api.callApi("GET", api.getEntitiesUrl(), &envelope)
@@ -104,48 +105,8 @@ func (api *witApi) callApi(method string, u *url.URL, envelope interface{}) erro
 	specs.WithMethod(method)
 	specs.WithUrl(u)
 	specs.WithAuthorisationHeader("Bearer " + api.bearerToken)
-	request, err := utils.NewRequest(specs)
 
-	if err != nil {
-		log.WithFields(log.Fields{
-			"url": request.URL.String(),
-		}).Infof("Could not create a new request: %s", err)
-		// @todo: return a proper error
-		return err
-	}
-
-	request.Header.Set("Authorization", "Bearer "+api.bearerToken)
-
-	client := http.DefaultClient
-	response, err := client.Do(request)
-
-	if err != nil {
-		log.Infof("Failed to send the request: %s", err)
-		return err
-	}
-
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-
-	if err != nil {
-		log.Infof("Failed to read the response body: %s", err)
-		return err
-	}
-
-	if response.StatusCode != 200 {
-		log.WithField("code", response.StatusCode).Info("API returned a non-200 code")
-		return ErrApiErr
-	}
-
-	err = json.Unmarshal(body, envelope)
-
-	if err != nil {
-		log.Infof("Failed to unmarshal the response body: %s", err)
-		return err
-	}
-
-	return nil
+	return utils.ParseJsonFromRequest(specs, envelope)
 }
 
 // @todo: store it and avoid recreating it every time
