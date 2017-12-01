@@ -31,7 +31,6 @@ func (api *facebookApi) SendTextToUser(recipientId, text string) error {
 	}
 
 	request, err := http.NewRequest("POST", url.String(), bytes.NewBuffer(jsonObject))
-	request.Header.Set("Content-Type", "application/json")
 
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -40,6 +39,8 @@ func (api *facebookApi) SendTextToUser(recipientId, text string) error {
 		}).Infof("Could not create a new request: %s", err)
 		return err
 	}
+
+	request.Header.Set("Content-Type", "application/json")
 
 	client := http.DefaultClient
 	response, err := client.Do(request)
@@ -55,6 +56,7 @@ func (api *facebookApi) SendTextToUser(recipientId, text string) error {
 
 	if err != nil {
 		log.Infof("Failed to read the response's body: %s", err)
+		return err
 	}
 
 	// @todo: handle errors

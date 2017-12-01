@@ -104,7 +104,8 @@ func Run(configFilePath string) {
 	}
 
 	nlpApi, err := nlp.NewApi("wit", map[string]interface{}{
-		"client": http.DefaultClient,
+		"client":       http.DefaultClient,
+		"bearer_token": config.WitBearerToken,
 	})
 
 	if err != nil {

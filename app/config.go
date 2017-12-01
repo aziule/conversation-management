@@ -16,6 +16,7 @@ type Config struct {
 	DbName            string `json:"db_name"`
 	DbUser            string `json:"db_user"`
 	DbPass            string `json:"db_pass"`
+	WitBearerToken    string `json:"wit_bearer_token"` // @todo: move it to the DB (bot's config)
 }
 
 // LoadConfig loads the configuration located at the given path

@@ -7,5 +7,6 @@
     "db_name": "rt_conv_mgmt",
     "db_host": "localhost:27017",
     "db_user": "",
-    "db_pass": ""
+    "db_pass": "",
+    "wit_bearer_token": "Y7RX7UA7SJFWD3UPDJUKOCFIZEVKX7SV"
 }

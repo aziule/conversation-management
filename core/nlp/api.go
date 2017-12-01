@@ -31,5 +31,5 @@ func NewApi(name string, conf utils.BuilderConf) (Api, error) {
 
 // Api is the main interface used to get / store NLP data
 type Api interface {
-	GetEntities() ([]*Entity, error)
+	GetIntents() ([]*Intent, error)
 }

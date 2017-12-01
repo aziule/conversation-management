@@ -26,19 +26,11 @@ func newWitRepository(conf utils.BuilderConf) (interface{}, error) {
 // GetIntents is the method returning all of the available intents.
 // It is required in order to implement the nlp.Repository interface.
 func (repository *witRepository) GetIntents() ([]*nlp.Intent, error) {
-	entities, err := repository.api.GetEntities()
+	intents, err := repository.api.GetIntents()
 
 	if err != nil {
 		// @todo: log
 		return nil, err
-	}
-
-	intents := []*nlp.Intent{}
-
-	for _, entity := range entities {
-		if entity.Type == nlp.IntentEntity {
-			intents = append(intents, nlp.NewIntent(entity.Name))
-		}
 	}
 
 	return intents, nil
