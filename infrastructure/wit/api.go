@@ -47,56 +47,19 @@ func newWitApi(conf utils.BuilderConf) (interface{}, error) {
 
 // GetIntents gets the list of intents from Wit
 func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
-	specs := utils.NewRequestSpecifications()
-	specs.WithMethod("GET")
-	specs.WithUrl(api.getIntentsUrl())
-	specs.WithAuthorisationHeader("Bearer " + api.bearerToken)
-	request, err := utils.NewRequest(specs)
-
-	if err != nil {
-		log.WithFields(log.Fields{
-			"url": request.URL.String(),
-		}).Infof("Could not create a new request: %s", err)
-		// @todo: return a proper error
-		return nil, err
-	}
-
-	request.Header.Set("Authorization", "Bearer "+api.bearerToken)
-
-	client := http.DefaultClient
-	response, err := client.Do(request)
-
-	if err != nil {
-		log.Infof("Failed to send the request: %s", err)
-		return nil, err
-	}
-
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-
-	if err != nil {
-		log.Infof("Failed to read the response body: %s", err)
-		return nil, err
-	}
-
-	if response.StatusCode != 200 {
-		log.WithField("code", response.StatusCode).Info("API returned a non-200 code")
-		return nil, ErrApiErr
-	}
-
-	type intentsEnvelope struct {
+	type envelope struct {
 		Values []struct {
 			Value       string   `json:"value"`
 			Expressions []string `json:"expression"`
 		} `json:"values"`
 	}
 
-	witIntents := &intentsEnvelope{}
-	err = json.Unmarshal(body, &witIntents)
+	witIntents := &envelope{}
+
+	err := api.callApi("GET", api.getIntentsUrl(), &witIntents)
 
 	if err != nil {
-		log.Infof("Failed to unmarshal the response body: %s", err)
+		// @todo: log this and return a proper error
 		return nil, err
 	}
 
@@ -111,9 +74,35 @@ func (api *witApi) GetIntents() ([]*nlp.Intent, error) {
 
 // GetEntities gets the list of entities from Wit
 func (api *witApi) GetEntities() ([]*nlp.Entity, error) {
+	var envelope []string
+	err := api.callApi("GET", api.getEntitiesUrl(), &envelope)
+
+	if err != nil {
+		// @todo: log this and return a proper error
+		return nil, err
+	}
+
+	entities := []*nlp.Entity{}
+
+	for _, entityName := range envelope {
+		// @todo: find a better way to exclude the "intent" entity
+		if entityName == "intent" {
+			continue
+		}
+
+		entities = append(entities, &nlp.Entity{Name: entityName})
+	}
+
+	return entities, nil
+}
+
+// callApi calls the API given a method, an URL and an envelope. If it is a success, then
+// the data is parsed and stored inside the envelope (using JSON).
+// Returns an error if anything happens or if the status code != 200.
+func (api *witApi) callApi(method string, u *url.URL, envelope interface{}) error {
 	specs := utils.NewRequestSpecifications()
-	specs.WithMethod("GET")
-	specs.WithUrl(api.getEntitiesUrl())
+	specs.WithMethod(method)
+	specs.WithUrl(u)
 	specs.WithAuthorisationHeader("Bearer " + api.bearerToken)
 	request, err := utils.NewRequest(specs)
 
@@ -122,7 +111,7 @@ func (api *witApi) GetEntities() ([]*nlp.Entity, error) {
 			"url": request.URL.String(),
 		}).Infof("Could not create a new request: %s", err)
 		// @todo: return a proper error
-		return nil, err
+		return err
 	}
 
 	request.Header.Set("Authorization", "Bearer "+api.bearerToken)
@@ -132,7 +121,7 @@ func (api *witApi) GetEntities() ([]*nlp.Entity, error) {
 
 	if err != nil {
 		log.Infof("Failed to send the request: %s", err)
-		return nil, err
+		return err
 	}
 
 	defer response.Body.Close()
@@ -141,34 +130,22 @@ func (api *witApi) GetEntities() ([]*nlp.Entity, error) {
 
 	if err != nil {
 		log.Infof("Failed to read the response body: %s", err)
-		return nil, err
+		return err
 	}
 
 	if response.StatusCode != 200 {
 		log.WithField("code", response.StatusCode).Info("API returned a non-200 code")
-		return nil, ErrApiErr
+		return ErrApiErr
 	}
 
-	var witEntities []string
-	err = json.Unmarshal(body, &witEntities)
+	err = json.Unmarshal(body, envelope)
 
 	if err != nil {
 		log.Infof("Failed to unmarshal the response body: %s", err)
-		return nil, err
+		return err
 	}
 
-	entities := []*nlp.Entity{}
-
-	for _, witEntity := range witEntities {
-		// @todo: find a better way to exclude the "intent" entity
-		if witEntity == "intent" {
-			continue
-		}
-
-		entities = append(entities, &nlp.Entity{Name: witEntity})
-	}
-
-	return entities, nil
+	return nil
 }
 
 // @todo: store it and avoid recreating it every time
