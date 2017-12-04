@@ -22,8 +22,8 @@ const (
 
 // Entity is the struct that represents a base entity
 type Entity struct {
-	Name string     `bson:"name"`
-	Type EntityType `bson:"type"`
+	Name string     `json:"name", bson:"name"`
+	Type EntityType `json:"-", bson:"type"`
 }
 
 // NewIntEntity creates a new entity of type Int

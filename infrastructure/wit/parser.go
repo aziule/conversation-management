@@ -145,7 +145,8 @@ func toEntity(value *jason.Value, name string, dataType nlp.EntityType) (*nlp.Pa
 				return nil, ErrCouldNotCastValue("value", "int64")
 			}
 
-			return nlp.NewParsedIntEntity(name, float32(confidence), int(value)), nil
+			// @todo: handle roles
+			return nlp.NewParsedIntEntity(name, float32(confidence), int(value), ""), nil
 		case nlp.DateTimeEntity:
 			_, err := e.GetString("value")
 
@@ -175,6 +176,7 @@ func toEntity(value *jason.Value, name string, dataType nlp.EntityType) (*nlp.Pa
 					return nil, err
 				}
 
+				// @todo: handle roles
 				return nlp.NewParsedDateTimeIntervalEntity(
 					name,
 					float32(confidence),
@@ -182,6 +184,7 @@ func toEntity(value *jason.Value, name string, dataType nlp.EntityType) (*nlp.Pa
 					toTime,
 					fromGranularity,
 					toGranularity,
+					"",
 				), nil
 			}
 
@@ -191,7 +194,7 @@ func toEntity(value *jason.Value, name string, dataType nlp.EntityType) (*nlp.Pa
 				return nil, err
 			}
 
-			return nlp.NewParsedSingleDateTimeEntity(name, float32(confidence), t, granularity), nil
+			return nlp.NewParsedSingleDateTimeEntity(name, float32(confidence), t, granularity, ""), nil
 		}
 	}
 

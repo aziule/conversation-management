@@ -1,7 +1,6 @@
 package wit
 
 import (
-	"errors"
 	"net/http"
 	"net/url"
 

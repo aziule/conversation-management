@@ -12,6 +12,7 @@ import (
 // of intents or entities (data).
 // Each step links to the next ones, until there are no more steps,
 // in which case we can consider the Story as done.
+// @todo: see how to handle entities roles: expectedRoles, expectedEntitiesWithRoles?
 type Step struct {
 	Name             string
 	ExpectedIntent   string

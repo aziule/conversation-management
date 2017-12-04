@@ -22,6 +22,7 @@ type ParsedIntent struct {
 // entities' formatted data.
 type ParsedEntity struct {
 	Entity     *Entity     `json:",inline"`
+	Role       string      `json:"role"`
 	Confidence float32     `json:"confidence"`
 	Data       interface{} `json:"data"`
 }
@@ -76,15 +77,16 @@ func NewParsedIntent(name string) *ParsedIntent {
 	}
 }
 
-func NewParsedIntEntity(name string, confidence float32, value int) *ParsedEntity {
+func NewParsedIntEntity(name string, confidence float32, value int, role string) *ParsedEntity {
 	return &ParsedEntity{
 		Entity:     NewIntEntity(name),
 		Confidence: confidence,
 		Data:       value,
+		Role:       role,
 	}
 }
 
-func NewParsedSingleDateTimeEntity(name string, confidence float32, date time.Time, granularity DateTimeGranularity) *ParsedEntity {
+func NewParsedSingleDateTimeEntity(name string, confidence float32, date time.Time, granularity DateTimeGranularity, role string) *ParsedEntity {
 	return &ParsedEntity{
 		Entity:     NewSingleDateTimeEntity(name),
 		Confidence: confidence,
@@ -92,10 +94,11 @@ func NewParsedSingleDateTimeEntity(name string, confidence float32, date time.Ti
 			Date:        date,
 			Granularity: granularity,
 		},
+		Role: role,
 	}
 }
 
-func NewParsedDateTimeIntervalEntity(name string, confidence float32, fromDate, toDate time.Time, fromGran, toGran DateTimeGranularity) *ParsedEntity {
+func NewParsedDateTimeIntervalEntity(name string, confidence float32, fromDate, toDate time.Time, fromGran, toGran DateTimeGranularity, role string) *ParsedEntity {
 	return &ParsedEntity{
 		Entity:     NewDateTimeIntervalEntity(name),
 		Confidence: confidence,
@@ -109,6 +112,7 @@ func NewParsedDateTimeIntervalEntity(name string, confidence float32, fromDate, 
 				Granularity: toGran,
 			},
 		},
+		Role: role,
 	}
 }
 
