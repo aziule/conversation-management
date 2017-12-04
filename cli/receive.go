@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bytes"
-	"errors"
 	"flag"
 	"io/ioutil"
 	"net/http"
@@ -48,7 +47,7 @@ func (c *ReceiveCommand) Execute(f *flag.FlagSet) error {
 	data, err := ioutil.ReadFile(c.dataFilePath)
 
 	if err != nil {
-		return errors.New("Err")
+		return err
 	}
 
 	// For now, only ping localhost
